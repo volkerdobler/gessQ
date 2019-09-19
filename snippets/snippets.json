@@ -1,0 +1,560 @@
+{
+	// actionblock
+	// add
+	// aesencrypt
+	// aesrandomkey
+	// always
+	// anchortext
+	// and
+	// appendtext
+	// array
+	// arrayinitmode
+	// arraysortorder
+	// assert
+	// autochangepbar
+	// backactionblock
+	// backbutton
+	// backbuttoncnd
+	// backbuttonsrc
+	// backbuttontext
+	// bipolar
+	// block
+	// browsernavigationmessage
+	// button_checked
+	// button_inactive
+	// button_preview
+	// button_unchecked
+	// cancelbutton
+	// cancelbuttoncnd
+	// cancelbuttonsrc
+	// cancelbuttontext
+	// cancelmenu
+	// cancelmenudefault
+	// cancelmenuerrormsg
+	// case2json
+	// caseinusemsg
+	// catiaddressdata
+	// changelanguageactionblock
+	// changepbar
+	// clear
+	// clearscreen
+	// clearscreenonback
+	// cmplactionblock
+	// column
+	// completedexitcode
+	// component
+	// compute
+	// computemissingaszero
+	// continuebutton
+	// continuebuttoncnd
+	// continuebuttonsrc
+	// continuebuttontext
+	// coordinates
+	// count
+	// createdefaultsortid
+	// createlabelopenvalidation
+	// css
+	// csslayout
+	// databaseconnection
+	// datalist
+	// datawritecondition
+	// dec
+	// decimalformat
+	// decisionvar
+	// decquota
+	// defaultnomissing
+	// define
+	// dialerplaybackoff
+	// dialerplaybackon
+	// dialerrecordoff
+	// dialerrecordon
+	// dictfilevar
+	// disableexitonassert
+	// else
+	// enablekeyboard
+	// enabletextreplace
+	// endfilter
+	// eq
+	// errorposttext
+	// errorpretext
+	// exit
+	// export
+	// exportlabel
+	// exportmapping
+	// exporttext
+	// exporttitle
+	// extensions
+	// feedback
+	// fileviolation
+	// findmaxvalindex
+	// findminvalindex
+	// finishforward
+	// fixed
+	// flt
+	// for
+	// foreach
+	// format
+	// fp
+	// fromdb
+	// ge
+	// getcountvalue
+	// griderrorcolor
+	// griderrortype
+	// gridhighlighting
+	// griditemrestrict
+	// griditems
+	// gridlabelfooter
+	// gridlabelheader
+	// gridlabelrestrict
+	// gridlabels
+	// gridopennomissing
+	// group
+	// grp
+	// gt
+	// hasduplicatevalues
+	// highlightcolor
+	// highlightgriderror
+	// highlighttable
+	// html
+	// htmllabels
+	// htmlpostlabels
+	// htmlposttext
+	// htmlprelabels
+	// htmlpretext
+	// htmltable
+	// idclosedmsg
+	// if
+	// ifdef
+	// ifndef
+	// ignoreassert
+	// ignorefilter
+	// ignorenomissing
+	// img
+	// inc
+	// include
+	// incquota
+	// initactionblock // continueactionblock
+	// initquotainstantly
+	// input
+	// insert
+	// insertLabels
+	// intrandom
+	// invalididmsg
+	// invalidsinglemsg
+	// itemmissingtext
+	// javascript
+	// javascriptsinglecheck
+	// javascriptsinglemode
+	// jshandler
+	// json
+	// ki_active
+	// ki_autocheck
+	// ki_autocomplete
+	// ki_autofocus
+	// labelopenerrormessage
+	// labelrepeat
+	// labels
+	// lalign
+	// le
+	// loadArray
+	// lt
+	// macro
+	// mailbox
+	// maxfilesize
+	// maxlabelspercol
+	// maxnumanswers
+	// mgq
+	// minnumanswers
+	// missingtext
+	// missingvalue
+	// mouseevent
+	// mq
+	// multiexportlimit
+	// multigridq
+	// multigridqclass
+	// multiq
+	// multiqclass
+	// multiqtextinsert
+	// ne
+	// noanswerlabel
+	// noexport
+	// nomissing
+	// not
+	// nq
+	// num
+	// numCoords
+	// numq
+	// numqclass
+	// numqtable
+	// open
+	// openfieldsize
+	// opennumformat
+	// openq
+	// oq
+	// or
+	// oversizearray
+	// passwdq
+	// pbarmax
+	// pbarwidth
+	// performhttprequest
+	// pg_corpus
+	// pg_corpus_padding
+	// pg_fading
+	// pg_group_names
+	// pg_grouping
+	// pg_height
+	// pg_orientations
+	// pg_visibility
+	// pg_visibility_menu
+	// pg_visibility_menu_orientation
+	// pg_width
+	// postedit
+	// posteditable
+	// posthelptext
+	// postinterviewerhelptext
+	// pq
+	// preassertionactionblock
+	// prehelptext
+	// preinterviewerhelptext
+	// prequotavar
+	// print
+	// printtext
+	// quotagroup
+	// quotavar
+	// quotawritecondition
+	// ralign
+	// random
+	// readdatafile
+	// readrawjsondatafile
+	// readtextressource
+	// regexp
+	// remove
+	// removeduplicates
+	// repeatgridanchor
+	// replaceall
+	// restrict
+	// restrictvar
+	// resumeactionblock
+	// rotateleft
+	// row
+	// rsaencrypt
+	// saveip
+	// screen
+	// script
+	// selectlanguage
+	// sendmail
+	// set
+	// setcurrentscreen
+	// setfilter
+	// setfilteronly
+	// setnextscreen
+	// setproperty
+	// settext
+	// sgq
+	// sharelabels
+	// showallerrors
+	// showHelptext
+	// showindividualerrors
+	// showinterviewerhelptext
+	// showmaxlabels
+	// showquestionname
+	// showsingleqvalues
+	// shuffle
+	// single
+	// singlegridq
+	// singlegridqclass
+	// singleq
+	// singleqautosubmit
+	// singleqclass
+	// singleqformat
+	// singleqtablelabelsfirst
+	// singlevaluesalwaysactivated
+	// sl_barcolor
+	// sl_barcolorleft
+	// sl_barheight
+	// sl_barimage
+	// sl_barimageleft
+	// sl_barwidth
+	// sl_color
+	// sl_imageheight
+	// sl_imagewidth
+	// sl_maxsum
+	// sl_mode
+	// sl_showvalues
+	// sl_startvalues
+	// sl_stepsize
+	// sl_unspecified_button_checked
+	// sl_unspecified_button_unchecked
+	// sl_unspecified_text
+	// sl_visibility
+	// sortid
+	// sortorder
+	// splitcolumn
+	// sq
+	// startactionblock
+	// strcmp
+	// surveyclosedmsg
+	// syncsort
+	// sys_cancel
+	// sys_caseid
+	// sys_currentdate
+	// sys_currentScreen
+	// sys_currenttime
+	// sys_duration
+	// sys_finishdate
+	// sys_finished
+	// sys_finishtime
+	// sys_idmode
+	// sys_jsessionid
+	// sys_languages
+	// sys_missing
+	// sys_respid
+	// sys_resume
+	// sys_revision
+	// sys_startdate
+	// sys_startdayofweek
+	// sys_starttime
+	// sys_surveyname
+	// sys_template1
+	// sys_template2
+	// sys_template3
+	// sys_template4
+	// sys_template5
+	// sys_template6
+	// sys_template7
+	// sys_template8
+	// sys_uniquekey
+	// target
+	// text
+	// textareacols
+	// textarearows
+	// textarray
+	// textelement
+	// textlabelrepeat
+	// textq
+	// timeoutactionblock
+	// timessent
+	// title
+	// todb
+	// tomillis
+	// tq
+	// transpose
+	// unspecified_button_checked
+	// unspecified_button_unchecked
+	// uploadq
+	// uq
+	// vararray
+	// while
+	// writejsontosurvey
+	// writeposttext
+	// writepretext
+	// writeqtext
+	// writerescuedata
+	// writetitle
+	// writeviewingtime
+	// xor
+	"include": {
+		"prefix": "include",
+		"body": "#include \"$1\";\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"iAB, cAB, bAB, paAC, initActionBlock, continueActionBlock, preAssertationActionBlock, backActionBlock": {
+		"prefix": "iAB, cAB, initActionBlock, continueActionBlock, preAssertationActionBlock, backActionBlock",
+		"body": "${2:InitActionBlock = {\r\n${1}\r\n\\};}\r\n${4:continueActionBlock = {\r\n${3}\r\n\\};}\r\n${6:preAssertationActionBlock = {\r\n${5}\r\n\\};\r\n}\r\n${8:backActionBlock = {\r\n${7}\r\n\\};\r\n}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"sAB, rAB, tAB, cmAB, clAB, startActionBlock, resumeActionBlock, timeoutActionBlock, cmplActionBlock, changelanguageActionBlock": {
+		"prefix": "sAB, rAB, tAB, complete, startActionBlock, resumeActionBlock, timeoutActionBlock, cmplActionBlock",
+		"body": "${2:startActionBlock = {\r\n${1}\r\n\\};}\r\n${4:resumeActionBlock = {\r\n${3}\r\n\\};}\r\n${6:timeoutAssertationActionBlock = {\r\n${5}\r\n\\};}\r\n${8:cmplActionBlock = {\r\n${7}\r\n\\};\r\n}\r\n${10:changelanguageActionBlock = {\r\n${9}\r\n\\};\r\n}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"assert": {
+		"prefix": "assert",
+		"body": "assert (${1:true}) \"${2:Nachricht}\" ${4:exit ${3:ExitCode}} ${7:attempts ${6:1}};\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"block": {
+		"prefix": "block",
+		"body": "block $1 = ( $2 );\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"cAB, continueActionBlock": {
+		"prefix": "cAB, continueActionBlock",
+		"body": "${2:continueActionBlock = {\r\n  ${1}\r\n\\};\r\n}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"cmAB, cmplActionBlock": {
+		"prefix": "cmAB, cmplActionBlock",
+		"body": "${2:cmplActionBlock = {\r\n  ${1}\r\n\\};\r\n}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"clAB, changelanguageActionBlock": {
+		"prefix": "clAB, changelanguageActionBlock",
+		"body": "${2:changelanguageActionBlock = {\r\n  ${1}\r\n\\};\r\n}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"cgo, check_grid_open\r\n": {
+		"prefix": "check_grid_open\r\n",
+		"body": "&check_grid_open;\\$co1=${1:Frage};\\$co2=${2:Code};\\$co3=${3:Valid};\\$co4=\"${4:Sonstiges}\"\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"co, check_open\r\n": {
+		"prefix": "check_open\r\n",
+		"body": "&check_open;\\$co1=${1:Frage};\\$co2=${2:Code};\\$co3=${1:Frage}.${2:Code}.open;\\$co4=\"${3:Sonstiges}\"\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"css": {
+		"prefix": "css",
+		"body": "css=\"\r\n${1:  css-Anweisung}\r\n\";\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"flt, filter": {
+		"prefix": "flt, filter",
+		"body": "flt (${1:true});\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"flt=": {
+		"prefix": "flt=",
+		"body": "flt=($1)\r\n;\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"grp, group": {
+		"prefix": "grp, group",
+		"body": "group ${1:Frage};\r\nlabels=\r\n1 \"${2}\" (${3:true})\r\n${6:2 \"${4}\" (${5:true})}\r\n;\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"HT, PreHelpText, PostHelpText, HelpText": {
+		"prefix": "HT, PreHelpText, PostHelpText, HelpText",
+		"body": "${2:PreHelpText=\"\r\n${1}\r\n\";}\r\n${4:PostHelpText=\"\r\n${3}\r\n\";}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"HtmlPreText, HtmlPostText": {
+		"prefix": "HtmlPreText, HtmlPostText",
+		"body": "${2:HtmlpreText=\"\r\n${1}\r\n\";}\r\n${4:HtmlpostText=\"\r\n${3}\r\n\";}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"if": {
+		"prefix": "if",
+		"body": "if ( ${1:condition} } {\r\n $2\r\n\\};\r\n",
+		"description": "if then",
+		"scope": "source.gessQ"
+	},
+	"INT:": {
+		"prefix": "INT:",
+		"body": "<p><i><b>INT: </b>$1</i></p>\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"piht, iht, PreInterviewerHelpText, PostInterviewerHelpText, InterviewerHelpText": {
+		"prefix": "piht, iht, PreInterviewerHelpText, PostInterviewerHelpText, InterviewerHelpText",
+		"body": "${2:PreInterviewerHelpText=\"\r\n${1}\r\n\";}\r\n${4:PostInterviewerHelpText=\"\r\n${3}\r\n\";}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"js, javascript": {
+		"prefix": "js, javascript",
+		"body": "javascript=\"\r\n${1:alert('Hallo in einem Fenster');}\r\n\";\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"lab, labels": {
+		"prefix": "lab, labels",
+		"body": "${1:labels=\r\n}1 \"${2}\"\r\n2 \"${3}\"\r\n3 \"${4}\"\r\n4 \"${5}\"\r\n$6;",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"mgq, multigridq": {
+		"prefix": "mgq, multigridq",
+		"body": "multigridq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}gridlabels=\r\n1 \"${6}\"\r\n2 \"${7}\"\r\n${8};\r\ngriditems=\r\n1 \"${9}\"\r\n2 \"${10}\"\r\n${11};\r\n${13:gridLabelHeader={\r\n\"${12:Text über erster Labelgruppe}\";\r\n\\}}\r\n${15:anchorText=\"${14:Text links oben}\";}\r\n${17:labelRepeat=${16:20};}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"mq, multiq": {
+		"prefix": "mq, multiq",
+		"body": "multiq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}${6:labels=\r\n}",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"nq, numq": {
+		"prefix": "nq, numq",
+		"body": "numq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}labels=\r\n1 \"${6:@input}\" format ${7:onf_FORMAT}\r\n2 \"${8:@input}\" format ${9:onf_FORMAT}\r\n${10};\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"onf, opennumformat": {
+		"prefix": "onf, opennumformat",
+		"body": "opennumformat ${1:onf_FORMAT} = ${2:minVorkomma} ${3:maxVorkomma} ${4:minNachkomma} ${5:maxNachkomma} ${6:minWert} ${7:maxWert} ${8:ZusatzWert} \"${9:Fehlermeldung}\";\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"oq, openq": {
+		"prefix": "oq, openq",
+		"body": "openq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"pq, passwdq": {
+		"prefix": "pq, passwdq",
+		"body": "passwdq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"qv,quotavar": {
+		"prefix": "qv,quotavar",
+		"body": "quotavar $1 = ($2);\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"screen": {
+		"prefix": "screen",
+		"body": "screen $1 = column( $2 );\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"set": {
+		"prefix": "set",
+		"body": "set(${1:variable}=${2:value});\n",
+		"description": "if then",
+		"scope": "source.gessQ"
+	},
+	"sgq, singlegridq": {
+		"prefix": "sgq, singlegridq",
+		"body": "singlegridq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}gridlabels=\r\n1 \"${6}\"\r\n2 \"${7}\"\r\n${8};\r\ngriditems=\r\n1 \"${9}\"\r\n2 \"${10}\"\r\n${11};\r\n${15:gridLabelHeader=(\r\n\"${12:Text über erster Labelgruppe}\" \"${13:Text über zweiten Labelgruppe}\" $14\r\n);}\r\n${17:anchorText=\"${16:Text links oben}\";}\r\n${19:labelRepeat=${18:20};}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"sq, singleq": {
+		"prefix": "sq, singleq",
+		"body": "singleq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}${6:labels=\r\n}",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"sortID": {
+		"prefix": "sortID",
+		"body": "sortID=\"${1:sID_01}\";\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"tq, textq": {
+		"prefix": "tq, textq",
+		"body": "textq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}${7:screentext=\"\r\n${6}\r\n\";\r\n}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	}
+}

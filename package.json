@@ -1,0 +1,71 @@
+{
+    "name": "gessq",
+    "displayName": "gessQ",
+    "description": "gess.Q Support",
+    "version": "0.0.16",
+    "publisher": "volkerdobler",
+    "engines": {
+        "vscode": "^1.18.0"
+    },
+    "categories": [
+        "Languages"
+    ],
+    "activationEvents": [
+        "onLanguage:gessq"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/volkerdobler/gessQ.git"
+    },
+    "main": "./out/extension",
+    "contributes": {
+        "languages": [
+            {
+                "id": "gessq",
+                "aliases": [
+                    "gessQ",
+                    "gessq"
+                ],
+                "extensions": [
+                    ".q",
+                    ".inc"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "gessq",
+                "scopeName": "source.gessQ",
+                "path": "./syntaxes/gessq.tmLanguage"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "gessq",
+                "path": "./snippets/snippets.json"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^7.0.65",
+        "typescript": "^2.9.1",
+        "vscode": "^1.1.18"
+    },
+    "dependencies": {
+        "compile": "0.0.2"
+    },
+    "__metadata": {
+        "id": "8369ddfc-3ff3-4da4-8712-89df76ef2c89",
+        "publisherId": "7c9d6a5c-7f0a-4217-8a96-4f84eae98522",
+        "publisherDisplayName": "Volker Dobler"
+    }
+}
