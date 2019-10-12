@@ -15,6 +15,9 @@ export function activate(context: vscode.ExtensionContext) {
         {language: "gessq"}, new GessQDocumentSymbolProvider()
     ));
 
+    context.subscriptions.push(vscode.languages.registerDefinitionProvider(
+        {language: "gessq"}, new GessQDefinitionProvider()));
+
 };
 
 // this method is called when your extension is deactivated
@@ -54,3 +57,45 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
         });
     }
 }
+
+export function adjustWordPosition(document: vscode.TextDocument, position: vscode.Position): [boolean, string, vscode.Position] {
+    const wordRange = document.getWordRangeAtPosition(position);
+    const lineText = document.lineAt(position.line).text;
+    const word = wordRange ? document.getText(wordRange) : '';
+    if (!wordRange) {
+        return [false, null, null];
+    }
+    if (position.isEqual(wordRange.end) && position.isAfter(wordRange.start)) {
+        position = position.translate(0, -1);
+    }
+
+    return [true, word, position];
+}
+
+class GessQDefinitionProvider implements vscode.DefinitionProvider {
+    public provideDefinition(document: vscode.TextDocument, position: vscode.Position, 
+            token: vscode.CancellationToken): Thenable<vscode.Location> {
+
+      const adjustedPos = adjustWordPosition(document, position);
+      if (!adjustedPos[0]) {
+        return Promise.resolve(null);
+      }
+      const word = adjustedPos[1];
+      var position = adjustedPos[2];
+
+      var queststr = "\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+"+word+"\\b";
+
+      var questre = new RegExp(queststr, "");
+
+      for (var i = 0; i < document.lineCount; i++) {
+          var line = document.lineAt(i);
+          if (line.text.search(questre) > -1) {
+              var loc = new vscode.Location(document.uri, line.range);
+          };
+      }
+      return new Promise((resolve, reject) => {
+          resolve(loc);
+      })
+    }
+}
+
