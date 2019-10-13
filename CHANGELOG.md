@@ -50,3 +50,6 @@ just a minor test - same as version 0.0.13
 ### 0.0.16
 fixed an error in language-configuration.json
 ShowLabelValues is now also highlighted as reserved word
+
+### 0.0.17
+add Goto Definition Provider (F12)
