@@ -77,24 +77,26 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
             token: vscode.CancellationToken): Thenable<vscode.Location> {
 
       const adjustedPos = adjustWordPosition(document, position);
-      if (!adjustedPos[0]) {
-        return Promise.resolve(null);
-      }
-      const word = adjustedPos[1];
-      var position = adjustedPos[2];
 
-      var queststr = "\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+"+word+"\\b";
-
-      var questre = new RegExp(queststr, "");
-
-      for (var i = 0; i < document.lineCount; i++) {
-          var line = document.lineAt(i);
-          if (line.text.search(questre) > -1) {
-              var loc = new vscode.Location(document.uri, line.range);
-          };
-      }
       return new Promise((resolve, reject) => {
-          resolve(loc);
+        
+        if (!adjustedPos[0]) {
+          return Promise.resolve(null);
+        }
+        const word = adjustedPos[1];
+        var position = adjustedPos[2];
+
+        var queststr = "\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+"+word+"\\b";
+
+        var questre = new RegExp(queststr, "");
+
+        for (var i = 0; i < document.lineCount; i++) {
+            var line = document.lineAt(i);
+            if (line.text.search(questre) > -1) {
+                var loc = new vscode.Location(document.uri, line.range);
+            };
+        }
+        resolve(loc);
       })
     }
 }
