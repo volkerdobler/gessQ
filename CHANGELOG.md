@@ -59,3 +59,6 @@ Goto Definition Provider (F12) is looking in all files in workspace/(sub-)folder
 
 ### 0.0.19
 Add gessQ icon from www.gessgroup.de
+
+### 0.1.0
+Add "Find all References" and update to new version
