@@ -8,10 +8,6 @@ Therefore I need a language definition for gess.Q, which is from www.gessgroup.d
 
 This language includes important snippets, syntax highlighting and symbol definitions within a script.
 
-## Requirements
-
-No external requirements are needed
-
 ## Extension Settings
 
 Currently, no settings are supported
