@@ -19,7 +19,12 @@ export function activate(context: vscode.ExtensionContext) {
     ));
 
     context.subscriptions.push(vscode.languages.registerDefinitionProvider(
-        {language: "gessq"}, new GessQDefinitionProvider()));
+        {language: "gessq"}, new GessQDefinitionProvider()
+    ));
+
+    context.subscriptions.push(vscode.languages.registerReferenceProvider(
+        {language: "gessq"}, new GessQReferenceProvider()
+    ));
 
 };
 
@@ -142,14 +147,63 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
             // resolve(locarray[0]);
           });
         });
-    //     for (var i = 0; i < document.lineCount; i++) {
-    //         var line = document.lineAt(i);
-    //         if (line.text.search(questre) > -1) {
-    //             var loc = new vscode.Location(document.uri, line.range);
-    //         };
-    //     }
-    //     resolve(loc);
-    //   })
+   }
+}
+
+class GessQReferenceProvider implements vscode.ReferenceProvider {
+    public provideReferences(
+        document: vscode.TextDocument, position: vscode.Position,
+        options: { includeDeclaration: boolean }, token: vscode.CancellationToken):
+        Thenable<vscode.Location[]> {
+
+      const adjustedPos = adjustWordPosition(document, position);
+
+      return new Promise((resolve, reject) => {
+        
+        if (!adjustedPos[0]) {
+          return Promise.resolve(null);
+        }
+        const word = adjustedPos[1];
+        var locations = [];
+
+        var questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
+        var blockre = new RegExp("\\b(block)\\b[^=]*=\\s*\\(.*\\b("+word+")\\b", "");
+        var screenre = new RegExp("\\b(screen)\\b[^=]*=\\s*\\b(column|row)?\\b\\s*\\(.*\\b("+word+")\\b", "");
+        var wordre = new RegExp("(in\\s*\\b"+word+"\\b|\\b"+word+"\\b\\s*(eq|ne|le|ge|lt|gt))\\b", "");
+        var assertre = new RegExp("\\bassert\\s+\\(.*\\b("+word+")\\b", "");
+        var computere = new RegExp("\\bcompute\\b\\s*.+\\b("+word+")\\b", "");
+        
+        var wsfolder = getWorkspaceFolderPath(document.uri) || fixDriveCasingInWindows(path.dirname(document.fileName));
+        
+        fs.readdirSync(wsfolder).forEach(file => {
+            let regEXP = new RegExp("\.(q|inc)$");
+            let ok = file.match(regEXP);
+            if (ok) {
+              vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
+                function(content) {
+                  for (var i = 0; i < content.lineCount; i++) {
+                    var line = content.lineAt(i);
+                    if (line.text.search(questre) > -1 || line.text.search(blockre) > -1 || line.text.search(screenre) > -1 || line.text.search(wordre) > -1 || line.text.search(assertre) > -1 || line.text.search(computere) > -1) {
+                      let loc = new vscode.Location(content.uri, line.range);
+                      locations.push(loc);
+                    };
+                  };
+                  if (locations.length > 0) {
+                    resolve(locations);
+                  } else {
+                    resolve(null);
+                  };
+                },
+                function(reason) {
+                  resolve(null);
+                }
+              );
+            };
+          });
+        });
+
+
+    
     }
 }
 
