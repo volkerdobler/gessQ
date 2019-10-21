@@ -18,6 +18,7 @@
         "url": "https://github.com/volkerdobler/gessQ.git"
     },
     "main": "./out/extension",
+    "icon": "images/gessQ_icon.png",
     "contributes": {
         "languages": [
             {

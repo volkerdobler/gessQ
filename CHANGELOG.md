@@ -56,3 +56,6 @@ add Goto Definition Provider (F12)
 
 ### 0.0.18
 Goto Definition Provider (F12) is looking in all files in workspace/(sub-)folder
+
+### 0.0.19
+Add gessQ icon from www.gessgroup.de
