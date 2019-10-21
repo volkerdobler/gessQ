@@ -2,8 +2,6 @@ out/
 node_modules/
 .vscode-test/
 .vsix
-.vscode/
-.vscodeignore
 package-lock.json
 gessQ_documentation/
 src/test/skript.q
