@@ -62,3 +62,9 @@ Add gessQ icon from www.gessgroup.de
 
 ### 0.1.0
 Add "Find all References" and update to new version
+
+### 0.1.1
+First version of "Find All References" (CTRL-T)
+Not working correctly for all possiblities of references (especially assert are 
+not handle allways correctly). But it will find most of the references which 
+are used in all scripts in the directory - including sub-directories.
