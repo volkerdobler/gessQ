@@ -14,19 +14,19 @@ export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "gessQ" is now active!');
 
     context.subscriptions.push(vscode.languages.registerDocumentSymbolProvider(
-        {language: "gessq"}, new GessQDocumentSymbolProvider()
+        {language: "gessq", scheme: "file"}, new GessQDocumentSymbolProvider()
     ));
 
     context.subscriptions.push(vscode.languages.registerDefinitionProvider(
-        {language: "gessq"}, new GessQDefinitionProvider()
+        {language: "gessq", scheme: "file"}, new GessQDefinitionProvider()
     ));
 
     context.subscriptions.push(vscode.languages.registerReferenceProvider(
-        {language: "gessq"}, new GessQReferenceProvider()
+        {language: "gessq", scheme: "file"}, new GessQReferenceProvider()
     ));
 
     context.subscriptions.push(vscode.languages.registerWorkspaceSymbolProvider(
-        new GoWorkspaceSymbolProvider()));
+        new GessQWorkspaceSymbolProvider()));
 
 };
 
@@ -35,11 +35,11 @@ export function deactivate() {
 };
 
 // Workaround for issue in https://github.com/Microsoft/vscode/issues/9448#issuecomment-244804026
-export function fixDriveCasingInWindows(pathToFix: string): string {
+function fixDriveCasingInWindows(pathToFix: string): string {
 	return (process.platform === 'win32' && pathToFix) ? pathToFix.substr(0, 1).toUpperCase() + pathToFix.substr(1) : pathToFix;
 }
 
-export function getWorkspaceFolderPath(fileUri?: vscode.Uri): string {
+function getWorkspaceFolderPath(fileUri?: vscode.Uri): string {
 	if (fileUri) {
 		const workspace = vscode.workspace.getWorkspaceFolder(fileUri);
 		if (workspace) {
@@ -54,42 +54,7 @@ export function getWorkspaceFolderPath(fileUri?: vscode.Uri): string {
 	}
 }
 
-
-class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
-    public provideDocumentSymbols(document: vscode.TextDocument,
-            token: vscode.CancellationToken): Thenable<vscode.SymbolInformation[]> {
-        return new Promise((resolve) => {
-
-            var symbols = [];
-            var questreg = new RegExp(/^\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\s+([\w]+)/i);
-            var blockreg = new RegExp(/^\b(block|screen)\s+([\w]+)/i);
-
-            for (var i = 0; i < document.lineCount; i++) {
-                var line = document.lineAt(i);
-                if (line.text.search(questreg) > -1) {
-                    symbols.push({
-                        name: line.text.match(questreg)[2],
-                        kind: vscode.SymbolKind.Variable,
-                        location: new vscode.Location(document.uri, line.range),
-                        containerName: line.text.match(questreg)[1]
-                    })
-                };
-                if (line.text.search(blockreg) > -1) {
-                    symbols.push({
-                        name: line.text.match(blockreg)[2],
-                        kind: vscode.SymbolKind.Method,
-                        location: new vscode.Location(document.uri, line.range),
-                        containerName: line.text.match(blockreg)[1]
-                    })
-                };
-            }
-
-            resolve(symbols);
-        });
-    }
-}
-
-export function adjustWordPosition(document: vscode.TextDocument, position: vscode.Position): [boolean, string, vscode.Position] {
+function adjustWordPosition(document: vscode.TextDocument, position: vscode.Position): [boolean, string, vscode.Position] {
     const wordRange = document.getWordRangeAtPosition(position);
     const word = wordRange ? document.getText(wordRange) : '';
     if (!wordRange) {
@@ -100,6 +65,109 @@ export function adjustWordPosition(document: vscode.TextDocument, position: vsco
     }
 
     return [true, word, position];
+};
+
+function checkComment(command: number, startComment: number, endComment: number, commentStatus: number = 1): boolean {
+
+  if (commentStatus === -1) {  // wir befinden uns in einem Kommentarbereich
+    return false;
+  };
+  
+  if (command > -1) {                // ist der reguläre Ausdruck vorhanden
+    if (startComment > -1) {         // es wird ein Kommentar eröffnet
+      if (endComment > -1) {         // es wird ein Kommentar geschlossen
+        if (command < startComment || command > endComment) {  // entweder vor oder nach dem Kommentar
+          return true;
+        } else {
+          return false;
+        };
+      } else {                       // nur Kommentar eröffnet
+        if (command < startComment) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    } else {                         // kein Kommentar wird eröffnet
+        if (endComment > -1) {       // Kommentar wird geschlossen
+          if (command > endComment) {
+            return true;
+          } else {
+            return false;
+          };
+        } else {                     // kein Kommentar wird geschlossen
+          if (commentStatus < 0) {   // wir befinden uns bereits in einem Kommentar
+            return false;
+          } else {
+            return true;             // nicht in einem Kommentar
+          }
+        }
+    }
+  } else {
+    return false;
+  };
+}
+
+class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
+    public provideDocumentSymbols(document: vscode.TextDocument,
+            token: vscode.CancellationToken): Thenable<vscode.SymbolInformation[]> {
+        return new Promise((resolve) => {
+
+            let curComment : number = 1;
+            let nextComment : number = 0;
+
+            var symbols = [];
+            
+            var questreg = new RegExp(/^\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group|compute)\s+([\w\.]+)/i);
+            var blockreg = new RegExp(/^\b(block|screen)\s+([\w\.]+)/i);
+            var cABreg = new RegExp(/\b(load|set)\b\s*\(\s*([^=\s]+)\s*=/i);
+
+            for (var i = 0; i < document.lineCount; i++) {
+                var line = document.lineAt(i);
+
+                let startComment: number = line.text.search("//");
+                let endComment: number = line.text.search("\\*/");
+                
+                if (line.text.search("/\\*") > -1 && (startComment === -1 || line.text.search("/\\*") < startComment)){
+                  startComment = line.text.search("/\\*");
+                  endComment = line.text.search("\\*/");
+                };
+                
+                if (checkComment(line.text.search(questreg),startComment,endComment,curComment)) {
+                    symbols.push({
+                        name: line.text.match(questreg)[2],
+                        kind: vscode.SymbolKind.Variable,
+                        location: new vscode.Location(document.uri, line.range),
+                        containerName: line.text.match(questreg)[1]
+                    })
+                };
+                if (checkComment(line.text.search(blockreg),startComment,endComment,curComment)) {
+                    symbols.push({
+                        name: line.text.match(blockreg)[2],
+                        kind: vscode.SymbolKind.Method,
+                        location: new vscode.Location(document.uri, line.range),
+                        containerName: line.text.match(blockreg)[1]
+                    })
+                };
+                if (checkComment(line.text.search(cABreg),startComment,endComment,curComment)) {
+                    symbols.push({
+                        name: line.text.match(cABreg)[2],
+                        kind: vscode.SymbolKind.Variable,
+                        location: new vscode.Location(document.uri, line.range),
+                        containerName: line.text.match(cABreg)[1]
+                    })
+                };
+                if (startComment !== line.text.search("//") && startComment > -1 && endComment === -1) {
+                  curComment = -1;
+                };
+                if (endComment > -1) {
+                  curComment = 1;
+                }
+            };
+            
+            resolve(symbols);
+        });
+    }
 }
 
 class GessQDefinitionProvider implements vscode.DefinitionProvider {
@@ -201,30 +269,10 @@ class GessQReferenceProvider implements vscode.ReferenceProvider {
             };
           });
         });
-
-
-    
     }
 }
 
-function validCheck(first : number, second : number) : boolean
-{
-  if (first > -1) {   // ist der reguläre Ausdruck vorhanden
-    if (second > -1) {   // gibt es einen Kommentar in der Zeile
-      if (first < second) {  // ist der reguläre Ausdruck noch vor dem Kommentar-Start
-        return true
-      } else {
-        return false         // regulärer Ausdruck ist vorhanden, aber nach dem Kommentar-Start
-      }
-    } else {
-      return true;           // regulärer Ausdruck vorhanden und kein Kommentar in Zeile
-    }
-  } else {
-    return false;            // regulärer Ausdruck nicht vorhanden 
-  }
-};
-    
-class GoWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
+class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
 
     public provideWorkspaceSymbols(query: string, token: vscode.CancellationToken):
       Thenable<vscode.SymbolInformation[]> {
@@ -252,14 +300,23 @@ class GoWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
           if (ok) {
             vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
               function(content) {
+
+                let curComment : number = 1;
+                let nextComment : number = 0;
+
                 for (var i = 0; i < content.lineCount; i++) {
                   var line = content.lineAt(i);
 
-                  let startComment : number = line.text.search("//");
+                  let startComment: number = line.text.search("//");
+                  let endComment: number = -1;
+                  
+                  if (line.text.search("/\\*") > startComment) {
+                    endComment = line.text.search("\\*/");
+                  };
                   
                   if (line.text.search(query) > -1) {
                     let notErledigt : boolean = true;
-                    if (validCheck(line.text.search(questre),startComment)) {
+                    if (checkComment(line.text.search(questre),startComment,endComment,curComment)) {
                       symbols.push({
                           name: line.text.match(questre)[2],
                           kind: vscode.SymbolKind.Function,
@@ -268,7 +325,7 @@ class GoWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
                       });
                       notErledigt = false;
                     };
-                    if (validCheck(line.text.search(blockre),startComment) && notErledigt) {
+                    if (checkComment(line.text.search(blockre),startComment,endComment,curComment)) {
                       symbols.push({
                           name: line.text.match(blockre)[2],
                           kind: vscode.SymbolKind.Function,
@@ -277,7 +334,7 @@ class GoWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
                       });
                       notErledigt = false;
                     };
-                    if (validCheck(line.text.search(screenre),startComment) && notErledigt) {
+                    if (checkComment(line.text.search(screenre),startComment,endComment,curComment)) {
                       symbols.push({
                           name: line.text.match(screenre)[2],
                           kind: vscode.SymbolKind.Function,
@@ -286,7 +343,7 @@ class GoWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
                       });
                       notErledigt = false;
                     };
-                    if (validCheck(line.text.search(assertre),startComment) && notErledigt) {
+                    if (checkComment(line.text.search(assertre),startComment,endComment,curComment)) {
                       symbols.push({
                           name: line.text.match(assertre)[2],
                           kind: vscode.SymbolKind.Operator,
@@ -295,7 +352,7 @@ class GoWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
                       });
                       notErledigt = false;
                     };
-                    if (validCheck(line.text.search(bedingungre),startComment) && notErledigt) {
+                    if (checkComment(line.text.search(bedingungre),startComment,endComment,curComment)) {
                       let namestr : string = "";
                       if (line.text.match(bedingungre)[3] == null) {
                         namestr = line.text.match(bedingungre)[4];
@@ -310,7 +367,7 @@ class GoWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
                       });
                       notErledigt = false;
                     };
-                    if (validCheck(line.text.search(computere),startComment) && notErledigt) {
+                    if (checkComment(line.text.search(computere),startComment,endComment,curComment)) {
                       symbols.push({
                           name: line.text.match(computere)[2],
                           kind: vscode.SymbolKind.Variable,
