@@ -224,36 +224,20 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
 
         var wsfolder = getWorkspaceFolderPath(document.uri) || fixDriveCasingInWindows(path.dirname(document.fileName));
         
-        fs.readdirSync(wsfolder).forEach(file => {
-            let regEXP = new RegExp("\.(q|inc)$");
-            let ok = file.match(regEXP);
-            if (ok) {
-              vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
-                function(content) {
-                  for (var i = 0; i < content.lineCount; i++) {
-                    var line = content.lineAt(i);
-    
-                    let comments = new clComment(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
-
-                    if (comments.checkIfInComment(line.text.search(questre))) {
-                      let loc = new vscode.Location(content.uri, line.range);
-                      resolve(loc);
-                    };
-                    if (comments.checkIfInComment(line.text.search(blockre))) {
-                      let loc = new vscode.Location(content.uri, line.range);
-                      resolve(loc);
-                    };
-                    comments.switchCommentStatus();
-                  };
-                  resolve(null);
-                },
-                function() {
-                  resolve(null);
-                }
-              );
-            };
-            // resolve(locarray[0]);
-          });
+        var contents: vscode.TextDocument[];
+        
+        let x = fs.readdirSync(wsfolder);
+        // x.map(file => {
+            // let regEXP = new RegExp("\.(q|inc)$");
+            // let ok = file.match(regEXP);
+            // if (ok) {
+              // vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
+                // function(content) {
+                  // contents.push(content);
+                // }
+              // );
+            // };
+          // });
         });
    }
 }
