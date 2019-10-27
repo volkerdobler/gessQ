@@ -206,6 +206,28 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
     }
 }
 
+function getDefLocationInDocument(filename: string, word: string) {
+
+    let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+(" + word + ")\\b", "");
+    let blockre = new RegExp("\\b(block|screen)\\s+(" + word + ")\\b\\s*=", "");
+
+    return vscode.workspace.openTextDocument(filename).then(
+      function (content) {
+        
+        for (let i = 0; i < content.lineCount; i++) {
+          let line = content.lineAt(i);
+          let comments = new clComment(line.text.search("//"), line.text.search("/\\*"), line.text.search("\\*/"));
+          if (comments.checkIfInComment(line.text.search(questre)) ||
+              comments.checkIfInComment(line.text.search(blockre))) {
+              return new vscode.Location(content.uri, line.range);
+          };
+          comments.switchCommentStatus();
+        };
+        
+        return null;
+    });
+};
+
 function getLocationInDocument(filename: string, word: string): Thenable<vscode.Location> {
   
   let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
@@ -238,49 +260,43 @@ function getLocationInDocument(filename: string, word: string): Thenable<vscode.
 };
 
 class GessQDefinitionProvider implements vscode.DefinitionProvider {
-    public provideDefinition(document: vscode.TextDocument, position: vscode.Position, 
-            token: vscode.CancellationToken): Thenable<vscode.Location> {
-
-      const adjustedPos = adjustWordPosition(document, position);
-
-      return new Promise((resolve) => {
-        
-        if (!adjustedPos[0]) {
-          return Promise.resolve(null);
-        }
-        const word = adjustedPos[1];
-
-        var questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
-        var blockre = new RegExp("\\b(block|screen)\\s+("+word+")\\b\\s*=", "");
-
-        var wsfolder = getWorkspaceFolderPath(document.uri) || fixDriveCasingInWindows(path.dirname(document.fileName));
-        
-        var files: Thenable<vscode.Location>[];
-        
-        fs.readdirSync(wsfolder).forEach(file => {
-          let regEXP = new RegExp("\\.q$");
-          let ok = file.match(regEXP);
-          if (ok) {
-            files.push(getLocationInDocument(wsfolder + "\\" + file, word));
-          };
-        });
-        // Promise.all(files)
-        //       vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
-
-        // x.map(file => {
-            // let regEXP = new RegExp("\.(q|inc)$");
-            // let ok = file.match(regEXP);
-            // if (ok) {
-              // vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
-                // function(content) {
-                  // contents.push(content);
-                // }
-              // );
-            // };
-          // });
-        });
-   }
-}
+  public provideDefinition(document: vscode.TextDocument, position: vscode.Position, 
+          token: vscode.CancellationToken): Thenable<vscode.Location> {
+    const adjustedPos = adjustWordPosition(document, position);
+    return new Promise((resolve) => {
+      
+      if (!adjustedPos[0]) {
+        return Promise.resolve(null);
+      }
+      const word = adjustedPos[1];
+      var questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
+      var blockre = new RegExp("\\b(block|screen)\\s+("+word+")\\b\\s*=", "");
+      var wsfolder = getWorkspaceFolderPath(document.uri) || fixDriveCasingInWindows(path.dirname(document.fileName));
+      
+      let files: Thenable<vscode.Location>[];
+      let getLoc: Thenable<vscode.Location>;
+      
+      fs.readdirSync(wsfolder).forEach(file => {
+        let regEXP = new RegExp("\\.q$");
+        let ok = file.match(regEXP);
+        if (ok) {
+          getLoc = getDefLocationInDocument(wsfolder + "\\" + file, word);
+          files.push(getLoc);
+        };
+      });
+      Promise.all(files).then(
+        function (content) {
+          let x: number;
+          x = 2;
+          content.forEach(loc => {
+              if (loc !== null)
+                  return Promise.resolve(loc);
+          });
+          resolve(null);
+      });
+    });
+  };
+};
 
 class GessQReferenceProvider implements vscode.ReferenceProvider {
     public provideReferences(
@@ -312,9 +328,6 @@ class GessQReferenceProvider implements vscode.ReferenceProvider {
             files.forEach(file => {
               if (file !== null) return Promise.resolve(file);
             })
-            resolve(null);
-          },
-          function(reject) {
             resolve(null);
           }
         );
