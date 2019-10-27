@@ -206,6 +206,37 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
     }
 }
 
+function getLocationInDocument(filename: string, word: string): Thenable<vscode.Location> {
+  
+  let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
+  let blockre = new RegExp("\\b(block)\\b[^=]*=\\s*\\(.*\\b("+word+")\\b", "");
+  let screenre = new RegExp("\\b(screen)\\b[^=]*=\\s*\\b(column|row)?\\b\\s*\\(.*\\b("+word+")\\b", "");
+  let wordre = new RegExp("(in\\s*\\b"+word+"\\b|\\b"+word+"\\b\\s*(eq|ne|le|ge|lt|gt))\\b", "");
+  let assertre = new RegExp("\\bassert\\s+\\(.*\\b("+word+")\\b", "");
+  let computere = new RegExp("\\bcompute\\b\\s*.+\\b("+word+")\\b", "");
+  
+  vscode.workspace.openTextDocument(filename).then(
+    function(content) {
+      
+      for (let i = 0; i < content.lineCount; i++) {
+        let line = content.lineAt(i);
+        let comments = new clComment(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
+        
+        if (comments.checkIfInComment(line.text.search(questre)) || comments.checkIfInComment(line.text.search(blockre)) || comments.checkIfInComment(line.text.search(screenre)) ||( line.text.search(wordre)) || comments.checkIfInComment(line.text.search(assertre)) || comments.checkIfInComment(line.text.search(computere))) {
+          return new vscode.Location(content.uri, line.range);
+        };
+        comments.switchCommentStatus();
+      };
+      return null;
+    },
+    function(reject) {
+      return null;
+    }
+  );
+  
+  return null;
+};
+
 class GessQDefinitionProvider implements vscode.DefinitionProvider {
     public provideDefinition(document: vscode.TextDocument, position: vscode.Position, 
             token: vscode.CancellationToken): Thenable<vscode.Location> {
@@ -224,9 +255,18 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
 
         var wsfolder = getWorkspaceFolderPath(document.uri) || fixDriveCasingInWindows(path.dirname(document.fileName));
         
-        var contents: vscode.TextDocument[];
+        var files: Thenable<vscode.Location>[];
         
-        let x = fs.readdirSync(wsfolder);
+        fs.readdirSync(wsfolder).forEach(file => {
+          let regEXP = new RegExp("\\.q$");
+          let ok = file.match(regEXP);
+          if (ok) {
+            files.push(getLocationInDocument(wsfolder + "\\" + file, word));
+          };
+        });
+        // Promise.all(files)
+        //       vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
+
         // x.map(file => {
             // let regEXP = new RegExp("\.(q|inc)$");
             // let ok = file.match(regEXP);
@@ -256,48 +296,31 @@ class GessQReferenceProvider implements vscode.ReferenceProvider {
           return Promise.resolve(null);
         }
         const word = adjustedPos[1];
-        var locations = [];
-
-        var questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
-        var blockre = new RegExp("\\b(block)\\b[^=]*=\\s*\\(.*\\b("+word+")\\b", "");
-        var screenre = new RegExp("\\b(screen)\\b[^=]*=\\s*\\b(column|row)?\\b\\s*\\(.*\\b("+word+")\\b", "");
-        var wordre = new RegExp("(in\\s*\\b"+word+"\\b|\\b"+word+"\\b\\s*(eq|ne|le|ge|lt|gt))\\b", "");
-        var assertre = new RegExp("\\bassert\\s+\\(.*\\b("+word+")\\b", "");
-        var computere = new RegExp("\\bcompute\\b\\s*.+\\b("+word+")\\b", "");
         
-        var wsfolder = getWorkspaceFolderPath(document.uri) || fixDriveCasingInWindows(path.dirname(document.fileName));
+        let wsfolder = getWorkspaceFolderPath(document.uri) || fixDriveCasingInWindows(path.dirname(document.fileName));
+        let files: Thenable<vscode.Location>[];
         
         fs.readdirSync(wsfolder).forEach(file => {
-            let regEXP = new RegExp("\.(q|inc)$");
-            let ok = file.match(regEXP);
-            if (ok) {
-              vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
-                function(content) {
-                  for (var i = 0; i < content.lineCount; i++) {
-                    var line = content.lineAt(i);
-                    let comments = new clComment(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
-
-                    if (comments.checkIfInComment(line.text.search(questre)) || comments.checkIfInComment(line.text.search(blockre)) || comments.checkIfInComment(line.text.search(screenre)) ||( line.text.search(wordre)) || comments.checkIfInComment(line.text.search(assertre)) || comments.checkIfInComment(line.text.search(computere))) {
-                      let loc = new vscode.Location(content.uri, line.range);
-                      locations.push(loc);
-                    };
-                    comments.switchCommentStatus();
-                  };
-                  if (locations.length > 0) {
-                    resolve(locations);
-                  } else {
-                    resolve(null);
-                  };
-                },
-                function() {
-                  resolve(null);
-                }
-              );
-            };
-          });
+          let regEXP = new RegExp("\\.q$");
+          let ok = file.match(regEXP);
+          if (ok) {
+            files.push(getLocationInDocument(wsfolder + "\\" + file, word));
+          };
         });
-    }
-}
+        Promise.all(files).then(
+          function(content) {
+            files.forEach(file => {
+              if (file !== null) return Promise.resolve(file);
+            })
+            resolve(null);
+          },
+          function(reject) {
+            resolve(null);
+          }
+        );
+    })
+  };
+};
 
 class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
 
