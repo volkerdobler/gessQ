@@ -273,11 +273,12 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
 function getAllLocationInDocument(filename: string, word: string) {
   
   let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
-  let blockre = new RegExp("\\b(block)\\b[^=]*=\\s*\\(.*\\b("+word+")\\b", "");
+  let blockre = new RegExp("\\b(block|screen)\\s+("+word+")\\b[^=]*=|\\b(block)\\b[^=]*=\\s*\\(.*\\b("+word+")\\b", "");
   let screenre = new RegExp("\\b(screen)\\b[^=]*=\\s*\\b(column|row)?\\b\\s*\\(.*\\b("+word+")\\b", "");
   let wordre = new RegExp("(in\\s*\\b"+word+"\\b|\\b"+word+"\\b\\s*(eq|ne|le|ge|lt|gt))\\b", "");
   let assertre = new RegExp("\\bassert\\s+\\(.*\\b("+word+")\\b", "");
   let computere = new RegExp("\\bcompute\\b\\s*.+\\b("+word+")\\b", "");
+  let cABre = new RegExp("\\b(load|set)\\b\\s*\\(\\s*("+word+")\\s*=","i");
   
   let locArray: vscode.Location[] = [];
 
@@ -292,7 +293,8 @@ function getAllLocationInDocument(filename: string, word: string) {
           comments.checkIfInComment(line.text.search(screenre)) ||
           comments.checkIfInComment( line.text.search(wordre)) || 
           comments.checkIfInComment(line.text.search(assertre)) || 
-          comments.checkIfInComment(line.text.search(computere))) {
+          comments.checkIfInComment(line.text.search(computere)) || 
+          comments.checkIfInComment(line.text.search(cABre))) {
         locArray.push(new vscode.Location(content.uri, line.range));
       };
       comments.switchCommentStatus();
@@ -333,7 +335,9 @@ class GessQReferenceProvider implements vscode.ReferenceProvider {
           function(content) {
             content.forEach(loc => {
               if (loc != null && loc[0] != null) {
-                loclist.push(loc[0]);
+                loc.forEach(arr => {
+                  loclist.push(arr);
+                })
               };
             });
             return(loclist);

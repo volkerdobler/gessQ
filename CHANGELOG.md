@@ -72,3 +72,6 @@ are used in all scripts in the directory - including sub-directories.
 ### 0.1.2
 Bug fixes in Definition Provider and Find all References.
 Also minor optimizations for Go to symbol
+
+### 0.1.3
+Another bug fix in Find all References.
