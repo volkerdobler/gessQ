@@ -7,6 +7,7 @@ Therefore I need a language definition for gess.Q, which is from www.gessgroup.d
 ## Features
 
 This language includes important snippets, syntax highlighting and symbol definitions within a script.
+It also works for F12 (Go to definition or Find all References) and "Go to symbol" (CTRL-T)
 
 ## Extension Settings
 

@@ -64,7 +64,11 @@ Add gessQ icon from www.gessgroup.de
 Add "Find all References" and update to new version
 
 ### 0.1.1
-First version of "Find All References" (CTRL-T)
+First version of "Go to symbol" (CTRL-T)
 Not working correctly for all possiblities of references (especially assert are 
 not handle allways correctly). But it will find most of the references which 
 are used in all scripts in the directory - including sub-directories.
+
+### 0.1.2
+Bug fixes in Definition Provider and Find all References.
+Also minor optimizations for Go to symbol
