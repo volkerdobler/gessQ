@@ -206,6 +206,70 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
     }
 }
 
+function getDefLocationInDocument(filename: string, word: string) {
+  
+  let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
+  let blockre = new RegExp("\\b(block|screen)\\s+("+word+")\\b\\s*=", "");
+  
+  let locPosition: vscode.Location = null;
+
+  return vscode.workspace.openTextDocument(filename).then((content) => {
+    
+    for (let i = 0; i < content.lineCount; i++) {
+      let line = content.lineAt(i);
+      let comments = new clComment(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
+      
+      if (comments.checkIfInComment(line.text.search(questre)) || 
+          comments.checkIfInComment(line.text.search(blockre))) {
+        locPosition = new vscode.Location(content.uri, line.range);
+      };
+      comments.switchCommentStatus();
+    };
+    return(locPosition);
+  });
+};
+
+class GessQDefinitionProvider implements vscode.DefinitionProvider {
+  public provideDefinition(document: vscode.TextDocument, position: vscode.Position, 
+          token: vscode.CancellationToken): Thenable<vscode.Location> {
+    const adjustedPos = adjustWordPosition(document, position);
+    
+    return new Promise((resolve) => {
+      
+      if (!adjustedPos[0]) {
+        return Promise.resolve(null);
+      }
+      const word = adjustedPos[1];
+
+      let wsfolder = getWorkspaceFolderPath(document.uri) || fixDriveCasingInWindows(path.dirname(document.fileName));
+      let fileNames: string[] = [];
+      
+      fs.readdirSync(wsfolder).forEach(file => {
+        let regEXP = new RegExp("\\.q$");
+        let ok = file.match(regEXP);
+        if (ok) {
+          fileNames.push(wsfolder + "\\" + file);
+        };
+      });
+      let locations = fileNames.map(file => getDefLocationInDocument(file,word) );
+      Promise.all(locations).then(
+        function(content) {
+          let locPos: vscode.Location = null;
+          
+          content.forEach(loc => {
+            if (loc != null) {
+              locPos = loc;
+            };
+          });
+
+          return(locPos);
+        }).then(result => {
+          resolve(result);
+        });
+    });
+  };
+};
+
 function getAllLocationInDocument(filename: string, word: string) {
   
   let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
@@ -235,56 +299,6 @@ function getAllLocationInDocument(filename: string, word: string) {
     };
     return(locArray);
   });
-};
-
-class GessQDefinitionProvider implements vscode.DefinitionProvider {
-  public provideDefinition(document: vscode.TextDocument, position: vscode.Position, 
-          token: vscode.CancellationToken): Thenable<vscode.Location> {
-    const adjustedPos = adjustWordPosition(document, position);
-    
-    let loc: vscode.Location = null;
-    
-    return new Promise((resolve) => {
-      
-      if (!adjustedPos[0]) {
-        return Promise.resolve(null);
-      }
-      const word = adjustedPos[1];
-      let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
-      let blockre = new RegExp("\\b(block|screen)\\s+("+word+")\\b\\s*=", "");
-
-      let wsfolder = getWorkspaceFolderPath(document.uri) || fixDriveCasingInWindows(path.dirname(document.fileName));
-      
-      
-      fs.readdirSync(wsfolder).forEach(file => {
-        let regEXP = new RegExp("\\.q$");
-        let ok = file.match(regEXP);
-        if (ok) {
-          vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
-            function(content) {
-
-              for (var i = 0; i < content.lineCount; i++) {
-                var line = content.lineAt(i);
-
-                let comments = new clComment(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
-
-                if (comments.checkIfInComment(line.text.search(questre)) ||
-                    comments.checkIfInComment(line.text.search(blockre))) {
-                    loc = new vscode.Location(content.uri, line.range)
-                };
-              };
-              
-              return(loc);
-            }).then(result => {
-                if (result != null) {
-                  resolve(result);
-                }
-              }
-            );
-        };
-      });
-    });
-  };
 };
 
 class GessQReferenceProvider implements vscode.ReferenceProvider {
@@ -318,14 +332,16 @@ class GessQReferenceProvider implements vscode.ReferenceProvider {
         Promise.all(locations).then(
           function(content) {
             content.forEach(loc => {
-              if (loc[0] != null) {
+              if (loc != null && loc[0] != null) {
                 loclist.push(loc[0]);
               };
             });
             return(loclist);
           }).then(result => {
             resolve(result);
-          })
+          }).catch(e => {
+            resolve(null);
+          });
     })
   };
 };
