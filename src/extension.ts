@@ -74,12 +74,18 @@ class clComment {
   status: number;        // 1 = not in Comment; -1 = in Comment
   changing: number;      // 1 ending comment in line; -1 starting comment in line; 0 no comment-char in line
   
-  constructor (oneC: number, startC: number, endC: number) {
+  constructor (oneC: number = -1, startC: number = -1, endC: number = -1) {
     this.oneLine = oneC;
     this.start = startC;
     this.end = endC;
     this.status = 1;
     this.changing = 0;
+  };
+  
+  checkCommentsInLine(oneC: number, startC: number, endC: number) {
+    this.oneLine = oneC;
+    this.start = startC;
+    this.end = endC;
   };
   
   checkIfInComment(command: number) : boolean {
@@ -169,17 +175,23 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
             var blockreg = new RegExp(/^\b(block|screen)\s+([\w\.]+)/i);
             var cABreg = new RegExp(/\b(load|set)\b\s*\(\s*([^=\s]+)\s*=/i);
 
+            let comments = new clComment();
+            
             for (var i = 0; i < document.lineCount; i++) {
                 var line = document.lineAt(i);
 
-                let comments = new clComment(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
+                if (line.text.length === 0) {
+                  continue;
+                };
+                
+                comments.checkCommentsInLine(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
                 
                 if (comments.checkIfInComment(line.text.search(questreg))) {
                     symbols.push({
                         name: line.text.match(questreg)[2],
                         kind: vscode.SymbolKind.Variable,
                         location: new vscode.Location(document.uri, line.range),
-                        containerName: line.text.match(questreg)[1]
+                        containerName: line.text.match(questreg)[1].toLocaleLowerCase()
                     })
                 };
                 if (comments.checkIfInComment(line.text.search(blockreg))) {
@@ -187,7 +199,7 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
                         name: line.text.match(blockreg)[2],
                         kind: vscode.SymbolKind.Method,
                         location: new vscode.Location(document.uri, line.range),
-                        containerName: line.text.match(blockreg)[1]
+                        containerName: line.text.match(blockreg)[1].toLocaleLowerCase()
                     })
                 };
                 if (comments.checkIfInComment(line.text.search(cABreg))) {
@@ -195,7 +207,7 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
                         name: line.text.match(cABreg)[2],
                         kind: vscode.SymbolKind.Variable,
                         location: new vscode.Location(document.uri, line.range),
-                        containerName: line.text.match(cABreg)[1]
+                        containerName: line.text.match(cABreg)[1].toLocaleLowerCase()
                     })
                 };
                 comments.switchCommentStatus();
@@ -215,9 +227,12 @@ function getDefLocationInDocument(filename: string, word: string) {
 
   return vscode.workspace.openTextDocument(filename).then((content) => {
     
+    let comments = new clComment();
+    
     for (let i = 0; i < content.lineCount; i++) {
       let line = content.lineAt(i);
-      let comments = new clComment(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
+      
+      comments.checkCommentsInLine(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
       
       if (comments.checkIfInComment(line.text.search(questre)) || 
           comments.checkIfInComment(line.text.search(blockre))) {
@@ -284,9 +299,11 @@ function getAllLocationInDocument(filename: string, word: string) {
 
   return vscode.workspace.openTextDocument(filename).then((content) => {
   
+    let comments = new clComment();
+    
     for (let i = 0; i < content.lineCount; i++) {
       let line = content.lineAt(i);
-      let comments = new clComment(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
+      comments.checkCommentsInLine(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
       
       if (comments.checkIfInComment(line.text.search(questre)) || 
           comments.checkIfInComment(line.text.search(blockre)) || 
@@ -361,12 +378,12 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
       
       var symbols = [];
 
-      var questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+(\\w*"+query+"\\w*)\\b", "");
-      var blockre = new RegExp("\\b(block)\\b.*\\b(\\w*"+query+"\\w*)\\b", "");
-      var screenre = new RegExp("\\b(screen)\\b.*\\b(\\w*"+query+"\\w*)\\b", "");
-      var bedingungre = new RegExp("((\\w+\\s+in)\\s*\\b(\\w*"+query+"\\w*)\\b|\\b(\\w*"+query+"\\w*)\\b\\s*(eq|ne|le|ge|lt|gt)\\s+\\w+)\\b", "");
-      var assertre = new RegExp("\\b(assert)\\b.*\(\\b(\\w*"+query+"\\w*)\\b\)", "");
-      var computere = new RegExp("\\b(compute)\\b.*\\b(\\w*"+query+"\\w*)\\b", "");
+      var questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+(\\w*"+query+"\\w*)\\b", "i");
+      var blockre = new RegExp("\\b(block)\\b.*\\b(\\w*"+query+"\\w*)\\b", "i");
+      var screenre = new RegExp("\\b(screen)\\b.*\\b(\\w*"+query+"\\w*)\\b", "i");
+      var bedingungre = new RegExp("((\\w+\\s+in)\\s*\\b(\\w*"+query+"\\w*)\\b|\\b(\\w*"+query+"\\w*)\\b\\s*(eq|ne|le|ge|lt|gt)\\s+\\w+)\\b", "i");
+      var assertre = new RegExp("\\b(assert)\\b.*\(\\b(\\w*"+query+"\\w*)\\b\)", "i");
+      var computere = new RegExp("\\b(compute)\\b.*\\b(\\w*"+query+"\\w*)\\b", "i");
  
       const wsfolder = getWorkspaceFolderPath(vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.uri) || fixDriveCasingInWindows(path.dirname(vscode.window.activeTextEditor.document.fileName));
  
@@ -379,10 +396,12 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
             vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
               function(content) {
 
+                let comments = new clComment();
+                
                 for (var i = 0; i < content.lineCount; i++) {
                   var line = content.lineAt(i);
 
-                  let comments = new clComment(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
+                  comments.checkCommentsInLine(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
 
                   if (line.text.search(query) > -1) {
                     if (comments.checkIfInComment(line.text.search(questre))) {
@@ -441,16 +460,11 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
                     };
                   };
                 };
-                if (symbols.length > 0) {
-                  resolve(symbols);
-                } else {
-                 resolve(null)
-                };
-              },
-              function() {
-                resolve(null);
+                return(symbols);
               }
-            );
+            ).then(result => {
+              resolve(result);
+            })
           };
       });
     });
