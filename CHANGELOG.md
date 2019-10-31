@@ -75,3 +75,6 @@ Also minor optimizations for Go to symbol
 
 ### 0.1.3
 Another bug fix in Find all References.
+
+### 0.1.4
+Fixed a bug to identify comments correctly.
