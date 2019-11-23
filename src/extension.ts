@@ -220,8 +220,8 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
 
 function getDefLocationInDocument(filename: string, word: string) {
   
-  let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
-  let blockre = new RegExp("\\b(block|screen)\\s+("+word+")\\b\\s*=", "");
+  let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "i");
+  let blockre = new RegExp("\\b(block|screen)\\s+("+word+")\\b\\s*=", "i");
   
   let locPosition: vscode.Location = null;
 
@@ -287,12 +287,12 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
 
 function getAllLocationInDocument(filename: string, word: string) {
   
-  let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "");
-  let blockre = new RegExp("\\b(block|screen)\\s+("+word+")\\b[^=]*=|\\b(block)\\b[^=]*=\\s*\\(.*\\b("+word+")\\b", "");
-  let screenre = new RegExp("\\b(screen)\\b[^=]*=\\s*\\b(column|row)?\\b\\s*\\(.*\\b("+word+")\\b", "");
-  let wordre = new RegExp("(in\\s*\\b"+word+"\\b|\\b"+word+"\\b\\s*(eq|ne|le|ge|lt|gt))\\b", "");
-  let assertre = new RegExp("\\bassert\\s+\\(.*\\b("+word+")\\b", "");
-  let computere = new RegExp("\\bcompute\\b\\s*.+\\b("+word+")\\b", "");
+  let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "i");
+  let blockre = new RegExp("\\b(block|screen)\\s+("+word+")\\b[^=]*=|\\b(block)\\b[^=]*=\\s*\\(.*\\b("+word+")\\b", "i");
+  let screenre = new RegExp("\\b(screen)\\b[^=]*=\\s*\\b(column|row)?\\b\\s*\\(.*\\b("+word+")\\b", "i");
+  let wordre = new RegExp("(in\\s*\\b"+word+"\\b|\\b"+word+"\\b\\s*(eq|ne|le|ge|lt|gt))\\b", "i");
+  let assertre = new RegExp("\\bassert\\s+\\(.*\\b("+word+")\\b", "i");
+  let computere = new RegExp("\\bcompute\\b\\s*.+\\b("+word+")\\b", "i");
   let cABre = new RegExp("\\b(load|set)\\b\\s*\\(\\s*("+word+")\\s*=","i");
   
   let locArray: vscode.Location[] = [];

@@ -78,3 +78,6 @@ Another bug fix in Find all References.
 
 ### 0.1.4
 Fixed a bug to identify comments correctly.
+
+### 0.1.5
+Fixed a bug that references are found case insentive
