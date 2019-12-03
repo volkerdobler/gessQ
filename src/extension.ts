@@ -220,7 +220,7 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
 
 function getDefLocationInDocument(filename: string, word: string) {
   
-  let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "i");
+  let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group|opennumformat)\\s+("+word+")\\b", "i");
   let blockre = new RegExp("\\b(block|screen)\\s+("+word+")\\b\\s*=", "i");
   
   let locPosition: vscode.Location = null;
@@ -287,7 +287,7 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
 
 function getAllLocationInDocument(filename: string, word: string) {
   
-  let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+("+word+")\\b", "i");
+  let questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group|opennumformat)\\s+("+word+")\\b", "i");
   let blockre = new RegExp("\\b(block|screen)\\s+("+word+")\\b[^=]*=|\\b(block)\\b[^=]*=\\s*\\(.*\\b("+word+")\\b", "i");
   let screenre = new RegExp("\\b(screen)\\b[^=]*=\\s*\\b(column|row)?\\b\\s*\\(.*\\b("+word+")\\b", "i");
   let wordre = new RegExp("(in\\s*\\b"+word+"\\b|\\b"+word+"\\b\\s*(eq|ne|le|ge|lt|gt))\\b", "i");
@@ -308,7 +308,7 @@ function getAllLocationInDocument(filename: string, word: string) {
       if (comments.checkIfInComment(line.text.search(questre)) || 
           comments.checkIfInComment(line.text.search(blockre)) || 
           comments.checkIfInComment(line.text.search(screenre)) ||
-          comments.checkIfInComment( line.text.search(wordre)) || 
+          comments.checkIfInComment(line.text.search(wordre)) || 
           comments.checkIfInComment(line.text.search(assertre)) || 
           comments.checkIfInComment(line.text.search(computere)) || 
           comments.checkIfInComment(line.text.search(cABre))) {
@@ -378,7 +378,7 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
       
       var symbols = [];
 
-      var questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)\\s+(\\w*"+query+"\\w*)\\b", "i");
+      var questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group|opennumformat)\\s+(\\w*"+query+"\\w*)\\b", "i");
       var blockre = new RegExp("\\b(block)\\b.*\\b(\\w*"+query+"\\w*)\\b", "i");
       var screenre = new RegExp("\\b(screen)\\b.*\\b(\\w*"+query+"\\w*)\\b", "i");
       var bedingungre = new RegExp("((\\w+\\s+in)\\s*\\b(\\w*"+query+"\\w*)\\b|\\b(\\w*"+query+"\\w*)\\b\\s*(eq|ne|le|ge|lt|gt)\\s+\\w+)\\b", "i");

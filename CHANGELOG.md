@@ -80,4 +80,7 @@ Another bug fix in Find all References.
 Fixed a bug to identify comments correctly.
 
 ### 0.1.5
-Fixed a bug that references are found case insentive
+Fixed a bug that references are found case insensitive
+
+### 0.1.6
+Added opennumformat to find symbols definition or references
