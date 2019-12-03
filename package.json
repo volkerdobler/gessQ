@@ -8,7 +8,7 @@
         "vscode": "^1.18.0"
     },
     "categories": [
-        "Languages"
+        "Programming Languages"
     ],
     "activationEvents": [
         "onLanguage:gessq"
@@ -17,6 +17,7 @@
         "type": "git",
         "url": "https://github.com/volkerdobler/gessQ.git"
     },
+    "license": "AFL-3.0",
     "main": "./out/extension",
     "icon": "images/gessQ_icon.png",
     "contributes": {
