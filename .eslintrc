@@ -1,10 +1,26 @@
 {
+  "parser": "babel-eslint",
+  
   "extends": [
     "plugin:prettier/recommended",
-    "airbnb",
-    "wesbos"
+    "airbnb"
   ],
+  
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  
+  "env": {
+    "es6": true,
+    "jest": true
+  },
+  
   "plugins": ["prettier"],
+  
   "rules": {
     "no-console": 2,
     "no-unused-vars": 0,
