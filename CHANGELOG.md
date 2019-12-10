@@ -84,3 +84,6 @@ Fixed a bug that references are found case insensitive
 
 ### 0.1.6
 Added opennumformat to find symbols definition or references
+
+### 0.1.7
+Bugfix in snippets - preAssertionActionBlock was wrong spelled
