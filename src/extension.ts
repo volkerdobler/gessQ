@@ -4,6 +4,9 @@
 import * as vscode from 'vscode';
 import path = require('path');
 import fs = require('fs');
+import resolve = require('path');
+import readdir = require('fs');
+
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -66,6 +69,27 @@ function adjustWordPosition(document: vscode.TextDocument, position: vscode.Posi
 
     return [true, word, position];
 };
+
+function getAllFiles(dir: string, ftype: string): any[] {
+  let results = [];
+  let regEXP = new RegExp("\\."+ftype+"$","i");
+  let list = fs.readdirSync(dir);
+  list.forEach(function(file) {
+    file = dir + '\\' + file;
+    let stat = fs.statSync(file);
+    if (stat && stat.isDirectory()) { 
+    /* Recurse into a subdirectory */
+      results = results.concat(getAllFiles(file, ftype));
+    } else { 
+    /* Is a file */
+      // results.push(file);
+      if (file.match(regEXP)) {
+        results.push(file);
+      };
+    }
+  });
+  return results;
+}
 
 class clComment {
   oneLine: number;       // position of // in line
@@ -259,13 +283,7 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
       let wsfolder = getWorkspaceFolderPath(document.uri) || fixDriveCasingInWindows(path.dirname(document.fileName));
       let fileNames: string[] = [];
       
-      fs.readdirSync(wsfolder).forEach(file => {
-        let regEXP = new RegExp("\\.q$");
-        let ok = file.match(regEXP);
-        if (ok) {
-          fileNames.push(wsfolder + "\\" + file);
-        };
-      });
+      fileNames = getAllFiles(wsfolder,"q");
       let locations = fileNames.map(file => getDefLocationInDocument(file,word) );
       Promise.all(locations).then(
         function(content) {
@@ -340,13 +358,7 @@ class GessQReferenceProvider implements vscode.ReferenceProvider {
         let wsfolder = getWorkspaceFolderPath(document.uri) || fixDriveCasingInWindows(path.dirname(document.fileName));
         let fileNames: string[] = [];
         
-        fs.readdirSync(wsfolder).forEach(file => {
-          let regEXP = new RegExp("\\.q$");
-          let ok = file.match(regEXP);
-          if (ok) {
-            fileNames.push(wsfolder + "\\" + file);
-          };
-        });
+        fileNames = getAllFiles(wsfolder,"q");
         let locations = fileNames.map(file => getAllLocationInDocument(file,word) );
         Promise.all(locations).then(
           function(content) {
@@ -369,103 +381,95 @@ class GessQReferenceProvider implements vscode.ReferenceProvider {
 
 class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
 
-    public provideWorkspaceSymbols(query: string, token: vscode.CancellationToken):
-      Thenable<vscode.SymbolInformation[]> {
+  public provideWorkspaceSymbols(query: string, token: vscode.CancellationToken):
+    Thenable<vscode.SymbolInformation[]> {
 
-      if (query.length === 0) {
-        return(null);
-      };
-      
-      var symbols = [];
+    if (query.length === 0) {
+      return(null);
+    };
+    
+    var symbols = [];
 
-      var questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group|opennumformat)\\s+(\\w*"+query+"\\w*)\\b", "i");
-      var blockre = new RegExp("\\b(block)\\b.*\\b(\\w*"+query+"\\w*)\\b", "i");
-      var screenre = new RegExp("\\b(screen)\\b.*\\b(\\w*"+query+"\\w*)\\b", "i");
-      var bedingungre = new RegExp("((\\w+\\s+in)\\s*\\b(\\w*"+query+"\\w*)\\b|\\b(\\w*"+query+"\\w*)\\b\\s*(eq|ne|le|ge|lt|gt)\\s+\\w+)\\b", "i");
-      var assertre = new RegExp("\\b(assert)\\b.*\(\\b(\\w*"+query+"\\w*)\\b\)", "i");
-      var computere = new RegExp("\\b(compute)\\b.*\\b(\\w*"+query+"\\w*)\\b", "i");
- 
-      const wsfolder = getWorkspaceFolderPath(vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.uri) || fixDriveCasingInWindows(path.dirname(vscode.window.activeTextEditor.document.fileName));
- 
-      return new Promise((resolve) => {
-        fs.readdirSync(wsfolder).forEach(file => {
-          let regEXP = new RegExp("\.(q|inc)$");
-          let ok = file.match(regEXP);
+    var questre = new RegExp("\\b(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group|opennumformat)\\s+(\\w*"+query+"\\w*)\\b", "i");
+    var blockre = new RegExp("\\b(block)\\b.*\\b(\\w*"+query+"\\w*)\\b", "i");
+    var screenre = new RegExp("\\b(screen)\\b.*\\b(\\w*"+query+"\\w*)\\b", "i");
+    var bedingungre = new RegExp("((\\w+\\s+in)\\s*\\b(\\w*"+query+"\\w*)\\b|\\b(\\w*"+query+"\\w*)\\b\\s*(eq|ne|le|ge|lt|gt)\\s+\\w+)\\b", "i");
+    var assertre = new RegExp("\\b(assert)\\b.*\(\\b(\\w*"+query+"\\w*)\\b\)", "i");
+    var computere = new RegExp("\\b(compute)\\b.*\\b(\\w*"+query+"\\w*)\\b", "i");
 
-          if (ok) {
-            vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
-              function(content) {
+    const wsfolder = getWorkspaceFolderPath(vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.uri) || fixDriveCasingInWindows(path.dirname(vscode.window.activeTextEditor.document.fileName));
 
-                let comments = new clComment();
-                
-                for (var i = 0; i < content.lineCount; i++) {
-                  var line = content.lineAt(i);
-
-                  comments.checkCommentsInLine(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
-
-                  if (line.text.search(query) > -1) {
-                    if (comments.checkIfInComment(line.text.search(questre))) {
-                      symbols.push({
-                          name: line.text.match(questre)[2],
-                          kind: vscode.SymbolKind.Function,
-                          location: new vscode.Location(content.uri, line.range),
-                          containerName: line.text.match(questre)[1]
-                      });
-                    };
-                    if (comments.checkIfInComment(line.text.search(blockre))) {
-                      symbols.push({
-                          name: line.text.match(blockre)[2],
-                          kind: vscode.SymbolKind.Function,
-                          location: new vscode.Location(content.uri, line.range),
-                          containerName: line.text.match(blockre)[1]
-                      });
-                    };
-                    if (comments.checkIfInComment(line.text.search(screenre))) {
-                      symbols.push({
-                          name: line.text.match(screenre)[2],
-                          kind: vscode.SymbolKind.Function,
-                          location: new vscode.Location(content.uri, line.range),
-                          containerName: line.text.match(screenre)[1]
-                      });
-                    };
-                    if (comments.checkIfInComment(line.text.search(assertre))) {
-                      symbols.push({
-                          name: line.text.match(assertre)[2],
-                          kind: vscode.SymbolKind.Operator,
-                          location: new vscode.Location(content.uri, line.range),
-                          containerName: "assert"
-                      });
-                    };
-                    if (comments.checkIfInComment(line.text.search(bedingungre))) {
-                      let namestr : string = "";
-                      if (line.text.match(bedingungre)[3] == null) {
-                        namestr = line.text.match(bedingungre)[4];
-                      } else {
-                        namestr = line.text.match(bedingungre)[3];
-                      };
-                      symbols.push({
-                          name: namestr,
-                          kind: vscode.SymbolKind.Operator,
-                          location: new vscode.Location(content.uri, line.range),
-                          containerName: "filter"
-                      });
-                    };
-                    if (comments.checkIfInComment(line.text.search(computere))) {
-                      symbols.push({
-                          name: line.text.match(computere)[2],
-                          kind: vscode.SymbolKind.Variable,
-                          location: new vscode.Location(content.uri, line.range),
-                          containerName: line.text.match(computere)[1]
-                      });
-                    };
-                  };
+    return new Promise((resolve) => {
+      getAllFiles(wsfolder,"(q|inc)").forEach(file => {
+        vscode.workspace.openTextDocument(wsfolder + "\\" + file).then(
+          function(content) {
+            let comments = new clComment();
+            
+            for (var i = 0; i < content.lineCount; i++) {
+              var line = content.lineAt(i);
+              comments.checkCommentsInLine(line.text.search("//"),line.text.search("/\\*"),line.text.search("\\*/"));
+              if (line.text.search(query) > -1) {
+                if (comments.checkIfInComment(line.text.search(questre))) {
+                  symbols.push({
+                      name: line.text.match(questre)[2],
+                      kind: vscode.SymbolKind.Function,
+                      location: new vscode.Location(content.uri, line.range),
+                      containerName: line.text.match(questre)[1]
+                  });
                 };
-                return(symbols);
-              }
-            ).then(result => {
-              resolve(result);
-            })
-          };
+                if (comments.checkIfInComment(line.text.search(blockre))) {
+                  symbols.push({
+                      name: line.text.match(blockre)[2],
+                      kind: vscode.SymbolKind.Function,
+                      location: new vscode.Location(content.uri, line.range),
+                      containerName: line.text.match(blockre)[1]
+                  });
+                };
+                if (comments.checkIfInComment(line.text.search(screenre))) {
+                  symbols.push({
+                      name: line.text.match(screenre)[2],
+                      kind: vscode.SymbolKind.Function,
+                      location: new vscode.Location(content.uri, line.range),
+                      containerName: line.text.match(screenre)[1]
+                  });
+                };
+                if (comments.checkIfInComment(line.text.search(assertre))) {
+                  symbols.push({
+                      name: line.text.match(assertre)[2],
+                      kind: vscode.SymbolKind.Operator,
+                      location: new vscode.Location(content.uri, line.range),
+                      containerName: "assert"
+                  });
+                };
+                if (comments.checkIfInComment(line.text.search(bedingungre))) {
+                  let namestr : string = "";
+                  if (line.text.match(bedingungre)[3] == null) {
+                    namestr = line.text.match(bedingungre)[4];
+                  } else {
+                    namestr = line.text.match(bedingungre)[3];
+                  };
+                  symbols.push({
+                      name: namestr,
+                      kind: vscode.SymbolKind.Operator,
+                      location: new vscode.Location(content.uri, line.range),
+                      containerName: "filter"
+                  });
+                };
+                if (comments.checkIfInComment(line.text.search(computere))) {
+                  symbols.push({
+                      name: line.text.match(computere)[2],
+                      kind: vscode.SymbolKind.Variable,
+                      location: new vscode.Location(content.uri, line.range),
+                      containerName: line.text.match(computere)[1]
+                  });
+                };
+              };
+            };
+            return(symbols);
+          }
+        ).then(result => {
+          resolve(result);
+        })
       });
     });
   }

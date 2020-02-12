@@ -65,7 +65,7 @@ Add "Find all References" and update to new version
 
 ### 0.1.1
 First version of "Go to symbol" (CTRL-T)
-Not working correctly for all possiblities of references (especially assert are 
+Not working correctly for all possibilities of references (especially assert are 
 not handle allways correctly). But it will find most of the references which 
 are used in all scripts in the directory - including sub-directories.
 
@@ -87,3 +87,6 @@ Added opennumformat to find symbols definition or references
 
 ### 0.1.7
 Bugfix in snippets - preAssertionActionBlock was wrong spelled
+
+### 0.1.8
+Bugfix to work with project manager and subdirectories
