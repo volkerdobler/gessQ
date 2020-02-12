@@ -59,28 +59,21 @@
         "lint:fix": "eslint . --fix"
     },
     "devDependencies": {
-        "@types/mocha": "^5.2.7",
-        "@types/node": "^12.12.17",
-        "@typescript-eslint/eslint-plugin": "^2.11.0",
-        "@typescript-eslint/parser": "^2.11.0",
+        "@types/node": "^13.7.1",
         "babel-eslint": "^10.0.3",
-        "eslint": "^6.7.2",
+        "eslint": "^6.8.0",
         "eslint-config-airbnb": "^18.0.1",
-        "eslint-config-airbnb-base": "^14.0.0",
-        "eslint-config-prettier": "^6.7.0",
-        "eslint-plugin-html": "^6.0.0",
-        "eslint-plugin-import": "^2.19.1",
+        "eslint-config-prettier": "^6.10.0",
+        "eslint-plugin-import": "^2.20.1",
         "eslint-plugin-jsx-a11y": "^6.2.3",
-        "eslint-plugin-prettier": "^3.1.1",
-        "eslint-plugin-react": "^7.17.0",
-        "eslint-plugin-react-hooks": "^1.7.0",
+        "eslint-plugin-prettier": "^3.1.2",
+        "eslint-plugin-react": "^7.18.3",
+        "eslint-plugin-react-hooks": "^2.3.0",
         "prettier": "^1.19.1",
-        "typescript": "^3.7.3",
+        "typescript": "^3.7.5",
         "vscode": "^1.1.36"
     },
-    "dependencies": {
-        "compile": "0.0.2"
-    },
+    "dependencies": {},
     "__metadata": {
         "id": "8369ddfc-3ff3-4da4-8712-89df76ef2c89",
         "publisherId": "7c9d6a5c-7f0a-4217-8a96-4f84eae98522",
