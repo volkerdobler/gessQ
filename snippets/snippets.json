@@ -359,9 +359,15 @@
 		"description": "",
 		"scope": "source.gessQ"
 	},
-	"iAB, cAB, bAB, paAC, initActionBlock, continueActionBlock, preAssertationActionBlock, backActionBlock": {
-		"prefix": "iAB, cAB, initActionBlock, continueActionBlock, preAssertationActionBlock, backActionBlock",
-		"body": "${2:InitActionBlock = {\r\n${1}\r\n\\};}\r\n${4:continueActionBlock = {\r\n${3}\r\n\\};}\r\n${6:preAssertationActionBlock = {\r\n${5}\r\n\\};\r\n}\r\n${8:backActionBlock = {\r\n${7}\r\n\\};\r\n}\r\n",
+	"iAB, initActionBlock": {
+		"prefix": "iAB, initActionBlock",
+		"body": "${2:InitActionBlock = {\r\n${1}\r\n\\};}\r\n",
+		"description": "",
+		"scope": "source.gessQ"
+	},
+	"iAB, cAB, bAB, paAC, initActionBlock, continueActionBlock, preAssertionActionBlock, backActionBlock": {
+		"prefix": "iAB, cAB, initActionBlock, continueActionBlock, preAssertionActionBlock, backActionBlock",
+		"body": "${2:InitActionBlock = {\r\n${1}\r\n\\};}\r\n${4:continueActionBlock = {\r\n${3}\r\n\\};}\r\n${6:preAssertionActionBlock = {\r\n${5}\r\n\\};\r\n}\r\n${8:backActionBlock = {\r\n${7}\r\n\\};\r\n}\r\n",
 		"description": "",
 		"scope": "source.gessQ"
 	},
