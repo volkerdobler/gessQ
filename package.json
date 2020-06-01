@@ -77,9 +77,7 @@
         "prettier": "^1.19.1",
         "typescript": "^3.9.2"
     },
-    "dependencies": {
-        "compile": "0.0.2"
-    },
+    "dependencies": {},
     "__metadata": {
         "id": "8369ddfc-3ff3-4da4-8712-89df76ef2c89",
         "publisherId": "7c9d6a5c-7f0a-4217-8a96-4f84eae98522",
