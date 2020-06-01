@@ -5,3 +5,4 @@ node_modules/
 package-lock.json
 gessQ_documentation/
 src/test/*
+test/
