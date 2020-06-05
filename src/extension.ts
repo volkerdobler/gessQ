@@ -265,7 +265,7 @@ function getAllFilenamesInDirectory(dir: string, fType: string): string[] {
   });
 
   list.forEach(function(file: fs.Dirent) {
-    const fileInclDir = dir + '\\' + file;
+    const fileInclDir = dir + '\\' + file.name;
     if (file.isDirectory()) {
       /* dive into a subdirectory */
       results = results.concat(getAllFilenamesInDirectory(fileInclDir, fType));

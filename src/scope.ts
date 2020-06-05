@@ -3,43 +3,90 @@
 import * as vscode from 'vscode';
 
 export enum ScopeEnum {
-  n, // normaler Scope
-  c, // in einem Kommentar
-  s, // in einem String
+  normal, // normaler Scope
+  comment, // in einem Kommentar
+  string // in einem String
 }
 
-interface BlockComment {
+interface Delimiter {
   start: string;
   end: string;
 }
 
 export const lineCommentDelimiter = /\/\//;
-export const blockCommentDelimiter: Array<BlockComment> = [{ start: '/*', end: '*/' }];
-export const stringRegExp = /"|'/;
+export const blockCommentDelimiter: Array<Delimiter> = [
+  { start: '/*', end: '*/' }
+];
+export const stringDelimiter: Array<Delimiter> = [
+  { start: '"', end: '"' },
+  { start: "'", end: "'" }
+];
 
 function escapeRegex(str: string): string {
   return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
-function findBlockCommentStart(str: string): number {
+function findBlockCommentStart(str: string): [number, number] {
   let result = -1;
+  let cType = -1;
 
   blockCommentDelimiter.forEach(function(value, index) {
     if (str.search(escapeRegex(value.start)) === 0) {
-      result = index;
+      result = value.start.length;
+      cType = index;
+    }
+  });
+
+  return [result, cType];
+}
+
+function findBlockCommentEnd(str: string, comIndex: number): number {
+  let result = -1;
+
+  blockCommentDelimiter.forEach(function(value, index) {
+    if (str.search(escapeRegex(value.end)) === 0 && index === comIndex) {
+      result = value.end.length;
     }
   });
 
   return result;
 }
+
+function findStringStart(str: string): [number, number] {
+  let result = -1;
+  let sIndex = -1;
+
+  stringDelimiter.forEach(function(value, index) {
+    if (str.search(escapeRegex(value.start)) === 0) {
+      result = value.start.length;
+      sIndex = index;
+    }
+  });
+
+  return [result, sIndex];
+}
+
+function findStringEnd(str: string, sIndex: number): number {
+  let result = -1;
+
+  stringDelimiter.forEach(function(value, index) {
+    if (str.search(escapeRegex(value.end)) === 0 && index === sIndex) {
+      result = value.end.length;
+    }
+  });
+
+  return result;
+}
+
 export class Scope {
   private scopeArr: ScopeEnum[][] = [];
 
-  constructor(document: vscode.TextDocument, lineComDel?: RegExp, BlCoDel?: Array<BlockComment>, strReg?: RegExp) {
-    let prevScope: ScopeEnum = ScopeEnum.n;
-    let currScope: ScopeEnum = ScopeEnum.n;
-    let nextScope: ScopeEnum = ScopeEnum.n;
-
+  constructor(
+    document: vscode.TextDocument,
+    lineComDel?: RegExp,
+    BlCoDel?: Array<Delimiter>,
+    strReg?: Array<Delimiter>
+  ) {
     if (lineComDel) {
       exports.lineCommentDelimiter = lineComDel;
     }
@@ -50,11 +97,12 @@ export class Scope {
       exports.stringRegExp = strReg;
     }
 
-    let stringStart = '';
-    let prevChar = '';
+    let currScope: ScopeEnum = ScopeEnum.normal;
 
-    let commentType = -1;
-
+    let comStart = -1;
+    let comIndex = -1;
+    let strStart = -1;
+    let strIndex = -1;
     let lineComment = false;
 
     for (let line = 0; line < document.lineCount; line++) {
@@ -62,62 +110,103 @@ export class Scope {
 
       const lineStr = document.lineAt(line).text;
 
-      if (lineComment) {
-        lineComment = false;
-        prevScope = ScopeEnum.n;
+      if (lineStr.length === 0) {
+        continue;
       }
-      for (let char = 0; char < lineStr.length; char++) {
-        currScope = prevScope;
-        nextScope = prevScope;
 
-        if (lineStr.substring(char).search(exports.lineCommentDelimiter) === 0 && prevScope === ScopeEnum.n) {
-          currScope = ScopeEnum.c;
-          nextScope = ScopeEnum.c;
-          lineComment = true;
+      let char = 0;
+
+      while (char < lineStr.length) {
+        if (currScope !== ScopeEnum.comment) {
+          [comStart, comIndex] = findBlockCommentStart(lineStr.substring(char));
+          lineComment =
+            lineStr.substring(char).search(exports.lineCommentDelimiter) === 0;
+          [strStart, strIndex] = findStringStart(lineStr.substring(char));
         }
-        if (prevScope === ScopeEnum.n && (commentType = findBlockCommentStart(lineStr.substring(char))) > -1) {
-          currScope = ScopeEnum.c;
-          nextScope = ScopeEnum.c;
+        const comEnde = findBlockCommentEnd(lineStr.substring(char), comIndex);
+        const strEnde = findStringEnd(lineStr.substring(char), strIndex);
+
+        if (lineComment) {
+          for (let loop = char; loop < lineStr.length; loop++) {
+            this.scopeArr[line][loop] = ScopeEnum.comment;
+          }
+          break;
         }
-        if (
-          prevScope === ScopeEnum.c &&
-          !lineComment &&
-          commentType > -1 &&
-          lineStr.substring(char).search(exports.blockCommentDelimiter[commentType].end) === 0 &&
-          prevChar !== '\\'
-        ) {
-          currScope = ScopeEnum.c;
-          nextScope = ScopeEnum.n;
-          commentType = -1;
+        // aktuell nicht in einem Kommentar, also testen nach ...
+        if (currScope !== ScopeEnum.comment) {
+          // ... 1. ist es ein neuer Kommentar?
+          if (comStart > -1) {
+            for (
+              let loop = char;
+              loop < blockCommentDelimiter[comIndex].start.length;
+              loop++
+            ) {
+              this.scopeArr[line][loop] = ScopeEnum.comment;
+            }
+            char += blockCommentDelimiter[comIndex].start.length;
+            currScope = ScopeEnum.comment;
+          }
+          // ... 2. ist es der Beginn eines Strings?
+          if (strStart > -1) {
+            for (
+              let loop = char;
+              loop < stringDelimiter[strIndex].start.length;
+              loop++
+            ) {
+              this.scopeArr[line][loop] = ScopeEnum.string;
+            }
+            char += stringDelimiter[strIndex].start.length;
+            currScope = ScopeEnum.string;
+          }
+          if (strEnde > -1) {
+            for (
+              let loop = char;
+              loop < stringDelimiter[strIndex].end.length;
+              loop++
+            ) {
+              this.scopeArr[line][loop] = ScopeEnum.string;
+            }
+            char += stringDelimiter[strIndex].end.length;
+            currScope = ScopeEnum.normal;
+          }
+          if (comStart === -1 && strStart === -1 && strEnde === -1) {
+            this.scopeArr[line][char] = ScopeEnum.normal;
+          }
+        } else {
+          if (comEnde > -1) {
+            for (
+              let loop = char;
+              loop < blockCommentDelimiter[comIndex].end.length;
+              loop++
+            ) {
+              this.scopeArr[line][loop] = ScopeEnum.comment;
+            }
+            char += blockCommentDelimiter[comIndex].end.length;
+            currScope = ScopeEnum.normal;
+          } else {
+            this.scopeArr[line][char] = ScopeEnum.comment;
+          }
         }
-        if (lineStr[char] === stringStart && prevScope === ScopeEnum.s && prevChar !== '\\') {
-          currScope = ScopeEnum.s;
-          nextScope = ScopeEnum.n;
-        }
-        if (lineStr.substring(char).search(exports.stringRegExp) === 0 && prevScope === ScopeEnum.n) {
-          currScope = ScopeEnum.s;
-          nextScope = ScopeEnum.s;
-          stringStart = lineStr[char];
-        }
-        prevScope = nextScope;
-        this.scopeArr[line][char] = currScope;
-        prevChar = lineStr[char];
+        char++;
       }
     }
   }
 
   public getScope(x: number, y: number): ScopeEnum | undefined {
-    return x >= 0 && x < this.scopeArr.length && y >= 0 && y < this.scopeArr[x].length
+    return x >= 0 &&
+      x < this.scopeArr.length &&
+      y >= 0 &&
+      y < this.scopeArr[x].length
       ? this.scopeArr[x][y]
       : undefined;
   }
 
   public isNormalScope(x: number, y: number): boolean {
-    return this.getScope(x, y) === ScopeEnum.n;
+    return this.getScope(x, y) === ScopeEnum.normal;
   }
 
   public isCommentScope(x: number, y: number): boolean {
-    return this.getScope(x, y) === ScopeEnum.c;
+    return this.getScope(x, y) === ScopeEnum.comment;
   }
 
   public isNotInComment(x: number, y: number): boolean {
@@ -125,7 +214,7 @@ export class Scope {
   }
 
   public isStringScope(x: number, y: number): boolean {
-    return this.getScope(x, y) === ScopeEnum.s;
+    return this.getScope(x, y) === ScopeEnum.string;
   }
 }
 
