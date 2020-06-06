@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 export enum ScopeEnum {
   normal, // normaler Scope
   comment, // in einem Kommentar
-  string // in einem String
+  string, // in einem String
 }
 
 interface Delimiter {
@@ -15,11 +15,11 @@ interface Delimiter {
 
 export const lineCommentDelimiter = /\/\//;
 export const blockCommentDelimiter: Array<Delimiter> = [
-  { start: '/*', end: '*/' }
+  { start: '{', end: '}' },
 ];
 export const stringDelimiter: Array<Delimiter> = [
   { start: '"', end: '"' },
-  { start: "'", end: "'" }
+  { start: "'", end: "'" },
 ];
 
 function escapeRegex(str: string): string {
@@ -30,7 +30,7 @@ function findBlockCommentStart(str: string): [number, number] {
   let result = -1;
   let cType = -1;
 
-  blockCommentDelimiter.forEach(function(value, index) {
+  blockCommentDelimiter.forEach(function (value, index) {
     if (str.search(escapeRegex(value.start)) === 0) {
       result = value.start.length;
       cType = index;
@@ -43,7 +43,7 @@ function findBlockCommentStart(str: string): [number, number] {
 function findBlockCommentEnd(str: string, comIndex: number): number {
   let result = -1;
 
-  blockCommentDelimiter.forEach(function(value, index) {
+  blockCommentDelimiter.forEach(function (value, index) {
     if (str.search(escapeRegex(value.end)) === 0 && index === comIndex) {
       result = value.end.length;
     }
@@ -56,7 +56,7 @@ function findStringStart(str: string): [number, number] {
   let result = -1;
   let sIndex = -1;
 
-  stringDelimiter.forEach(function(value, index) {
+  stringDelimiter.forEach(function (value, index) {
     if (str.search(escapeRegex(value.start)) === 0) {
       result = value.start.length;
       sIndex = index;
@@ -69,7 +69,7 @@ function findStringStart(str: string): [number, number] {
 function findStringEnd(str: string, sIndex: number): number {
   let result = -1;
 
-  stringDelimiter.forEach(function(value, index) {
+  stringDelimiter.forEach(function (value, index) {
     if (str.search(escapeRegex(value.end)) === 0 && index === sIndex) {
       result = value.end.length;
     }
@@ -99,9 +99,7 @@ export class Scope {
 
     let currScope: ScopeEnum = ScopeEnum.normal;
 
-    let comStart = -1;
     let comIndex = -1;
-    let strStart = -1;
     let strIndex = -1;
     let lineComment = false;
 
@@ -117,77 +115,96 @@ export class Scope {
       let char = 0;
 
       while (char < lineStr.length) {
-        if (currScope !== ScopeEnum.comment) {
-          [comStart, comIndex] = findBlockCommentStart(lineStr.substring(char));
-          lineComment =
-            lineStr.substring(char).search(exports.lineCommentDelimiter) === 0;
-          [strStart, strIndex] = findStringStart(lineStr.substring(char));
+        let comStart = -1;
+        let comEnde = -1;
+        let strStart = -1;
+        let strEnde = -1;
+
+        switch (currScope) {
+          case ScopeEnum.normal:
+            lineComment =
+              lineStr.substring(char).search(exports.lineCommentDelimiter) ===
+              0;
+            [strStart, strIndex] = findStringStart(lineStr.substring(char));
+            [comStart, comIndex] = findBlockCommentStart(
+              lineStr.substring(char)
+            );
+            break;
+          case ScopeEnum.string:
+            strEnde = findStringEnd(lineStr.substring(char), strIndex);
+            break;
+          case ScopeEnum.comment:
+            comEnde = findBlockCommentEnd(lineStr.substring(char), comIndex);
+            break;
         }
-        const comEnde = findBlockCommentEnd(lineStr.substring(char), comIndex);
-        const strEnde = findStringEnd(lineStr.substring(char), strIndex);
 
         if (lineComment) {
-          for (let loop = char; loop < lineStr.length; loop++) {
-            this.scopeArr[line][loop] = ScopeEnum.comment;
+          for (let loop = 0; loop < lineStr.length; loop++) {
+            this.scopeArr[line][char + loop] = ScopeEnum.comment;
           }
           break;
         }
-        // aktuell nicht in einem Kommentar, also testen nach ...
-        if (currScope !== ScopeEnum.comment) {
-          // ... 1. ist es ein neuer Kommentar?
-          if (comStart > -1) {
-            for (
-              let loop = char;
-              loop < blockCommentDelimiter[comIndex].start.length;
-              loop++
-            ) {
-              this.scopeArr[line][loop] = ScopeEnum.comment;
-            }
-            char += blockCommentDelimiter[comIndex].start.length;
-            currScope = ScopeEnum.comment;
+
+        // Start eines Kommentars
+        if (comStart > -1) {
+          for (
+            let loop = 0;
+            loop < blockCommentDelimiter[comIndex].start.length;
+            loop++
+          ) {
+            this.scopeArr[line][char + loop] = ScopeEnum.comment;
           }
-          // ... 2. ist es der Beginn eines Strings?
-          if (strStart > -1) {
-            for (
-              let loop = char;
-              loop < stringDelimiter[strIndex].start.length;
-              loop++
-            ) {
-              this.scopeArr[line][loop] = ScopeEnum.string;
-            }
-            char += stringDelimiter[strIndex].start.length;
-            currScope = ScopeEnum.string;
-          }
-          if (strEnde > -1) {
-            for (
-              let loop = char;
-              loop < stringDelimiter[strIndex].end.length;
-              loop++
-            ) {
-              this.scopeArr[line][loop] = ScopeEnum.string;
-            }
-            char += stringDelimiter[strIndex].end.length;
-            currScope = ScopeEnum.normal;
-          }
-          if (comStart === -1 && strStart === -1 && strEnde === -1) {
-            this.scopeArr[line][char] = ScopeEnum.normal;
-          }
-        } else {
-          if (comEnde > -1) {
-            for (
-              let loop = char;
-              loop < blockCommentDelimiter[comIndex].end.length;
-              loop++
-            ) {
-              this.scopeArr[line][loop] = ScopeEnum.comment;
-            }
-            char += blockCommentDelimiter[comIndex].end.length;
-            currScope = ScopeEnum.normal;
-          } else {
-            this.scopeArr[line][char] = ScopeEnum.comment;
-          }
+          char += blockCommentDelimiter[comIndex].start.length;
+          currScope = ScopeEnum.comment;
         }
-        char++;
+        // Ende des aktuellen Kommentars
+        if (comEnde > -1) {
+          for (
+            let loop = 0;
+            loop < blockCommentDelimiter[comIndex].end.length;
+            loop++
+          ) {
+            this.scopeArr[line][char + loop] = ScopeEnum.comment;
+          }
+          char += blockCommentDelimiter[comIndex].end.length;
+          currScope = ScopeEnum.normal;
+          comIndex = -1;
+        }
+        // Start eines Strings
+        if (strStart > -1) {
+          for (
+            let loop = 0;
+            loop < stringDelimiter[strIndex].start.length;
+            loop++
+          ) {
+            this.scopeArr[line][char + loop] = ScopeEnum.string;
+          }
+          char += stringDelimiter[strIndex].start.length;
+          currScope = ScopeEnum.string;
+        }
+        // Ende des aktuellen Strings
+        if (strEnde > -1) {
+          for (
+            let loop = 0;
+            loop < stringDelimiter[strIndex].end.length;
+            loop++
+          ) {
+            this.scopeArr[line][char + loop] = ScopeEnum.string;
+          }
+          char += stringDelimiter[strIndex].end.length;
+          currScope = ScopeEnum.normal;
+          strIndex = -1;
+        }
+        // es hat sich nichts verändert, übernimm den aktuellen Scope
+        if (
+          comStart === -1 &&
+          comEnde === -1 &&
+          strStart === -1 &&
+          strEnde === -1
+        ) {
+          this.scopeArr[line][char] = currScope;
+          char++;
+        }
       }
     }
   }
