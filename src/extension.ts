@@ -372,6 +372,11 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
 
       const fileNames: string[] = getAllFilenamesInDirectory(wsFolder, 'q');
 
+      if (fileNames.length === 0) {
+        vscode.window.showInformationMessage('No Q-files found in ' + wsFolder);
+        return null;
+      }
+
       const locations = fileNames.map(file =>
         getDefLocationInDocument(file, word)
       );
