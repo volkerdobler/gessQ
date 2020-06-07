@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 export enum ScopeEnum {
   normal, // normaler Scope
   comment, // in einem Kommentar
-  string, // in einem String
+  string // in einem String
 }
 
 interface Delimiter {
@@ -15,11 +15,11 @@ interface Delimiter {
 
 export const lineCommentDelimiter = /\/\//;
 export const blockCommentDelimiter: Array<Delimiter> = [
-  { start: '{', end: '}' },
+  { start: '/*', end: '*/' }
 ];
 export const stringDelimiter: Array<Delimiter> = [
   { start: '"', end: '"' },
-  { start: "'", end: "'" },
+  { start: "'", end: "'" }
 ];
 
 function escapeRegex(str: string): string {
@@ -30,7 +30,7 @@ function findBlockCommentStart(str: string): [number, number] {
   let result = -1;
   let cType = -1;
 
-  blockCommentDelimiter.forEach(function (value, index) {
+  blockCommentDelimiter.forEach(function(value, index) {
     if (str.search(escapeRegex(value.start)) === 0) {
       result = value.start.length;
       cType = index;
@@ -43,7 +43,7 @@ function findBlockCommentStart(str: string): [number, number] {
 function findBlockCommentEnd(str: string, comIndex: number): number {
   let result = -1;
 
-  blockCommentDelimiter.forEach(function (value, index) {
+  blockCommentDelimiter.forEach(function(value, index) {
     if (str.search(escapeRegex(value.end)) === 0 && index === comIndex) {
       result = value.end.length;
     }
@@ -56,7 +56,7 @@ function findStringStart(str: string): [number, number] {
   let result = -1;
   let sIndex = -1;
 
-  stringDelimiter.forEach(function (value, index) {
+  stringDelimiter.forEach(function(value, index) {
     if (str.search(escapeRegex(value.start)) === 0) {
       result = value.start.length;
       sIndex = index;
@@ -69,7 +69,7 @@ function findStringStart(str: string): [number, number] {
 function findStringEnd(str: string, sIndex: number): number {
   let result = -1;
 
-  stringDelimiter.forEach(function (value, index) {
+  stringDelimiter.forEach(function(value, index) {
     if (str.search(escapeRegex(value.end)) === 0 && index === sIndex) {
       result = value.end.length;
     }
