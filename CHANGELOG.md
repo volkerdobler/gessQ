@@ -3,6 +3,11 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### 0.2.1
+
+Bug fix of block comment chars
+Bug fix in getWordDefinition to include word boundaries
+
 ### 0.2.0
 
 New scope identification - now comments and strings are much better recognized to identify variable definitions or references
