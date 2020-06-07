@@ -15,7 +15,7 @@ interface Delimiter {
 
 export const lineCommentDelimiter = /\/\//;
 export const blockCommentDelimiter: Array<Delimiter> = [
-  { start: '{', end: '}' },
+  { start: '/*', end: '*/' },
 ];
 export const stringDelimiter: Array<Delimiter> = [
   { start: '"', end: '"' },
