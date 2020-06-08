@@ -3,6 +3,10 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### 0.2.2
+
+Bug fix: Word boundary in getWordDefinition did not work with quotations.
+
 ### 0.2.1
 
 Bug fix of block comment chars
