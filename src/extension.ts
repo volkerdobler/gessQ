@@ -83,7 +83,7 @@ const constAllVarList: string =
   '(?:' + constVarToList + '|' + constVarList + ')';
 
 function getWordDefinition(word: string): string {
-  return '\\b(?:(?:' + word + ')|(?:"' + word + '")|(?:\'' + word + "'))\\b";
+  return '(?:(?:\\b' + word + '\\b)|(?:"' + word + '")|(?:\'' + word + "'))";
 }
 
 const questionDefRe = function(word: string): RegExp {
