@@ -68,7 +68,7 @@ function getWorkspaceFolderPath(fileUri?: vscode.Uri): string | undefined {
   }
 }
 
-const constTokenVarName = '(?:(?:\\b[A-Za-zÄÖÜßäöü][A-Za-zÄÖÜßäöü\\w\\.]+\\b))';
+const constTokenVarName = '(?:\\b(?:[A-Za-zÄÖÜßäöü][A-Za-zÄÖÜßäöü\\w\\.]*)\\b)';
 const constStringVarName = '(?:"[^"]+")|(?:\'[^\']+\')';
 
 const constVarName: string =

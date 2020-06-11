@@ -3,6 +3,10 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### 0.2.3
+
+Bug fix: minimum length of variable names had been 2. Reduced to 1
+
 ### 0.2.2
 
 Bug fix: Word boundary in getWordDefinition did not work with quotations.
