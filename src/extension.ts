@@ -215,11 +215,11 @@ const actionBlockRe = function(word: string): RegExp {
   }
 
   return new RegExp(
-    '\\b(load|set)\\b\\s*\\(?:\\s*(?:' +
+    '\\b(load|set)\\b\\s*\\(\\s*(?:(?:' +
       retVal +
-      '\\s*=)|(?:[^=]*=.*' +
+      '\\s*=)|(?:[^=]*=.*?' +
       retVal +
-      ')',
+      '))',
     'i'
   );
 };
