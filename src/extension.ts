@@ -108,7 +108,10 @@ const blockDefRe = function(word: string): RegExp {
   } else {
     retName = constVarName;
   }
-  return new RegExp('\\b' + blockConst + '\\b\\s*' + retName + '\\b\\s*=', 'i');
+  return new RegExp(
+    '\\b' + blockConst + '\\b\\s*(' + retName + ')\\b\\s*=',
+    'i'
+  );
 };
 
 const blockRe = function(word: string): RegExp {
@@ -459,23 +462,14 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
           '(' + constTokenVarName + ')|(' + constStringVarName + ')|(.+)'
         );
         function lpush(teststring: string): void {
-          while (teststring && teststring.length > 0) {
+          if (teststring && teststring.length > 0) {
             teststring = teststring.trim();
-            const xname = teststring.match(varName);
-            if (xname) {
-              const pname = xname[2]
-                ? xname[2].substring(1, xname[2].length - 1)
-                : xname[1]
-                ? xname[1]
-                : xname[3];
-              symbols.push({
-                name: pname,
-                kind: kind,
-                location: new vscode.Location(uri, range),
-                containerName: container
-              });
-              teststring = teststring.replace(xname[0], '');
-            }
+            symbols.push({
+              name: teststring,
+              kind: kind,
+              location: new vscode.Location(uri, range),
+              containerName: container
+            });
           }
         }
 
@@ -501,9 +495,9 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
           const lineMatch = line.text.match(questionRegExp);
           if (lineMatch) {
             spush(
-              vscode.SymbolKind.Variable,
-              lineMatch[1].toLocaleLowerCase(),
-              lineMatch[2],
+              vscode.SymbolKind.Function,
+              'question',
+              lineMatch[2] + ' [' + lineMatch[1].toLocaleLowerCase() + ']',
               '',
               '',
               document.uri,
@@ -515,9 +509,9 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
           const lineMatch = line.text.match(blockRegExp);
           if (lineMatch) {
             spush(
-              vscode.SymbolKind.Method,
-              lineMatch[1].toLocaleLowerCase(),
-              lineMatch[2],
+              vscode.SymbolKind.Module,
+              'flow',
+              lineMatch[2] + ' [' + lineMatch[1].toLocaleLowerCase() + ']',
               '',
               '',
               document.uri,
@@ -530,8 +524,8 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
           if (lineMatch) {
             spush(
               vscode.SymbolKind.Variable,
-              lineMatch[1].toLocaleLowerCase(),
-              lineMatch[2],
+              'action',
+              lineMatch[2] + ' [' + lineMatch[1].toLocaleLowerCase() + ']',
               '',
               '',
               document.uri,
