@@ -3,6 +3,10 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### 0.2.5
+
+Bug fix: WorkspaceSymbolProvider did not work correctly.
+
 ### 0.2.4
 
 Bug fix: wrong regexp in actionBlockRe
