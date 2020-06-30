@@ -68,7 +68,11 @@ function getWorkspaceFolderPath(fileUri?: vscode.Uri): string | undefined {
   }
 }
 
-const constTokenVarName = '(?:\\b(?:[A-Za-zÄÖÜßäöü][A-Za-zÄÖÜßäöü\\w\\.]*)\\b)';
+const constTokenVarNameRest = '(?:[A-Za-zÄÖÜßäöü\\w\\$]*)';
+
+const constTokenVarName =
+  '(?:\\b(?:[A-Za-zÄÖÜßäöü])' + constTokenVarNameRest + '\\b)';
+
 const constStringVarName = '(?:"[^"]+")|(?:\'[^\']+\')';
 
 const constVarName: string =
@@ -553,6 +557,10 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
   ): Thenable<vscode.SymbolInformation[]> {
     const symbols: vscode.SymbolInformation[] = [];
 
+    if (query.length > 0) {
+      query = '(' + query + constTokenVarNameRest + ')';
+    }
+
     const questionDefRegExp: RegExp = questionDefRe(query);
     const blockDefRegExp: RegExp = blockDefRe(query);
     const blockRegExp: RegExp = blockRe(query);
@@ -578,9 +586,9 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
       );
 
     return new Promise(resolve => {
-      getAllFilenamesInDirectory(wsFolder, '(q)').forEach(file => {
+      getAllFilenamesInDirectory(wsFolder, '(q)').forEach(fileWithPath => {
         vscode.workspace
-          .openTextDocument(wsFolder + '\\' + file)
+          .openTextDocument(fileWithPath)
           .then(function(content) {
             const scope = new sc.Scope(content);
 
@@ -594,7 +602,7 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
               range: vscode.Range
             ): void {
               const varName = new RegExp(
-                '(' + constTokenVarName + ')|(' + constStringVarName + ')|.+'
+                '(' + constTokenVarName + ')|(' + constStringVarName + ')|(.+)'
               );
 
               function lpush(teststring: string): void {
