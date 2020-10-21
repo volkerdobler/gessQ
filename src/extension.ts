@@ -90,9 +90,9 @@ function getWordDefinition(word: string): string {
   return '(?:(?:\\b' + word + '\\b)|(?:"' + word + '")|(?:\'' + word + "'))";
 }
 
-const questionDefRe = function(word: string): RegExp {
+const questionDefRe = function (word: string): RegExp {
   const questConst =
-    '(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group|opennumformat)';
+    '(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)';
 
   let retVal = '';
   if (word && word.length > 0) {
@@ -103,7 +103,19 @@ const questionDefRe = function(word: string): RegExp {
   return new RegExp(retVal, 'i');
 };
 
-const blockDefRe = function(word: string): RegExp {
+const definitionDefRe = function (word: string): RegExp {
+  const questConst = '(opennumformat)';
+
+  let retVal = '';
+  if (word && word.length > 0) {
+    retVal = '\\b' + questConst + '\\b\\s*' + getWordDefinition(word);
+  } else {
+    retVal = '\\b' + questConst + '\\b\\s(' + constVarName + ')';
+  }
+  return new RegExp(retVal, 'i');
+};
+
+const blockDefRe = function (word: string): RegExp {
   const blockConst = '(block|screen)';
 
   let retName = '';
@@ -118,7 +130,7 @@ const blockDefRe = function(word: string): RegExp {
   );
 };
 
-const blockRe = function(word: string): RegExp {
+const blockRe = function (word: string): RegExp {
   const blockConst = '(?:block)';
   const screenConst = '(?:screen)';
 
@@ -154,7 +166,7 @@ const blockRe = function(word: string): RegExp {
   );
 };
 
-const checkRe = function(word: string): RegExp {
+const checkRe = function (word: string): RegExp {
   let retVal = '';
 
   if (word && word.length > 0) {
@@ -173,7 +185,7 @@ const checkRe = function(word: string): RegExp {
   );
 };
 
-const assertRe = function(word: string): RegExp {
+const assertRe = function (word: string): RegExp {
   let retVal: string;
 
   if (word && word.length > 0) {
@@ -185,7 +197,7 @@ const assertRe = function(word: string): RegExp {
   return new RegExp('\\bassert\\s+\\(.*\\b' + retVal + '\\b', 'i');
 };
 
-const computeRe = function(word: string): RegExp {
+const computeRe = function (word: string): RegExp {
   let retVal: string;
 
   if (word && word.length > 0) {
@@ -197,7 +209,7 @@ const computeRe = function(word: string): RegExp {
   return new RegExp('\\bcompute\\b\\s*.+\\b' + retVal + '\\b', 'i');
 };
 
-const actionBlockDefRe = function(word: string): RegExp {
+const actionBlockDefRe = function (word: string): RegExp {
   let retVal: string;
 
   if (word && word.length > 0) {
@@ -212,26 +224,19 @@ const actionBlockDefRe = function(word: string): RegExp {
   );
 };
 
-const actionBlockRe = function(word: string): RegExp {
+const actionBlockRe = function (word: string): RegExp {
   let retVal: string;
 
   if (word && word.length > 0) {
     retVal = getWordDefinition(word);
   } else {
-    retVal = constVarName;
+    retVal = constVarName + '|(?:[^=]+)';
   }
 
-  return new RegExp(
-    '\\b(load|set)\\b\\s*\\(\\s*(?:(?:' +
-      retVal +
-      '\\s*=)|(?:[^=]*=.*?' +
-      retVal +
-      '))',
-    'i'
-  );
+  return new RegExp('\\b(load|set)\\s*\\(\\s*(?:(' + retVal + ')\\s*=)', 'i');
 };
 
-const macroDefRe = function(word: string): RegExp {
+const macroDefRe = function (word: string): RegExp {
   let retVal: string;
 
   if (word && word.length > 0) {
@@ -268,10 +273,10 @@ function getAllFilenamesInDirectory(dir: string, fType: string): string[] {
   const regEXP = new RegExp('\\.' + fType + '$', 'i');
   const list = fs.readdirSync(dir, {
     encoding: 'utf8',
-    withFileTypes: true
+    withFileTypes: true,
   });
 
-  list.forEach(function(file: fs.Dirent) {
+  list.forEach(function (file: fs.Dirent) {
     const fileInclDir = dir + '\\' + file.name;
     if (file.isDirectory()) {
       /* dive into a subdirectory */
@@ -294,9 +299,10 @@ async function getDefLocationInDocument(
   let locPosition: vscode.Location;
 
   const questionRegExp = questionDefRe(word);
+  const definitionRegExp = definitionDefRe(word);
   const blockRegExp = blockDefRe(word);
 
-  return vscode.workspace.openTextDocument(filename).then(content => {
+  return vscode.workspace.openTextDocument(filename).then((content) => {
     const scope = new sc.Scope(content);
 
     for (let i = 0; i < content.lineCount; i++) {
@@ -307,6 +313,7 @@ async function getDefLocationInDocument(
 
       if (
         scope.isNotInComment(i, line.text.search(questionRegExp)) ||
+        scope.isNotInComment(i, line.text.search(definitionRegExp)) ||
         scope.isNotInComment(i, line.text.search(blockRegExp))
       ) {
         locPosition = new vscode.Location(content.uri, line.range);
@@ -325,6 +332,7 @@ async function getAllLocationInDocument(
   const locArray: vscode.Location[] = [];
 
   const questionDefRegExp = questionDefRe(word);
+  const definitionDefRegExp = definitionDefRe(word);
   const blockDefRegExp = blockDefRe(word);
   const blockRegExp = blockRe(word);
   const checkRegExp = checkRe(word);
@@ -332,7 +340,7 @@ async function getAllLocationInDocument(
   const computeRegExp = computeRe(word);
   const actionBlockRegExp = actionBlockDefRe(word);
 
-  return vscode.workspace.openTextDocument(filename).then(content => {
+  return vscode.workspace.openTextDocument(filename).then((content) => {
     const scope = new sc.Scope(content);
 
     for (let i = 0; i < content.lineCount; i++) {
@@ -343,6 +351,7 @@ async function getAllLocationInDocument(
 
       if (
         scope.isNotInComment(i, line.text.search(questionDefRegExp)) ||
+        scope.isNotInComment(i, line.text.search(definitionDefRegExp)) ||
         scope.isNotInComment(i, line.text.search(blockDefRegExp)) ||
         scope.isNotInComment(i, line.text.search(blockRegExp)) ||
         scope.isNotInComment(i, line.text.search(checkRegExp)) ||
@@ -367,7 +376,7 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
   ): Thenable<vscode.Location> {
     const adjustedPos = getWordAtPosition(document, position);
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (!adjustedPos[0]) {
         return Promise.resolve(null);
       }
@@ -384,13 +393,13 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
         return null;
       }
 
-      const locations = fileNames.map(file =>
+      const locations = fileNames.map((file) =>
         getDefLocationInDocument(file, word)
       );
       // has to be a Promise as the OpenTextDocument is async and we have to
       // wait until it is fullfilled with all filenames.
-      Promise.all(locations).then(function(content) {
-        resolve(content.find(loc => loc));
+      Promise.all(locations).then(function (content) {
+        resolve(content.find((loc) => loc));
       });
     });
   }
@@ -407,7 +416,7 @@ class GessQReferenceProvider implements vscode.ReferenceProvider {
   ): Thenable<vscode.Location[]> {
     const wordAtPosition = getWordAtPosition(document, position);
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (!wordAtPosition[0]) {
         return Promise.resolve(null);
       }
@@ -421,24 +430,24 @@ class GessQReferenceProvider implements vscode.ReferenceProvider {
 
       const fileNames: string[] = getAllFilenamesInDirectory(wsFolder, 'q');
 
-      const locations = fileNames.map(file =>
+      const locations = fileNames.map((file) =>
         getAllLocationInDocument(file, word)
       );
       Promise.all(locations)
-        .then(function(content) {
-          content.forEach(loc => {
+        .then(function (content) {
+          content.forEach((loc) => {
             if (loc != null && loc[0] != null) {
-              loc.forEach(arr => {
+              loc.forEach((arr) => {
                 loclist.push(arr);
               });
             }
           });
           return loclist;
         })
-        .then(result => {
+        .then((result) => {
           resolve(result);
         })
-        .catch(e => {
+        .catch((e) => {
           resolve(undefined);
         });
     });
@@ -450,7 +459,7 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
     document: vscode.TextDocument,
     token: vscode.CancellationToken
   ): Thenable<vscode.SymbolInformation[]> {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const symbols: vscode.SymbolInformation[] = [];
 
       function spush(
@@ -472,7 +481,7 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
               name: teststring,
               kind: kind,
               location: new vscode.Location(uri, range),
-              containerName: container
+              containerName: container,
             });
           }
         }
@@ -483,6 +492,7 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
       }
 
       const questionRegExp = questionDefRe('');
+      const definitionRegExp = definitionDefRe('');
       const blockRegExp = blockDefRe('');
       const actionBlockRegExp = actionBlockRe('');
 
@@ -501,6 +511,20 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
             spush(
               vscode.SymbolKind.Function,
               'question',
+              lineMatch[2] + ' [' + lineMatch[1].toLocaleLowerCase() + ']',
+              '',
+              '',
+              document.uri,
+              line.range
+            );
+          }
+        }
+        if (scope.isNotInComment(i, line.text.search(definitionRegExp))) {
+          const lineMatch = line.text.match(definitionRegExp);
+          if (lineMatch) {
+            spush(
+              vscode.SymbolKind.Property,
+              'definition',
               lineMatch[2] + ' [' + lineMatch[1].toLocaleLowerCase() + ']',
               '',
               '',
@@ -529,8 +553,12 @@ class GessQDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
             spush(
               vscode.SymbolKind.Variable,
               'action',
-              lineMatch[2] + ' [' + lineMatch[1].toLocaleLowerCase() + ']',
-              '',
+              lineMatch[2]
+                ? lineMatch[2] + ' [' + lineMatch[1].toLocaleLowerCase() + ']'
+                : '',
+              lineMatch[3]
+                ? lineMatch[3] + ' [' + lineMatch[1].toLocaleLowerCase() + '}'
+                : '',
               '',
               document.uri,
               line.range
@@ -556,6 +584,7 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
     }
 
     const questionDefRegExp: RegExp = questionDefRe(query);
+    const definitionDefRegExp: RegExp = definitionDefRe(query);
     const blockDefRegExp: RegExp = blockDefRe(query);
     const blockRegExp: RegExp = blockRe(query);
     const checkRegExp: RegExp = checkRe(query);
@@ -579,11 +608,11 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
         )
       );
 
-    return new Promise(resolve => {
-      getAllFilenamesInDirectory(wsFolder, '(q)').forEach(fileWithPath => {
+    return new Promise((resolve) => {
+      getAllFilenamesInDirectory(wsFolder, '(q)').forEach((fileWithPath) => {
         vscode.workspace
           .openTextDocument(fileWithPath)
-          .then(function(content) {
+          .then(function (content) {
             const scope = new sc.Scope(content);
 
             function spush(
@@ -613,7 +642,7 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
                       name: pname,
                       kind: kind,
                       location: new vscode.Location(uri, range),
-                      containerName: container
+                      containerName: container,
                     });
                     teststring = teststring.replace(xname[0], '');
                   }
@@ -635,6 +664,22 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
                 scope.isNotInComment(i, line.text.search(questionDefRegExp))
               ) {
                 const lineMatch = line.text.match(questionDefRegExp);
+                if (lineMatch) {
+                  spush(
+                    vscode.SymbolKind.Function,
+                    lineMatch[1],
+                    lineMatch[2],
+                    '',
+                    '',
+                    content.uri,
+                    line.range
+                  );
+                }
+              }
+              if (
+                scope.isNotInComment(i, line.text.search(definitionDefRegExp))
+              ) {
+                const lineMatch = line.text.match(definitionDefRegExp);
                 if (lineMatch) {
                   spush(
                     vscode.SymbolKind.Function,
@@ -736,7 +781,7 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
             }
             return symbols;
           })
-          .then(result => {
+          .then((result) => {
             resolve(result);
           });
       });
