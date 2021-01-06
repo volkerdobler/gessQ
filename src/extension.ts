@@ -399,7 +399,11 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
       // has to be a Promise as the OpenTextDocument is async and we have to
       // wait until it is fullfilled with all filenames.
       Promise.all(locations).then(function (content) {
-        resolve(content.find((loc) => loc));
+        content.forEach((loc) => {
+          if (loc != null) {
+            return loc;
+          }
+        });
       });
     });
   }
@@ -446,10 +450,10 @@ class GessQReferenceProvider implements vscode.ReferenceProvider {
         })
         .then((result) => {
           resolve(result);
-        })
-        .catch((e) => {
-          resolve(undefined);
         });
+      // .catch((e) => {
+      //   resolve(null);
+      // });
     });
   }
 }
