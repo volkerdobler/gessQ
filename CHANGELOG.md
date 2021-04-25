@@ -3,6 +3,10 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### 0.3.1
+
+Update: insert new command "JsonDataLimit" in language file
+
 ### 0.3.0
 
 Update: new order of SymbolProviders
