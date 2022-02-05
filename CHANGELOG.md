@@ -3,6 +3,11 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### 0.3.2
+
+Bug fix: Issue01
+Double-Quotes preceded with a Backslash will no longer recognized as start of a string.
+
 ### 0.3.1
 
 Update: insert new command "JsonDataLimit" in language file
