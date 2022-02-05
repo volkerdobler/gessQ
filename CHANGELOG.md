@@ -8,6 +8,8 @@ Current version number is first:
 Bug fix: Issue01
 Double-Quotes preceded with a Backslash will no longer recognized as start of a string.
 
+Update: insert new commands in language file
+
 ### 0.3.1
 
 Update: insert new command "JsonDataLimit" in language file
