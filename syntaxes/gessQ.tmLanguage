@@ -51,9 +51,7 @@
 			</dict>
 			<dict>
 				<key>begin</key>
-				<string>(?
-					<![\\])"
-				</string>
+				<string>(?<![\\])"</string>
 				<key>beginCaptures</key>
 				<dict>
 					<key>0</key>
@@ -63,9 +61,7 @@
 					</dict>
 				</dict>
 				<key>end</key>
-				<string>(?
-					<![\\])"
-				</string>
+				<string>(?<![\\])"</string>
 				<key>endCaptures</key>
 				<dict>
 					<key>0</key>
