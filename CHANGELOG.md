@@ -3,6 +3,12 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### 0.3.4
+
+Insert new feature: working with folding regions
+
+Bug fix in finding definition of variable
+
 ### 0.3.3
 
 Bug fixes: [Issue02](https://github.com/volkerdobler/gessQ/issues/2#issue-1126976954) & [Issue03](https://github.com/volkerdobler/gessQ/issues/3#issue-1126994849)
