@@ -68,9 +68,10 @@ function getWorkspaceFolderPath(fileUri?: vscode.Uri): string | undefined {
     const workspace = vscode.workspace.getWorkspaceFolder(fileUri);
     if (workspace) {
       return fixDriveCasingInWindows(workspace.uri.fsPath);
+    } else {
+      return;
     }
   }
-
   // fall back to the first workspace
   const folders = vscode.workspace.workspaceFolders;
   if (folders && folders.length) {
@@ -329,6 +330,9 @@ async function getDefLocationInDocument(
         locPosition = new vscode.Location(content.uri, line.range);
       }
     }
+    if (!locPosition) {
+      Promise.reject('No definition found');
+    }
     return locPosition;
   });
 }
@@ -386,9 +390,10 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
   ): Thenable<vscode.Location> {
     const adjustedPos = getWordAtPosition(document, position);
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       if (!adjustedPos[0]) {
-        return Promise.resolve(null);
+        reject('No definition found');
+        return;
       }
       const word = adjustedPos[1];
 
@@ -400,7 +405,8 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
 
       if (fileNames.length === 0) {
         vscode.window.showInformationMessage('No Q-files found in ' + wsFolder);
-        return null;
+        reject('No Q-files found');
+        return;
       }
 
       const locations = fileNames.map((file) =>
@@ -409,11 +415,16 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
       // has to be a Promise as the OpenTextDocument is async and we have to
       // wait until it is fullfilled with all filenames.
       Promise.all(locations).then(function (content) {
+        let found: boolean = false;
         content.forEach((loc) => {
           if (loc != null) {
-            return loc;
+            resolve(loc);
+            found = true;
           }
         });
+        if (!found) {
+          reject('No definition found');
+        }
       });
     });
   }
