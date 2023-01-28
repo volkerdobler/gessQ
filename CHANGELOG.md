@@ -7,7 +7,7 @@ Current version number is first:
 
 Insert new feature: working with folding regions
 
-Bug fix in finding definition of variable
+Bug fix in finding a variable definition
 
 ### 0.3.3
 
