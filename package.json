@@ -11,9 +11,6 @@
     "Programming Languages",
     "Snippets"
   ],
-  "activationEvents": [
-    "onLanguage:gessq"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/volkerdobler/gessQ.git"
