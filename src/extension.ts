@@ -388,9 +388,9 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
     position: vscode.Position,
     token: vscode.CancellationToken
   ): Thenable<vscode.Location> {
-    const adjustedPos = getWordAtPosition(document, position);
-
     return new Promise((resolve, reject) => {
+      const adjustedPos = getWordAtPosition(document, position);
+
       if (!adjustedPos[0]) {
         reject('No definition found');
         return;
