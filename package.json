@@ -11,9 +11,6 @@
     "Programming Languages",
     "Snippets"
   ],
-  "activationEvents": [
-    "onLanguage:gessq"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/volkerdobler/gessQ.git"
@@ -52,8 +49,6 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
