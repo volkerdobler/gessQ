@@ -39,7 +39,7 @@
       {
         "language": "gessq",
         "scopeName": "source.gessQ",
-        "path": "./syntaxes/gessq.tmLanguage"
+        "path": "./syntaxes/gessQ.tmLanguage.json"
       }
     ],
     "snippets": [

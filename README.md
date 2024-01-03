@@ -17,4 +17,10 @@ Currently, no settings are supported
 
 It's still in an alpha version mode. See CHANGELOG.md for detail steps of versioning.
 
+## Contributors 🙏
+
+A big thank you to the people who have contributed to this project:
+
+* Sebastian Zagaria (improved syntax highlighting)
+
 **Enjoy!**
