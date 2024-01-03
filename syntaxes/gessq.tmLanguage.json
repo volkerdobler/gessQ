@@ -10,8 +10,8 @@
             "name": "keyword.gessQ"
         },
         {
-            "begin": "(?i)(javascript)\\s*=\\s*\"",
-            "end": "\\\"",
+            "begin": "(?i)(javascript|jsHandler)\\s*=\\s*\"",
+            "end": "\";",
             "name": "meta.embedded.block.javascript",
             "beginCaptures": {
                 "1": {
@@ -20,13 +20,17 @@
             },
             "patterns": [
                 {
+                    "match": "\\.",
+                    "name":  "meta.embedded.block.javascript"
+                },
+                {
                     "include": "source.js"
                 }
             ]
         },
         {
             "begin": "(?i)(css)\\s*=\\s*\"",
-            "end": "\\\"",
+            "end": "\";",
             "name": "meta.embedded.block.css",
             "beginCaptures": {
                 "1": {
@@ -104,7 +108,7 @@
             ]
         },
         {
-            "match" : "\\d+",
+            "match" : "\\b\\d*[,.]?\\d+\\b",
             "name": "constant.numeric.decimal"
         }
     ]
