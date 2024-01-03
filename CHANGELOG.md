@@ -3,6 +3,10 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### 0.3.6
+
+Minor bug fix in 0.3.5
+
 ### 0.3.5
 
 New Syntax file - thanks to Sebastian Zagaria from GessGroup
