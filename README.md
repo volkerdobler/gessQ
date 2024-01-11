@@ -21,6 +21,7 @@ It's still in an alpha version mode. See CHANGELOG.md for detail steps of versio
 
 A big thank you to the people who have contributed to this project:
 
-* Sebastian Zagaria (improved syntax highlighting)
+- Sebastian Zagaria from GESS GmbH (improved syntax highlighting)
+- all GESS GmbH programmers, who improved snippets
 
 **Enjoy!**

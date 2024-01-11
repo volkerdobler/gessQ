@@ -2,7 +2,7 @@
   "name": "gessq",
   "displayName": "gessQ",
   "description": "gess.Q Support",
-  "version": "0.3.4",
+  "version": "0.3.6",
   "publisher": "volkerdobler",
   "engines": {
     "vscode": "^1.75.0"
@@ -10,9 +10,6 @@
   "categories": [
     "Programming Languages",
     "Snippets"
-  ],
-  "activationEvents": [
-    "onLanguage:gessq"
   ],
   "repository": {
     "type": "git",
