@@ -4,7 +4,7 @@
     "uuid": "0ec38dc3-863a-41b9-954a-50d94188ec58",
     "name": "gessQ",
     "fileTypes": "q",
-    "patterns":[
+    "patterns": [
         {
             "match": "(?i)\\b(textq|openq|singleq|multiq|uploadq|numq|singlegridq|multigridq|textelement|group|compute|array|vararray|block|screen)\\b",
             "name": "keyword.gessQ"
@@ -41,7 +41,7 @@
         },
         {
             "name": "comment.gessQ",
-            "match" : "//.*"
+            "match": "//.*"
         },
         {
             "begin": "/\\*",
@@ -52,10 +52,12 @@
             },
             "end": "\\*/",
             "endCaptures": {
-                "0": {"name": "comment.block.end.gessQ"}
+                "0": {
+                    "name": "comment.block.end.gessQ"
+                }
             },
-			"name": "comment.block.gessQ",
-            "patterns":[
+            "name": "comment.block.gessQ",
+            "patterns": [
                 {
                     "match": "\\.",
                     "name": "comment.block.gessQ"
@@ -90,21 +92,21 @@
                     "name": "punctuation.definition.string.begin.gessQ"
                 }
             },
-            "end":"\"",
-            "endCaptures":{
-                "0":{
+            "end": "\"",
+            "endCaptures": {
+                "0": {
                     "name": "punctuation.definition.string.end.gessQ"
                 }
             },
-            "patterns":[
+            "patterns": [
                 {
                     "match": "\\.",
-                    "name":  "constant.character.escape.gessQ"
+                    "name": "constant.character.escape.gessQ"
                 }
             ]
         },
         {
-            "match" : "\\d+",
+            "match": "\\b\\d+(\\.\\d+)?\\b",
             "name": "constant.numeric.decimal"
         }
     ]
