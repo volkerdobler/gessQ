@@ -44,6 +44,16 @@ export function activate(context: vscode.ExtensionContext): any {
       new GessQWorkspaceSymbolProvider()
     )
   );
+
+  context.subscriptions.push(
+    vscode.languages.registerFoldingRangeProvider(
+      {
+        language: 'gessq',
+        scheme: 'file',
+      },
+      new GessQFoldingRangeProvider()
+    )
+  );
 }
 
 // Workaround for issue in https://github.com/Microsoft/vscode/issues/9448#issuecomment-244804026
@@ -58,9 +68,10 @@ function getWorkspaceFolderPath(fileUri?: vscode.Uri): string | undefined {
     const workspace = vscode.workspace.getWorkspaceFolder(fileUri);
     if (workspace) {
       return fixDriveCasingInWindows(workspace.uri.fsPath);
+    } else {
+      return;
     }
   }
-
   // fall back to the first workspace
   const folders = vscode.workspace.workspaceFolders;
   if (folders && folders.length) {
@@ -319,6 +330,9 @@ async function getDefLocationInDocument(
         locPosition = new vscode.Location(content.uri, line.range);
       }
     }
+    if (!locPosition) {
+      Promise.reject('No definition found');
+    }
     return locPosition;
   });
 }
@@ -374,11 +388,12 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
     position: vscode.Position,
     token: vscode.CancellationToken
   ): Thenable<vscode.Location> {
-    const adjustedPos = getWordAtPosition(document, position);
+    return new Promise((resolve, reject) => {
+      const adjustedPos = getWordAtPosition(document, position);
 
-    return new Promise((resolve) => {
       if (!adjustedPos[0]) {
-        return Promise.resolve(null);
+        reject('No definition found');
+        return;
       }
       const word = adjustedPos[1];
 
@@ -389,8 +404,9 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
       const fileNames: string[] = getAllFilenamesInDirectory(wsFolder, 'q');
 
       if (fileNames.length === 0) {
-        vscode.window.showInformationMessage('No Q-files found in ' + wsFolder);
-        return null;
+        // vscode.window.showInformationMessage('No Q-files found in ' + wsFolder);
+        reject('No Q-files found');
+        return;
       }
 
       const locations = fileNames.map((file) =>
@@ -399,11 +415,16 @@ class GessQDefinitionProvider implements vscode.DefinitionProvider {
       // has to be a Promise as the OpenTextDocument is async and we have to
       // wait until it is fullfilled with all filenames.
       Promise.all(locations).then(function (content) {
+        let found: boolean = false;
         content.forEach((loc) => {
           if (loc != null) {
-            return loc;
+            resolve(loc);
+            found = true;
           }
         });
+        if (!found) {
+          reject('No definition found');
+        }
       });
     });
   }
@@ -789,6 +810,131 @@ class GessQWorkspaceSymbolProvider implements vscode.WorkspaceSymbolProvider {
             resolve(result);
           });
       });
+    });
+  }
+}
+
+class GessQFoldingRangeProvider implements vscode.FoldingRangeProvider {
+  public provideFoldingRanges(
+    document: vscode.TextDocument,
+    context: vscode.FoldingContext,
+    token: vscode.CancellationToken
+  ): Thenable<vscode.FoldingRange[]> {
+    return new Promise((resolve) => {
+      const regions: {
+        start: RegExp;
+        end: RegExp;
+        kind: vscode.FoldingRangeKind;
+        len: number;
+      }[] = [
+        {
+          start: /\B#macro\b/i,
+          end: /\B#(endmacro|macroend)\b/i,
+          kind: vscode.FoldingRangeKind.Region,
+          len: 6,
+        },
+        {
+          start: /\B#ifn?def\b/i,
+          end: /\B#end(if)?\b/i,
+          kind: vscode.FoldingRangeKind.Region,
+          len: 4,
+        },
+        {
+          start: /\{/i,
+          end: /\}/,
+          kind: vscode.FoldingRangeKind.Region,
+          len: 1,
+        },
+        {
+          start: /\B\/\*\B/,
+          end: /\B\*\/\B/,
+          kind: vscode.FoldingRangeKind.Comment,
+          len: 2,
+        },
+      ];
+
+      const foldingCollection: {
+        start: number;
+        end: number;
+        kind: vscode.FoldingRangeKind;
+      }[] = [];
+
+      let foldingCounter: number = 0;
+      let inComment = false;
+
+      for (let l = 0; l < document.lineCount; l++) {
+        let curLine = document.lineAt(l).text;
+
+        let posLineComment = curLine.search(/\/\//);
+        if (posLineComment > -1) {
+          curLine = curLine.slice(0, posLineComment);
+          if (curLine.length === 0) {
+            continue;
+          }
+        }
+        for (let loop = 0; loop < regions.length; loop++) {
+          if (curLine.length === 0) {
+            break;
+          }
+
+          if (curLine.search(/\}\s*else\s*\{/) > -1) {
+            break;
+          }
+          let posRegionComplete = curLine.search(
+            new RegExp(
+              regions[loop].start.source + '.+?' + regions[loop].end.source,
+              'i'
+            )
+          );
+
+          // Wenn Start & End in einer Zeile, dann einfach ignorieren
+          while (posRegionComplete > -1) {
+            curLine =
+              curLine.slice(0, curLine.search(regions[loop].start)) +
+              curLine.slice(
+                curLine.search(regions[loop].end) + regions[loop].len
+              );
+            posRegionComplete = curLine.search(
+              new RegExp(
+                regions[loop].start.source + '.+?' + regions[loop].end.source,
+                'i'
+              )
+            );
+          }
+          let posStart = curLine.search(regions[loop].start);
+          if (posStart > -1 && !inComment) {
+            foldingCollection.push({
+              start: l,
+              end: -1,
+              kind: regions[loop].kind,
+            });
+            foldingCounter = foldingCollection.length;
+            curLine = curLine.slice(posStart + regions[loop].len);
+            inComment = regions[loop].kind === vscode.FoldingRangeKind.Comment;
+          }
+          let posEnd = curLine.search(regions[loop].end);
+          if (
+            posEnd > -1 &&
+            (regions[loop].kind === vscode.FoldingRangeKind.Comment ||
+              !inComment)
+          ) {
+            while (
+              foldingCounter > 0 &&
+              foldingCollection[foldingCounter - 1].end > -1
+            ) {
+              foldingCounter--;
+            }
+            if (foldingCounter > 0) {
+              let endLine =
+                l - 1 > foldingCollection[foldingCounter - 1].start ? l - 1 : l;
+              foldingCollection[--foldingCounter].end = endLine;
+            }
+            curLine = curLine.slice(posEnd + regions[loop].len + 1);
+            inComment = false;
+          }
+        }
+      }
+      resolve(foldingCollection);
     });
   }
 }

@@ -17,4 +17,11 @@ Currently, no settings are supported
 
 It's still in an alpha version mode. See CHANGELOG.md for detail steps of versioning.
 
+## Contributors 🙏
+
+A big thank you to the people who have contributed to this project:
+
+- Sebastian Zagaria from GESS GmbH (improved syntax highlighting)
+- all GESS GmbH programmers, who improved snippets
+
 **Enjoy!**

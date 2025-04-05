@@ -1,74 +1,69 @@
 {
-    "name": "gessq",
-    "displayName": "gessQ",
-    "description": "gess.Q Support",
-    "version": "0.3.1",
-    "publisher": "volkerdobler",
-    "engines": {
-        "vscode": "^1.52.0"
-    },
-    "categories": [
-        "Programming Languages",
-        "Snippets"
-    ],
-    "activationEvents": [
-        "onLanguage:gessq"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/volkerdobler/gessQ.git"
-    },
-    "license": "AFL-3.0",
-    "main": "./out/extension",
-    "icon": "images/gessQ_icon.png",
-    "contributes": {
-        "languages": [
-            {
-                "id": "gessq",
-                "aliases": [
-                    "gessQ",
-                    "gessq"
-                ],
-                "extensions": [
-                    ".q"
-                ],
-                "configuration": "./language-configuration.json"
-            }
+  "name": "gessq",
+  "displayName": "gessQ",
+  "description": "gess.Q Support",
+  "version": "0.3.6",
+  "publisher": "volkerdobler",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/volkerdobler/gessQ.git"
+  },
+  "license": "AFL-3.0",
+  "main": "./out/extension",
+  "icon": "images/gessQ_icon.png",
+  "contributes": {
+    "languages": [
+      {
+        "id": "gessq",
+        "aliases": [
+          "gessQ",
+          "gessq"
         ],
-        "grammars": [
-            {
-                "language": "gessq",
-                "scopeName": "source.gessQ",
-                "path": "./syntaxes/gessq.tmLanguage"
-            }
+        "extensions": [
+          ".q"
         ],
-        "snippets": [
-            {
-                "language": "gessq",
-                "path": "./snippets/snippets.json"
-            }
-        ]
-    },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "lint": "eslint .",
-        "lint:fix": "eslint . --fix",
-        "watch": "tsc -watch -p ./"
-    },
-    "devDependencies": {
-        "@types/node": "^18.11.19",
-        "@types/vscode": "^1.75.0",
-        "@typescript-eslint/eslint-plugin": "^5.50.0",
-        "@typescript-eslint/parser": "^5.50.0",
-        "eslint": "^8.33.0",
-        "eslint-config-prettier": "^8.6.0",
-        "eslint-plugin-prettier": "^4.2.1",
-        "prettier": "^2.2.1"
-    },
-    "__metadata": {
-        "id": "8369ddfc-3ff3-4da4-8712-89df76ef2c89",
-        "publisherId": "7c9d6a5c-7f0a-4217-8a96-4f84eae98522",
-        "publisherDisplayName": "Volker Dobler"
-    }
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "gessq",
+        "scopeName": "source.gessQ",
+        "path": "./syntaxes/gessQ.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "gessq",
+        "path": "./snippets/snippets.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.19",
+    "@types/vscode": "^1.75.0",
+    "@typescript-eslint/eslint-plugin": "^5.50.0",
+    "@typescript-eslint/parser": "^5.50.0",
+    "eslint": "^8.33.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.3"
+  },
+  "__metadata": {
+    "id": "8369ddfc-3ff3-4da4-8712-89df76ef2c89",
+    "publisherId": "7c9d6a5c-7f0a-4217-8a96-4f84eae98522",
+    "publisherDisplayName": "Volker Dobler"
+  }
 }

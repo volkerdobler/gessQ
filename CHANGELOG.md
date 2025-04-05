@@ -3,6 +3,37 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### 0.3.7
+
+new snippet file (thanks to all GESSGROUP programmers!)
+
+### 0.3.6
+
+Minor bug fix in 0.3.5
+
+### 0.3.5
+
+New Syntax file - thanks to Sebastian Zagaria from GessGroup
+Update npm packages
+
+### 0.3.4
+
+Insert new feature: working with folding regions
+
+Bug fix in finding a variable definition
+
+### 0.3.3
+
+Bug fixes: [Issue02](https://github.com/volkerdobler/gessQ/issues/2#issue-1126976954) & [Issue03](https://github.com/volkerdobler/gessQ/issues/3#issue-1126994849)
+Thanks to [@dietzste](https://github.com/dietzste)
+
+### 0.3.2
+
+Bug fix: [Issue01](https://github.com/volkerdobler/gessQ/issues/1#issue-1087885595)
+Double-Quotes preceded with a Backslash will no longer recognized as start of a string.
+
+Update: insert new commands in language file
+
 ### 0.3.1
 
 Update: insert new command "JsonDataLimit" in language file
