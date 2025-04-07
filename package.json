@@ -2,10 +2,10 @@
   "name": "gessq",
   "displayName": "gessQ",
   "description": "gess.Q Support",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "publisher": "volkerdobler",
   "engines": {
-    "vscode": "^1.75.0"
+    "vscode": "^1.99.0"
   },
   "categories": [
     "Programming Languages",
@@ -49,17 +49,18 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "watch": "tsc -watch -p ./",
+    "build": "vsce package --out build/"
   },
   "devDependencies": {
-    "@types/node": "^18.11.19",
+    "@types/node": "^22.14.0",
     "@types/vscode": "^1.75.0",
-    "@typescript-eslint/eslint-plugin": "^5.50.0",
-    "@typescript-eslint/parser": "^5.50.0",
-    "eslint": "^8.33.0",
-    "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.8.3"
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.29.0",
+    "eslint": "^9.24.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "prettier": "^3.5.3"
   },
   "__metadata": {
     "id": "8369ddfc-3ff3-4da4-8712-89df76ef2c89",

@@ -3,6 +3,10 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### 0.3.8
+
+Insert new script function-names to syntax
+
 ### 0.3.7
 
 new snippet file (thanks to all GESSGROUP programmers!)
