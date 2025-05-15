@@ -3,6 +3,11 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### 0.3.9
+
+Improve number recognition
+Insert new commands for new rendering
+
 ### 0.3.8
 
 Insert new script function-names to syntax
