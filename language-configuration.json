@@ -11,7 +11,8 @@
         ["[", "]"],
         ["(", ")"]
     ],
-		"autoCloseBefore": ";:.,=}])>` \n\t",
+		"autoCloseBefore": ";:.,=}])>` \n\t\t",
+        "wordPattern": "(-?\\d*\\.\\d\w*)|([A-Za-zÄÖÜäöüß_$][A-Za-zÄÖÜäöüß0-9_$]*)",
     // symbols that are auto closed when typing
     "autoClosingPairs": [
         { "open": "{", "close": "}" },
@@ -28,5 +29,19 @@
         ["(", ")"],
         ["\"", "\""],
         ["'", "'"]
+    ]
+    "indentationRules": {
+        "increaseIndentPattern": "^.*(\{\s*$|\b(block|screen|if|for|foreach)\b.*(=|\().*)",
+        "decreaseIndentPattern": "^\s*\}"
+    },
+    "onEnterRules": [
+        {
+            "beforeText": "^.*\\{\\s*$",
+            "action": { "indentAction": "indent" }
+        },
+        {
+            "beforeText": "^\\s*\\}\\s*$",
+            "action": { "indentAction": "outdent" }
+        }
     ]
 }
