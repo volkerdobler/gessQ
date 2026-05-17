@@ -1,4 +1,4 @@
-import { getScopeAt, ScopeEnum } from '../src/scope';
+import { getScopeAt, ScopeEnum } from '../components/scopeComponent';
 import * as vscode from 'vscode';
 
 // Minimal fake TextDocument matching the properties used by getScopeAt

@@ -24,6 +24,7 @@ import { getWordAtPosition } from './commons/vscodeUtils';
 import { GessQCompletionProvider, GessQHoverProvider } from './components';
 import { GessQSignatureProvider } from './components';
 import * as parser from './commons/parserUtils';
+import { setOutputChannel, error as logError, info } from './commons/logger';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -32,7 +33,22 @@ import * as parser from './commons/parserUtils';
  * @param context extension context provided by VS Code
  */
 export function activate(context: vscode.ExtensionContext): any {
-	console.log('Congratulations, your extension "gessQ" is now active!');
+	info('Congratulations, your extension "gessQ" is now active!');
+
+	const out = vscode.window.createOutputChannel('gessQ');
+	context.subscriptions.push(out);
+
+	// register output channel with logger helper
+	setOutputChannel(out);
+
+	const unhandled = (reason: any) => {
+		const msg = reason && reason.stack ? reason.stack : String(reason);
+		logError('[unhandledRejection] ' + msg);
+	};
+	process.on('unhandledRejection', unhandled);
+	context.subscriptions.push({
+		dispose: () => process.removeListener('unhandledRejection', unhandled),
+	});
 
 	context.subscriptions.push(
 		vscode.languages.registerDocumentSymbolProvider(
@@ -82,11 +98,14 @@ export function activate(context: vscode.ExtensionContext): any {
 		),
 	);
 
-	// Register hover provider
+	// Register hover provider (support files and untitled editors)
 	context.subscriptions.push(
 		vscode.languages.registerHoverProvider(
-			{ language: 'gessq', scheme: 'file' },
-			new GessQHoverProvider(),
+			[
+				{ language: 'gessq', scheme: 'file' },
+				{ language: 'gessq', scheme: 'untitled' },
+			],
+			new GessQHoverProvider(context.extensionPath),
 		),
 	);
 

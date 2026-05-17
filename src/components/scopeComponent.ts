@@ -14,6 +14,7 @@ import {
 	findStringStart,
 	findStringEnd,
 } from '../commons/scopeUtils';
+import { debug } from '../commons/logger';
 
 export enum ScopeEnum {
 	normal,
@@ -333,19 +334,14 @@ export function getCachedScope(document: vscode.TextDocument): Scope {
 	const entry = scopeCache.get(key);
 	if (entry && entry.version === document.version) {
 		if (cacheDebug) {
-			console.debug(
-				'[scope] cache hit',
-				key,
-				'version',
-				document.version,
-			);
+			debug('[scope] cache hit ' + key + ' version ' + document.version);
 		}
 		return entry.scope;
 	}
 	const s = new Scope(document);
 	scopeCache.set(key, { version: document.version, scope: s });
 	if (cacheDebug) {
-		console.debug('[scope] cache set', key, 'version', document.version);
+		debug('[scope] cache set ' + key + ' version ' + document.version);
 	}
 	return s;
 }
@@ -356,12 +352,12 @@ export function getCachedScope(document: vscode.TextDocument): Scope {
 export function clearScopeCache(document?: vscode.TextDocument): void {
 	if (document) {
 		if (cacheDebug) {
-			console.debug('[scope] cache clear', cacheKey(document));
+			debug('[scope] cache clear ' + cacheKey(document));
 		}
 		scopeCache.delete(cacheKey(document));
 	} else {
 		if (cacheDebug) {
-			console.debug('[scope] cache clear all');
+			debug('[scope] cache clear all');
 		}
 		scopeCache.clear();
 	}

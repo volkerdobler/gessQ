@@ -44,7 +44,18 @@
         "language": "gessq",
         "path": "./snippets/snippets.json"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "gessQ",
+      "properties": {
+        "gessq.debugMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable debug logging for the gessQ extension (logs to Output channel 'gessQ')."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

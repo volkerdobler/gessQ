@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { getWordAtPosition } from '../commons/vscodeUtils';
+import { debug, warn, error } from '../commons/logger';
 
 let glossaryCache: Record<string, { short: string; detail: string }> | null =
 	null;
@@ -17,18 +18,72 @@ function normalizeKey(s: string) {
 		.replace(/^-|-$/g, '');
 }
 
-function loadGlossary(contextPath?: string) {
+function loadGlossary(
+	contextPath?: string,
+): Record<string, { short: string; detail: string }> {
 	if (glossaryCache) return glossaryCache;
-	try {
-		const base = contextPath || path.join(__dirname, '..');
-		const gpath = path.join(base, 'commons', 'manualGlossary.json');
-		const txt = fs.readFileSync(gpath, 'utf8');
-		glossaryCache = JSON.parse(txt);
-		return glossaryCache;
-	} catch (e) {
-		glossaryCache = {};
-		return glossaryCache;
+
+	const tried: string[] = [];
+	const candidates: string[] = [];
+
+	if (contextPath) {
+		// when running in extension dev host, context.extensionPath points to workspace root
+		candidates.push(
+			path.join(contextPath, 'src', 'commons', 'manualGlossary.json'),
+		);
+		candidates.push(
+			path.join(contextPath, 'commons', 'manualGlossary.json'),
+		);
 	}
+	// try paths relative to compiled __dirname (out/components or out/src/components)
+	candidates.push(
+		path.join(__dirname, '..', 'src', 'commons', 'manualGlossary.json'),
+	);
+	candidates.push(
+		path.join(__dirname, '..', 'commons', 'manualGlossary.json'),
+	);
+	candidates.push(
+		path.join(
+			__dirname,
+			'..',
+			'..',
+			'src',
+			'commons',
+			'manualGlossary.json',
+		),
+	);
+
+	for (const gpath of candidates) {
+		tried.push(gpath);
+		try {
+			if (fs.existsSync(gpath)) {
+				const txt = fs.readFileSync(gpath, 'utf8');
+				glossaryCache = JSON.parse(txt) as Record<
+					string,
+					{ short: string; detail: string }
+				>;
+				debug('GessQHoverProvider: loaded glossary from ' + gpath);
+				return glossaryCache;
+			}
+		} catch (e) {
+			error(
+				'GessQHoverProvider: error reading glossary ' +
+					gpath +
+					' ' +
+					String(e),
+			);
+		}
+	}
+
+	warn(
+		'GessQHoverProvider: manualGlossary.json not found. Tried: ' +
+			tried.join(', '),
+	);
+	glossaryCache = Object.create(null) as Record<
+		string,
+		{ short: string; detail: string }
+	>;
+	return glossaryCache;
 }
 
 export class GessQHoverProvider implements vscode.HoverProvider {
@@ -39,8 +94,24 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		position: vscode.Position,
 		token: vscode.CancellationToken,
 	): vscode.ProviderResult<vscode.Hover> {
+		debug(
+			'GessQHoverProvider.provideHover called for ' +
+				document.uri.toString() +
+				' ' +
+				position.line +
+				':' +
+				position.character,
+		);
 		const w = getWordAtPosition(document, position);
-		if (!w[0]) return null;
+		if (!w[0]) {
+			debug(
+				'GessQHoverProvider: no word at position ' +
+					position.line +
+					':' +
+					position.character,
+			);
+			return null;
+		}
 		const wordRaw = w[1];
 
 		const glossary = loadGlossary(this.extensionRoot);
@@ -50,7 +121,7 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		if (!entry) return null;
 
 		const md = new vscode.MarkdownString();
-		md.appendMarkdown('**' + word + '** — ' + entry.short + '\n\n');
+		md.appendMarkdown('**' + wordRaw + '** — ' + entry.short + '\n\n');
 		md.appendMarkdown(entry.detail);
 		md.isTrusted = false;
 		return new vscode.Hover(md);
