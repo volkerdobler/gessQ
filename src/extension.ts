@@ -15,13 +15,14 @@ import {
 	Scope,
 	ScopeEnum,
 	cacheDebug,
-} from './components/scopeComponent';
+} from './components';
 import {
 	fixDriveCasingInWindows,
 	getAllFilenamesInDirectory,
 } from './commons/fsUtils';
 import { getWordAtPosition } from './commons/vscodeUtils';
-import { GessQCompletionProvider } from './components/completionComponent';
+import { GessQCompletionProvider, GessQHoverProvider } from './components';
+import { GessQSignatureProvider } from './components';
 import * as parser from './commons/parserUtils';
 
 // this method is called when your extension is activated
@@ -81,6 +82,14 @@ export function activate(context: vscode.ExtensionContext): any {
 		),
 	);
 
+	// Register hover provider
+	context.subscriptions.push(
+		vscode.languages.registerHoverProvider(
+			{ language: 'gessq', scheme: 'file' },
+			new GessQHoverProvider(),
+		),
+	);
+
 	// Clear scope cache on document changes, saves and closes
 	context.subscriptions.push(
 		vscode.workspace.onDidChangeTextDocument((e) => {
@@ -96,6 +105,16 @@ export function activate(context: vscode.ExtensionContext): any {
 		vscode.workspace.onDidCloseTextDocument((doc) => {
 			clearScopeCache(doc);
 		}),
+	);
+
+	// Signature Help Provider: shows parameter hints for macros/commands
+	context.subscriptions.push(
+		vscode.languages.registerSignatureHelpProvider(
+			{ scheme: 'file', language: 'gessq' },
+			new GessQSignatureProvider(context.extensionPath),
+			'(',
+			',',
+		),
 	);
 }
 
