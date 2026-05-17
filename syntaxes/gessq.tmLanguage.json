@@ -3,7 +3,9 @@
     "scopeName": "source.gessQ",
     "uuid": "0ec38dc3-863a-41b9-954a-50d94188ec58",
     "name": "gessQ",
-    "fileTypes": "q",
+    "fileTypes": [
+        "q"
+    ],
     "patterns": [
         {
             "match": "(?i)\\b(textq|openq|singleq|multiq|uploadq|numq|singlegridq|multigridq|textelement|group|compute|array|vararray|silderq|block|screen|sliderq)\\b",
@@ -96,7 +98,28 @@
                     "name": "punctuation.definition.string.begin.gessQ"
                 }
             },
-            "end": "\"",
+            "end": "(?<!\\\\)\"",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.end.gessQ"
+                }
+            },
+            "patterns": [
+                {
+                    "match": "\\.",
+                    "name": "constant.character.escape.gessQ"
+                }
+            ]
+        },
+        {
+            "name": "string.quoted.single.gessQ",
+            "begin": "'",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.begin.gessQ"
+                }
+            },
+            "end": "(?<!\\\\)'",
             "endCaptures": {
                 "0": {
                     "name": "punctuation.definition.string.end.gessQ"

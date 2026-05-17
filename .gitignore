@@ -169,3 +169,5 @@ package-lock.json
 gessq.code-workspace
 snippets/snippets_prev.json
 snippets/snippets_gessgroup.json
+
+previousVersion/**

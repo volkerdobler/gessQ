@@ -50,7 +50,8 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "build": "vsce package --out build/"
+    "build": "vsce package --out build/",
+    "test": "jest"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
@@ -60,7 +61,17 @@
     "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
-    "prettier": "^3.5.3"
+    "prettier": "^3.5.3",
+    "jest": "^29.6.1",
+    "ts-jest": "^29.0.5",
+    "@types/jest": "^29.5.2"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.ts"
+    ]
   },
   "__metadata": {
     "id": "8369ddfc-3ff3-4da4-8712-89df76ef2c89",
