@@ -87,6 +87,7 @@
     "watch": "node esbuild.js --watch",
     "typecheck": "tsc --noEmit -p ./",
     "lint": "eslint .",
+    "gen:language": "node tools/gen-language.js && prettier --write src/data/language.ts",
     "check": "npm run typecheck && npm run lint",
     "pretest": "npm run typecheck",
     "test": "jest",

@@ -528,10 +528,33 @@ Migration in kleinen Schritten:
       alle Dateien. Restliche Lint-Warnungen (ungenutzte `token`-Parameter,
       totes `constVarToList`) beseitigt → `npm run check` 0 Warnings.
 
-### Phase 4 – Sprachkern
-- [ ] 4.2 `SymbolIndex` + FileSystemWatcher; Provider auf Index umstellen.
-- [ ] 3.3 Definition/Reference: präzise Wort-Ranges, `CancellationToken`.
-- [ ] 5.1 Zentrale `language.json`, Grammar/Completion daraus generieren.
+### Phase 4 – Sprachkern  ✅ erledigt
+- [x] 4.2 `src/core/symbolIndex.ts`: `SymbolIndex` scannt einmalig via
+      `workspace.findFiles('**/*.q')` und hält sich mit einem
+      `FileSystemWatcher` (create/change/delete) + `onDidChangeWorkspaceFolders`
+      aktuell. Definition-, Reference- und WorkspaceSymbol-Provider fragen
+      jetzt den Index ab statt bei jedem Aufruf alle Dateien rekursiv zu
+      lesen. `parseDocumentSymbols()` ist wiederverwendbar (Provider parsen
+      zusätzlich das aktuelle – ggf. ungespeicherte – Dokument frisch).
+- [x] 3.3 Definition/Reference geben jetzt **präzise Wort-Ranges** zurück
+      (nicht mehr die ganze Zeile); alle vier Provider werten den
+      `CancellationToken` aus. DocumentSymbol nutzt `DocumentSymbol` mit
+      `selectionRange` auf dem Namen.
+- [x] 5.1 `src/data/language.ts` (generiert von `tools/gen-language.js` aus
+      der Grammar, `npm run gen:language`, CI prüft Sync) ist die einzige
+      Keyword-Quelle für Completion – kein Laufzeit-Scraping der Grammar
+      mehr. Die Grammar bleibt handgepflegte Source of Truth; das Rück-
+      Generieren der Grammar aus Daten (inkl. Signatur/Doku pro Keyword)
+      bleibt für später offen.
+- [x] 4.3 Parser-Fixes: `macroDefRe` (Wortgrenzen-Bug **und** falsche
+      Syntax `#macro #Name` → korrekt `#macro Name`, siehe Handbuch §2.4),
+      `actionBlockDefRe` (`\(?:`-Bug), `questionDefRe`/`definitionDefRe`
+      `\s`→`\s+` (mehrere Leerzeichen), Memoisierung der parameterlosen
+      Varianten, neues `actionDefRe`. Tests entsprechend erweitert; der
+      frühere `test.failing` ist jetzt ein echter Test.
+- [x] Verhaltensänderung: „Go to Symbol in Workspace“ liefert nur noch
+      echte Definitionen (Frage/Definition/Block/Makro/Action-Target), nicht
+      mehr check/assert-Vorkommen.
 
 ### Phase 5 – Neue Features
 - [ ] 5.2 Completion aufwerten (scope-aware, dynamische Symbole, Doku).

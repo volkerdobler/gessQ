@@ -4,54 +4,14 @@ import * as vscode from 'vscode';
 import * as parser from './parser';
 import { isNotInCommentAt } from './scope';
 
-/**
- * Search for a definition of `word` in a single file and return its Location
- * (the whole matching line). Rejects when nothing is found.
- * @param filename absolute path of the file to scan
- * @param word symbol to look for
- */
-export async function getDefLocationInDocument(
-	filename: string,
-	word: string,
-): Promise<vscode.Location> {
-	const questionRe = parser.questionDefRe(word);
-	const definitionRe = parser.definitionDefRe(word);
-	const blockRe = parser.blockDefRe(word);
-
-	const content = await vscode.workspace.openTextDocument(filename);
-	let location: vscode.Location | undefined;
-
-	for (let i = 0; i < content.lineCount; i++) {
-		const line = content.lineAt(i);
-		if (line.text.length === 0) {
-			continue;
-		}
-		if (
-			isNotInCommentAt(content, i, line.text.search(questionRe)) ||
-			isNotInCommentAt(content, i, line.text.search(definitionRe)) ||
-			isNotInCommentAt(content, i, line.text.search(blockRe))
-		) {
-			location = new vscode.Location(content.uri, line.range);
-		}
-	}
-
-	if (!location) {
-		return Promise.reject(new Error('No definition found'));
-	}
-	return location;
-}
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
- * Collect all Locations in `filename` that reference `word` (definitions and
- * usages across questions, blocks, checks, asserts, computes, action blocks).
- * @param filename absolute path of the file to scan
- * @param word symbol to look for
+ * Regex factories that identify a *line* as referencing a symbol. A line
+ * counts as a reference when at least one of these matches outside a comment.
  */
-export async function getAllLocationInDocument(
-	filename: string,
-	word: string,
-): Promise<vscode.Location[]> {
-	const patterns = [
+function referencePatterns(word: string): RegExp[] {
+	return [
 		parser.questionDefRe(word),
 		parser.definitionDefRe(word),
 		parser.blockDefRe(word),
@@ -61,23 +21,72 @@ export async function getAllLocationInDocument(
 		parser.computeRe(word),
 		parser.actionBlockDefRe(word),
 	];
+}
 
-	const content = await vscode.workspace.openTextDocument(filename);
-	const locations: vscode.Location[] = [];
-
-	for (let i = 0; i < content.lineCount; i++) {
-		const line = content.lineAt(i);
-		if (line.text.length === 0) {
-			continue;
-		}
-		if (
-			patterns.some((re) =>
-				isNotInCommentAt(content, i, line.text.search(re)),
-			)
-		) {
-			locations.push(new vscode.Location(content.uri, line.range));
+/** Precise ranges of every whole-word, non-comment occurrence of `word`. */
+function wordRangesInLine(
+	document: vscode.TextDocument,
+	line: number,
+	word: string,
+): vscode.Range[] {
+	const re = new RegExp('\\b' + escapeRe(word) + '\\b', 'gi');
+	const text = document.lineAt(line).text;
+	const ranges: vscode.Range[] = [];
+	let m: RegExpExecArray | null;
+	while ((m = re.exec(text))) {
+		if (isNotInCommentAt(document, line, m.index)) {
+			ranges.push(
+				new vscode.Range(line, m.index, line, m.index + m[0].length),
+			);
 		}
 	}
+	return ranges;
+}
 
-	return locations;
+/**
+ * Collect precise reference Locations for `word` across `files`.
+ * Honours `token` for cancellation.
+ */
+export async function findReferences(
+	files: vscode.Uri[],
+	word: string,
+	token?: vscode.CancellationToken,
+): Promise<vscode.Location[]> {
+	const patterns = referencePatterns(word);
+	const results: vscode.Location[] = [];
+
+	await Promise.all(
+		files.map(async (uri) => {
+			if (token?.isCancellationRequested) {
+				return;
+			}
+			let doc: vscode.TextDocument;
+			try {
+				doc = await vscode.workspace.openTextDocument(uri);
+			} catch {
+				return;
+			}
+			for (let i = 0; i < doc.lineCount; i++) {
+				if (token?.isCancellationRequested) {
+					return;
+				}
+				const text = doc.lineAt(i).text;
+				if (text.length === 0) {
+					continue;
+				}
+				const isRefLine = patterns.some((re) => {
+					const at = text.search(re);
+					return at > -1 && isNotInCommentAt(doc, i, at);
+				});
+				if (!isRefLine) {
+					continue;
+				}
+				for (const range of wordRangesInLine(doc, i, word)) {
+					results.push(new vscode.Location(doc.uri, range));
+				}
+			}
+		}),
+	);
+
+	return results;
 }

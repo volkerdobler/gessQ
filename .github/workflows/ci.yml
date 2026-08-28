@@ -25,6 +25,11 @@ jobs:
 
             - run: npm ci
 
+            - name: Generated files are up to date
+              run: |
+                npm run gen:language
+                git diff --exit-code -- src/data/language.ts
+
             - name: Type-check and lint
               run: npm run check
 

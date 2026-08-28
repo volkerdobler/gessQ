@@ -5,6 +5,23 @@ Current version number is first:
 
 ### Unreleased
 
+Language core (Phase 4):
+
+- New workspace symbol index (`src/core/symbolIndex.ts`): a single scan via
+  `findFiles` kept current with a file-system watcher. Go to Definition, Find
+  All References and Go to Symbol in Workspace query the index instead of
+  re-reading every `.q` file on each request.
+- Go to Definition / Find All References now return the precise range of the
+  name, not the whole line; all navigation providers honour cancellation.
+- Parser fixes: `#macro NAME` is recognised (previously the regex could never
+  match, and expected the wrong `#macro #NAME` form); `load(/set(` targets;
+  multiple spaces after a question keyword; the generic patterns are memoised.
+- Completion keywords come from `src/data/language.ts`, generated from the
+  grammar (`npm run gen:language`), instead of scraping the grammar at
+  runtime; completion also offers workspace symbol names and is suppressed
+  in comments/strings.
+- "Go to Symbol in Workspace" now lists only real definitions.
+
 Restructure (Phase 3):
 
 - Source tree reorganised: `src/core` (parser, scope, symbol search),

@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 
 import { clearScopeCache } from './core/scope';
+import { SymbolIndex } from './core/symbolIndex';
 import {
 	setOutputChannel,
 	refreshLogLevelFromConfig,
@@ -21,9 +22,11 @@ import {
 
 const FILE = { language: 'gessq', scheme: 'file' } as const;
 
+let symbolIndex: SymbolIndex | undefined;
+
 /**
- * Activate the extension: wire up the Output channel, logging and all
- * language feature providers.
+ * Activate the extension: wire up the Output channel, logging, the workspace
+ * symbol index and all language feature providers.
  */
 export function activate(context: vscode.ExtensionContext): void {
 	const out = vscode.window.createOutputChannel('gessQ');
@@ -41,6 +44,17 @@ export function activate(context: vscode.ExtensionContext): void {
 
 	info('gessQ extension activated');
 
+	const index = new SymbolIndex();
+	index.start();
+	symbolIndex = index;
+	context.subscriptions.push(index);
+	context.subscriptions.push(
+		vscode.workspace.onDidChangeWorkspaceFolders(() => {
+			index.dispose();
+			index.start();
+		}),
+	);
+
 	const { extensionUri } = context;
 
 	context.subscriptions.push(
@@ -50,14 +64,14 @@ export function activate(context: vscode.ExtensionContext): void {
 		),
 		vscode.languages.registerDefinitionProvider(
 			FILE,
-			new GessQDefinitionProvider(),
+			new GessQDefinitionProvider(index),
 		),
 		vscode.languages.registerReferenceProvider(
 			FILE,
-			new GessQReferenceProvider(),
+			new GessQReferenceProvider(index),
 		),
 		vscode.languages.registerWorkspaceSymbolProvider(
-			new GessQWorkspaceSymbolProvider(),
+			new GessQWorkspaceSymbolProvider(index),
 		),
 		vscode.languages.registerFoldingRangeProvider(
 			FILE,
@@ -65,7 +79,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		),
 		vscode.languages.registerCompletionItemProvider(
 			FILE,
-			new GessQCompletionProvider(extensionUri),
+			new GessQCompletionProvider(index),
 			'#',
 			'@',
 			' ',
@@ -94,4 +108,6 @@ export function activate(context: vscode.ExtensionContext): void {
 
 export function deactivate(): void {
 	clearScopeCache();
+	symbolIndex?.dispose();
+	symbolIndex = undefined;
 }

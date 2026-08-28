@@ -1,7 +1,15 @@
 'use strict';
 
 /**
- * Parser / regex helper utilities shared across the extension.
+ * Regex factories shared across the extension.
+ *
+ * Every factory takes an optional `word`:
+ * - empty  → a generic pattern that matches any name (capturing it);
+ * - given  → a pattern anchored to that exact name (bare or quoted).
+ *
+ * The empty-`word` result is memoised because it is the hot path (built once
+ * per file per provider run). None of the patterns use the `g`/`y` flag, so a
+ * shared `RegExp` is safe to reuse with `test`/`match`/`search`.
  */
 
 const constTokenVarNameRest = '(?:[A-Za-zÄÖÜßäöü\\w\\$]*)';
@@ -14,215 +22,136 @@ const constStringVarName = '(?:"[^"]+")|(?:\'[^\']+\')';
 const constVarName: string =
 	'(?:' + constTokenVarName + '|' + constStringVarName + ')';
 
-/**
- * Expose token suffix used by workspace symbol queries.
- */
+/** Token suffix used by workspace symbol queries. */
 export const constTokenVarNameRestExport = constTokenVarNameRest;
 
-/**
- * Return an escaped or quoted word definition used in other regexes.
- * @param word literal word to match
- */
+/** Match `word` bare or quoted (single/double). */
 export function getWordDefinition(word: string): string {
 	return '(?:(?:\\b' + word + '\\b)|(?:"' + word + '")|(?:\'' + word + "'))";
 }
 
-/**
- * Regex for question definitions. Matches question types and optional name.
- * @param word optional name to match exactly
- */
-export function questionDefRe(word: string): RegExp {
-	const questConst =
-		'(singleq|multiq|singlegridq|multigridq|openq|textq|numq|group)';
-
-	let retVal = '';
-	if (word && word.length > 0) {
-		retVal = '\\b' + questConst + '\\b\\s*' + getWordDefinition(word);
-	} else {
-		retVal = '\\b' + questConst + '\\b\\s(' + constVarName + ')';
-	}
-	return new RegExp(retVal, 'i');
+/** Wrap a factory so the generic (empty-`word`) result is built only once. */
+function memoizeEmpty(fn: (word: string) => RegExp): (word?: string) => RegExp {
+	let cached: RegExp | undefined;
+	return (word?: string) => {
+		if (word && word.length > 0) {
+			return fn(word);
+		}
+		return (cached ??= fn(''));
+	};
 }
 
-/**
- * Regex for definition declarations (opennumformat).
- * @param word optional name to match exactly
- */
-export function definitionDefRe(word: string): RegExp {
-	const questConst = '(opennumformat)';
+const nameFrag = (word: string) =>
+	word && word.length > 0 ? getWordDefinition(word) : constVarName;
 
-	let retVal = '';
-	if (word && word.length > 0) {
-		retVal = '\\b' + questConst + '\\b\\s*' + getWordDefinition(word);
-	} else {
-		retVal = '\\b' + questConst + '\\b\\s(' + constVarName + ')';
-	}
-	return new RegExp(retVal, 'i');
-}
-
-/**
- * Regex for block definitions (block/screen) with optional name.
- * @param word optional name to match exactly
- */
-export function blockDefRe(word: string): RegExp {
-	const blockConst = '(block|screen)';
-
-	let retName = '';
-	if (word && word.length > 0) {
-		retName = getWordDefinition(word);
-	} else {
-		retName = constVarName;
-	}
+/** Question definitions: `singleq NAME`, `multiq "NAME"`, … (g1 type, g2 name). */
+export const questionDefRe = memoizeEmpty((word) => {
+	const types =
+		'(singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group)';
 	return new RegExp(
-		'\\b' + blockConst + '\\b\\s*(' + retName + ')\\b\\s*=',
+		word && word.length > 0
+			? '\\b' + types + '\\b\\s*' + getWordDefinition(word)
+			: '\\b' + types + '\\b\\s+(' + constVarName + ')',
 		'i',
 	);
-}
+});
 
-/**
- * Regex for block usages.
- * @param word optional name to match exactly
- */
-export function blockRe(word: string): RegExp {
-	const blockConst = '(?:block)';
-	const screenConst = '(?:screen)';
-
-	let retVal = '';
-	if (word && word.length > 0) {
-		retVal = getWordDefinition(word);
-	} else {
-		retVal = constVarName;
-	}
-
+/** `opennumformat NAME` definitions (g1 keyword, g2 name). */
+export const definitionDefRe = memoizeEmpty((word) => {
+	const kw = '(opennumformat)';
 	return new RegExp(
-		'\\b' +
-			'(?:(' +
-			blockConst +
-			'|' +
-			screenConst +
-			')\\b.*' +
-			retVal +
+		word && word.length > 0
+			? '\\b' + kw + '\\b\\s*' + getWordDefinition(word)
+			: '\\b' + kw + '\\b\\s+(' + constVarName + ')',
+		'i',
+	);
+});
+
+/** `block NAME =` / `screen NAME =` definitions (g1 keyword, g2 name). */
+export const blockDefRe = memoizeEmpty((word) => {
+	return new RegExp(
+		'\\b(block|screen)\\b\\s*(' + nameFrag(word) + ')\\b\\s*=',
+		'i',
+	);
+});
+
+/** Uses of a block/screen inside another block or screen definition. */
+export const blockRe = memoizeEmpty((word) => {
+	const name = nameFrag(word);
+	return new RegExp(
+		'\\b(?:(?:block|screen)\\b.*' +
+			name +
 			'\\b\\s*=)' +
-			'|' +
-			'(?:' +
-			blockConst +
-			'\\b[^=]*=\\s*\\(.*\\b' +
-			retVal +
+			'|(?:block\\b[^=]*=\\s*\\(.*\\b' +
+			name +
 			'\\b)' +
-			'|' +
-			'(?:' +
-			screenConst +
-			'\\b[^=]*=\\s*\\b(column|row)?\\b\\s*\\(.*\\b' +
-			retVal +
+			'|(?:screen\\b[^=]*=\\s*\\b(column|row)?\\b\\s*\\(.*\\b' +
+			name +
 			'\\b)',
 		'i',
 	);
-}
+});
 
-/**
- * Regex for check expressions referencing variables or literals.
- * @param word optional variable or literal to match
- */
-export function checkRe(word: string): RegExp {
-	let retVal = '';
-
-	if (word && word.length > 0) {
-		retVal = getWordDefinition(word);
-	} else {
-		retVal = constVarName;
-	}
-
+/** `check` expressions referencing a variable/literal. */
+export const checkRe = memoizeEmpty((word) => {
+	const v = nameFrag(word);
 	return new RegExp(
 		'(?:in\\s*\\b' +
-			retVal +
+			v +
 			'\\b)|(?:\\b' +
-			retVal +
+			v +
 			'\\b\\s*(?:eq|ne|le|ge|lt|gt))\\b',
 		'i',
 	);
-}
+});
+
+/** `assert ( … NAME … )` expressions. */
+export const assertRe = memoizeEmpty(
+	(word) => new RegExp('\\bassert\\s+\\(.*\\b' + nameFrag(word) + '\\b', 'i'),
+);
+
+/** `compute … NAME …` expressions. */
+export const computeRe = memoizeEmpty(
+	(word) =>
+		new RegExp('\\bcompute\\b\\s*.+\\b' + nameFrag(word) + '\\b', 'i'),
+);
+
+/** `load( NAME =` / `set( NAME =` – definition side (no capture of the name). */
+export const actionBlockDefRe = memoizeEmpty(
+	(word) =>
+		new RegExp(
+			'\\b(load|set)\\b\\s*\\(\\s*(?:' + nameFrag(word) + '\\s*=)',
+			'i',
+		),
+);
+
+/** `load( NAME =` / `set( NAME =` – target definition (g1 keyword, g2 name). */
+export const actionDefRe = memoizeEmpty(
+	(word) =>
+		new RegExp(
+			'\\b(load|set)\\b\\s*\\(\\s*(' + nameFrag(word) + ')\\s*=',
+			'i',
+		),
+);
+
+/** `load( NAME =` / `set( NAME =` – usage side (g1 keyword, g2 name). */
+export const actionBlockRe = memoizeEmpty((word) => {
+	const v =
+		word && word.length > 0
+			? getWordDefinition(word)
+			: constVarName + '|(?:[^=]+)';
+	return new RegExp('\\b(load|set)\\s*\\(\\s*(?:(' + v + ')\\s*=)', 'i');
+});
 
 /**
- * Regex for assert expressions referencing variables or literals.
- * @param word optional variable or literal to match
+ * `#macro NAME` definitions (g1 `macro`, g2 name).
+ *
+ * The name is *not* prefixed with `#` (see handbook §2.4). A negative
+ * look-behind keeps `x#macro` from matching while `#macro` / ` #macro` do.
  */
-export function assertRe(word: string): RegExp {
-	let retVal: string;
-
-	if (word && word.length > 0) {
-		retVal = getWordDefinition(word);
-	} else {
-		retVal = constVarName;
-	}
-
-	return new RegExp('\\bassert\\s+\\(.*\\b' + retVal + '\\b', 'i');
-}
-
-/**
- * Regex for compute expressions referencing variables or literals.
- * @param word optional variable or literal to match
- */
-export function computeRe(word: string): RegExp {
-	let retVal: string;
-
-	if (word && word.length > 0) {
-		retVal = getWordDefinition(word);
-	} else {
-		retVal = constVarName;
-	}
-
-	return new RegExp('\\bcompute\\b\\s*.+\\b' + retVal + '\\b', 'i');
-}
-
-/**
- * Regex for action block definitions (load/set ...) matching optional target.
- * @param word optional target name to match exactly
- */
-export function actionBlockDefRe(word: string): RegExp {
-	let retVal: string;
-
-	if (word && word.length > 0) {
-		retVal = getWordDefinition(word);
-	} else {
-		retVal = constVarName;
-	}
-
-	return new RegExp(
-		'\\b(load|set)\\b\\s*\\(?:\\s*(?:' + retVal + '\\s*=)',
-		'i',
-	);
-}
-
-/**
- * Regex for action block usages (load/set(...)).
- * @param word optional name to match exactly
- */
-export function actionBlockRe(word: string): RegExp {
-	let retVal: string;
-
-	if (word && word.length > 0) {
-		retVal = getWordDefinition(word);
-	} else {
-		retVal = constVarName + '|(?:[^=]+)';
-	}
-
-	return new RegExp('\\b(load|set)\\s*\\(\\s*(?:(' + retVal + ')\\s*=)', 'i');
-}
-
-/**
- * Regex for macro definitions (#macro ...).
- * @param word optional macro name to match exactly
- */
-export function macroDefRe(word: string): RegExp {
-	let retVal: string;
-
-	if (word && word.length > 0) {
-		retVal = getWordDefinition(word);
-	} else {
-		retVal = constVarName;
-	}
-
-	return new RegExp('\\b#(macro)\\b\\s*#' + retVal, 'i');
-}
+export const macroDefRe = memoizeEmpty(
+	(word) =>
+		new RegExp('(?<!\\w)#(macro)\\b\\s+(' + nameFrag(word) + ')', 'i'),
+);
 
 export { constTokenVarNameRestExport as constTokenVarNameRest };

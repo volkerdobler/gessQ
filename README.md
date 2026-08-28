@@ -26,9 +26,10 @@ Betrifft Dateien mit der Endung `.q`.
 
 ## Einstellungen
 
-| Einstellung        | Typ       | Standard | Beschreibung                                             |
-| ------------------ | --------- | -------- | ------------------------------------------------------- |
-| `gessq.debugMode`  | `boolean` | `false`  | Debug-Logging in den Output-Channel „gessQ“ aktivieren. |
+| Einstellung       | Typ      | Standard  | Beschreibung                                                        |
+| ----------------- | -------- | --------- | ------------------------------------------------------------------ |
+| `gessq.logLevel`  | `string` | `"error"` | Ausführlichkeit des Output-Channels „gessQ“ (`off`…`debug`).       |
+| `gessq.debugMode` | `boolean`| `false`   | Veraltet – entspricht `gessq.logLevel = debug`.                    |
 
 ## Entwicklung
 

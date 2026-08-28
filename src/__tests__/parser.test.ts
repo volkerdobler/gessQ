@@ -4,6 +4,7 @@ import {
 	blockDefRe,
 	blockRe,
 	macroDefRe,
+	actionBlockDefRe,
 	getWordDefinition,
 } from '../core/parser';
 
@@ -77,11 +78,37 @@ describe('blockDefRe / blockRe', () => {
 });
 
 describe('macroDefRe', () => {
-	// KNOWN BUG (see TODO.md 4.3): the leading `\b#` can never match `#macro`
-	// at a line start because there is no word boundary before `#`.
-	// `test.failing` keeps CI green and flips to a failure once it is fixed.
-	test.failing('matches "#macro #Name" at the start of a line', () => {
-		expect('#macro #GN'.match(macroDefRe(''))).not.toBeNull();
+	test('matches "#macro NAME" at the start of a line (name, no #)', () => {
+		const m = '#macro labellist'.match(macroDefRe(''));
+		expect(m).not.toBeNull();
+		expect(m![1].toLowerCase()).toBe('macro');
+		expect(m![2]).toBe('labellist');
+	});
+
+	test('matches "  #macro NAME" with leading whitespace', () => {
+		expect('\t#macro auto_schablone'.match(macroDefRe(''))).not.toBeNull();
+	});
+
+	test('does not match "x#macro"', () => {
+		expect('x#macro foo'.match(macroDefRe(''))).toBeNull();
+	});
+
+	test('named variant is specific', () => {
+		expect('#macro foo'.match(macroDefRe('foo'))).not.toBeNull();
+		expect('#macro bar'.match(macroDefRe('foo'))).toBeNull();
+	});
+});
+
+describe('actionBlockDefRe', () => {
+	test('matches "load( NAME =" and "set( NAME ="', () => {
+		expect(
+			'load( qTarget = 1 )'.match(actionBlockDefRe('')),
+		).not.toBeNull();
+		expect('set(qTarget=1)'.match(actionBlockDefRe(''))).not.toBeNull();
+	});
+
+	test('does not match a bare "load" without parenthesised assignment', () => {
+		expect('loaded = 1'.match(actionBlockDefRe(''))).toBeNull();
 	});
 });
 
