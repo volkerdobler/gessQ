@@ -315,7 +315,7 @@ export function getScopeAt(
 
 const scopeCache: Map<string, { version: number; scope: Scope }> = new Map();
 
-export let cacheDebug: boolean = false;
+export const cacheDebug: boolean = false;
 
 /**
  * Build a cache key for the given document.

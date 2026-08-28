@@ -34,8 +34,10 @@ Betrifft Dateien mit der Endung `.q`.
 
 ```bash
 npm install
-npm run compile      # bzw. npm run watch
+npm run compile      # esbuild-Bundle nach out/ (bzw. npm run watch)
+npm run check        # tsc --noEmit + eslint
 npm test             # Unit-Tests (jest)
+npm run package      # .vsix bauen (vsce)
 ```
 
 Zum Debuggen in VS Code die Konfiguration **„Run Extension“** (F5) starten.

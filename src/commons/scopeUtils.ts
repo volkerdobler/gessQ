@@ -1,7 +1,5 @@
 'use strict';
 
-import * as vscode from 'vscode';
-
 export interface Delimiter {
 	start: string;
 	end: string;
@@ -46,7 +44,7 @@ export function setStringDelimiter(arr: Array<Delimiter>): void {
  * @returns escaped string
  */
 export function escapeRegex(str: string): string {
-	return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	return str.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
 /**

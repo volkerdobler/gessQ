@@ -5,6 +5,19 @@ Current version number is first:
 
 ### Unreleased
 
+Build & resources (Phase 2):
+
+- Bundle with esbuild (`esbuild.js`); `tsc` is now type-check only.
+- Single async glossary loader (`src/commons/glossary.ts`) resolved via
+  `context.extensionUri` and `vscode.workspace.fs`; hover, signature help and
+  keyword completion no longer depend on shipping `src/` – signature help now
+  actually finds the glossary.
+- `.vscodeignore` added: the .vsix now contains only the bundle, assets and
+  language files (9 files, ~37 KB).
+- ESLint flat config (`eslint.config.js`); modernised `tsconfig`.
+- Unit tests for the parser regex factories and for the JSON/grammar/snippet
+  assets; `package-lock.json` is committed; GitHub Actions CI.
+
 Fixes (Phase 1):
 
 - Grammar path in `package.json` corrected to lowercase `gessq.tmLanguage.json`

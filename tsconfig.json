@@ -1,14 +1,20 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "es6",
+		"moduleResolution": "node",
+		"target": "ES2021",
+		"lib": ["ES2021"],
 		"outDir": "out",
-		"lib": ["es6"],
+		"rootDir": "src",
 		"types": ["node", "jest"],
 		"sourceMap": true,
-		"rootDir": "src",
-		"typeRoots": ["./node_modules/@types"],
-		"strict": true
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true
 	},
+	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", ".vscode-test", "out", "src/__tests__"]
 }

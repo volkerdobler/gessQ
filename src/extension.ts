@@ -83,7 +83,7 @@ export function activate(context: vscode.ExtensionContext): any {
 	context.subscriptions.push(
 		vscode.languages.registerCompletionItemProvider(
 			{ language: 'gessq', scheme: 'file' },
-			new GessQCompletionProvider(),
+			new GessQCompletionProvider(context.extensionUri),
 			'#',
 			'@',
 			' ',
@@ -97,7 +97,7 @@ export function activate(context: vscode.ExtensionContext): any {
 				{ language: 'gessq', scheme: 'file' },
 				{ language: 'gessq', scheme: 'untitled' },
 			],
-			new GessQHoverProvider(context.extensionPath),
+			new GessQHoverProvider(context.extensionUri),
 		),
 	);
 
@@ -122,7 +122,7 @@ export function activate(context: vscode.ExtensionContext): any {
 	context.subscriptions.push(
 		vscode.languages.registerSignatureHelpProvider(
 			{ scheme: 'file', language: 'gessq' },
-			new GessQSignatureProvider(context.extensionPath),
+			new GessQSignatureProvider(context.extensionUri),
 			'(',
 			',',
 		),
@@ -136,16 +136,15 @@ export function activate(context: vscode.ExtensionContext): any {
 function getWorkspaceFolderPath(fileUri?: vscode.Uri): string | undefined {
 	if (fileUri) {
 		const workspace = vscode.workspace.getWorkspaceFolder(fileUri);
-		if (workspace) {
-			return fixDriveCasingInWindows(workspace.uri.fsPath);
-		} else {
-			return;
-		}
+		return workspace
+			? fixDriveCasingInWindows(workspace.uri.fsPath)
+			: undefined;
 	}
 	const folders = vscode.workspace.workspaceFolders;
 	if (folders && folders.length) {
 		return fixDriveCasingInWindows(folders[0].uri.fsPath);
 	}
+	return undefined;
 }
 
 const constTokenVarNameRest = parser.constTokenVarNameRest;
@@ -332,7 +331,8 @@ class GessQReferenceProvider implements vscode.ReferenceProvider {
 
 		return new Promise((resolve) => {
 			if (!wordAtPosition[0]) {
-				return Promise.resolve(null);
+				resolve([]);
+				return;
 			}
 			const word = wordAtPosition[1];
 
@@ -882,7 +882,7 @@ class GessQFoldingRangeProvider implements vscode.FoldingRangeProvider {
 			for (let l = 0; l < document.lineCount; l++) {
 				let curLine = document.lineAt(l).text;
 
-				let posLineComment = curLine.search(/\/\//);
+				const posLineComment = curLine.search(/\/\//);
 				if (posLineComment > -1) {
 					curLine = curLine.slice(0, posLineComment);
 					if (curLine.length === 0) {
@@ -925,7 +925,7 @@ class GessQFoldingRangeProvider implements vscode.FoldingRangeProvider {
 							),
 						);
 					}
-					let posStart = curLine.search(regions[loop].start);
+					const posStart = curLine.search(regions[loop].start);
 					if (posStart > -1 && !inComment) {
 						foldingCollection.push({
 							start: l,
@@ -938,7 +938,7 @@ class GessQFoldingRangeProvider implements vscode.FoldingRangeProvider {
 							regions[loop].kind ===
 							vscode.FoldingRangeKind.Comment;
 					}
-					let posEnd = curLine.search(regions[loop].end);
+					const posEnd = curLine.search(regions[loop].end);
 					if (
 						posEnd > -1 &&
 						(regions[loop].kind ===
@@ -952,7 +952,7 @@ class GessQFoldingRangeProvider implements vscode.FoldingRangeProvider {
 							foldingCounter--;
 						}
 						if (foldingCounter > 0) {
-							let endLine =
+							const endLine =
 								l - 1 >
 								foldingCollection[foldingCounter - 1].start
 									? l - 1

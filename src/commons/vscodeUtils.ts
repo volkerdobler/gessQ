@@ -15,7 +15,9 @@ export function getWordAtPosition(
 	// If nothing found, try a small leftward fallback (hover often reports end-of-word).
 	if (!wordRange) {
 		for (let i = 1; i <= 3; i++) {
-			if (position.character - i < 0) break;
+			if (position.character - i < 0) {
+				break;
+			}
 			const p = position.translate(0, -i);
 			wordRange = document.getWordRangeAtPosition(p);
 			if (wordRange) {

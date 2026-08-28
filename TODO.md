@@ -473,12 +473,31 @@ Migration in kleinen Schritten:
       `GessQCompletionProviderLocal`, lokaler `macroDefRe`, ungenutzte Importe).
 - [x] 3.8 README aktualisiert.
 
-### Phase 2 – Ressourcen & Build
-- [ ] 2.3 / 2.4 Gemeinsamer async Glossar-Loader, Pfade über `extensionUri`.
-- [ ] 7. esbuild + Asset-Copy + `.vscodeignore`.
-- [ ] 4.9 ESLint Flat-Config, `tsconfig` modernisieren.
-- [ ] 5.11 JSON-Validierungs-Tests, `parserUtils`-Tests.
-- [ ] 5.12 GitHub Actions CI.
+### Phase 2 – Ressourcen & Build  ✅ erledigt
+- [x] 2.3 / 2.4 Gemeinsamer async Glossar-Loader
+      (`src/commons/glossary.ts`, `vscode.workspace.fs`, Pfade über
+      `context.extensionUri`); Hover + Signature nutzen ihn, Completion lädt
+      die Grammar ebenfalls über `extensionUri`. Signature-Help fand das
+      Glossar bisher nie – jetzt behoben.
+- [x] 7. `esbuild.js` (Bundle + Asset-Copy von `manualGlossary.json` nach
+      `out/`), `.vscodeignore` (VSIX: 9 Dateien, 37 KB, kein `src/`),
+      `main` → `out/extension.js`, `npm run package` getestet.
+- [x] 4.9 ESLint Flat-Config (`eslint.config.js`, `typescript-eslint`
+      Meta-Paket, `.eslintrc.js` entfernt); `tsconfig` modernisiert
+      (ES2021, `esModuleInterop`, `forceConsistentCasingInFileNames`,
+      `noImplicitReturns`); `tsc --noEmit` nur noch Typecheck.
+      Restliche Lint-*Warnungen* (ungenutzte `token`-Parameter etc.) in
+      Phase 3.
+- [x] 5.11 `parser.test.ts` (Regex-Fabriken, inkl. `test.failing` für den
+      `macroDefRe`-Bug → 4.3) und `assets.test.ts` (JSON/JSONC-Validierung,
+      Snippet-`scope`/Prefix-Regeln, Grammar-`scopeName`, case-sensitive
+      Contribution-Pfade). 25 Tests grün.
+- [x] 5.12 `.github/workflows/ci.yml`: install → check → test → build →
+      `vsce package` (+ Artifact); `publish`-Job bei `v*`-Tag
+      (`secrets.VSCE_PAT`).
+- [x] Zusatz: `package.json` `keywords`/`bugs`/`homepage`, `@types/vscode`
+      an `engines` angeglichen (`^1.99.0`), `typescript` als devDependency;
+      `package-lock.json` wird jetzt committet (reproduzierbares `npm ci`).
 
 ### Phase 3 – Umstrukturierung
 - [ ] 6. Ordner-/Dateistruktur migrieren (schrittweise, je PR ein Teil).

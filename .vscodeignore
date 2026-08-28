@@ -1,0 +1,27 @@
+# Files excluded from the packaged .vsix.
+# What ships: out/extension.js, out/manualGlossary.json, syntaxes/,
+# snippets/, language-configuration.json, images/, README.md, CHANGELOG.md,
+# package.json, LICENSE.
+
+.vscode/**
+.github/**
+src/**
+tools/**
+dokumentation/**
+manual/**
+previousVersions/**
+build/**
+
+**/*.ts
+**/*.map
+**/tsconfig.json
+**/.eslintrc.js
+
+eslint.config.js
+esbuild.js
+.prettierrc
+.gitignore
+.gitattributes
+package-lock.json
+TODO.md
+LAST_WORK.md

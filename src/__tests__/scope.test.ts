@@ -20,7 +20,7 @@ test('getScopeAt detects line comment', () => {
 });
 
 test('getScopeAt detects string and escapes', () => {
-	const doc = makeDoc([`const s = "hello \"world\"";`]);
+	const doc = makeDoc(['const s = "hello \\"world\\"";']);
 	const idxBefore = doc.lineAt(0).text.indexOf('const');
 	const idxInString = doc.lineAt(0).text.indexOf('hello');
 	const idxQuote = doc.lineAt(0).text.indexOf('"');
