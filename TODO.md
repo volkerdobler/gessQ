@@ -569,13 +569,33 @@ Migration in kleinen Schritten:
       Offen: Label-IDs als Vorschläge, `labels=`-Kontext, sowie das
       explizite Einmischen der Snippets (VS Code liefert `contributes.snippets`
       ohnehin automatisch in dieselbe Liste).
-- [ ] 5.4 DocumentLinkProvider für `#include`.
-- [ ] 5.3 Diagnostics/Linter (light).
-- [ ] 5.5 Hover für Benutzer-Symbole.
-- [ ] 5.6 Rename-Provider.
-- [ ] 5.7 CodeLens / DocumentHighlight.
-- [ ] 5.9 Settings erweitern.
-- [ ] 5.8 Formatter (opt-in).
+- [x] 5.4 `GessQDocumentLinkProvider`: der Pfad in `#include "…"` /
+      `#includeifexists "…"` ist klickbar (Auflösung relativ zum Dokument),
+      `src/core/includes.ts` als geteilter Parser.
+- [x] 5.3 Diagnostics (`src/core/diagnostics.ts` + `providers/diagnostics.ts`,
+      debounced, per `gessq.diagnostics.enable` abschaltbar): unbalancierte
+      `{}` / `()` (scope-aware), `#macro`/`#endmacro` und `#ifdef`/`#endif`
+      unbalanciert, fehlende `#include`-Datei, doppelte Namen im selben File,
+      unbekanntes `#domacro`-Ziel. „Fehlendes `;`“ bewusst weggelassen
+      (zu heuristisch).
+- [x] 5.5 Hover zeigt für Workspace-Symbole Definitionsort + Code-Vorschau,
+      zusätzlich zum Glossar-Eintrag.
+- [x] 5.6 `GessQRenameProvider` (workspace-weit, mit `prepareRename` –
+      nur für bekannte Symbole; validiert den neuen Namen). `#macro`-Defs
+      und `&name`/`#domacro name`-Aufrufe sind jetzt in der Referenzsuche.
+- [x] 5.7 `GessQDocumentHighlightProvider` (Vorkommen unter Cursor,
+      Definition als Write) + `GessQCodeLensProvider` („N references“ über
+      jeder Definition, lazy via `resolveCodeLens`).
+- [x] 5.9 Neue Settings: `gessq.diagnostics.enable`,
+      `gessq.completion.includeWorkspaceSymbols`, `gessq.files.exclude`
+      (fließt in den Index-Scan; Index baut bei Änderung neu).
+      `gessq.logLevel` bereits Phase 3.
+- [x] 5.8 `GessQFormattingProvider` (Document + Range): konservative
+      Re-Einrückung nach `{`/`(`-Tiefe (scope-aware), nur führender
+      Whitespace, Kommentar-/String-Fortsetzungszeilen unangetastet.
+      Bewusst simpel → nur auf manuelles „Format Document“.
+- [x] 5.10 Grammar: `text.html.basic` in `html=`/`text=`/`title=`/
+      `htmlPre*`/`write*`/`errorPre*Text`-Blöcken eingebettet.
 
 ---
 

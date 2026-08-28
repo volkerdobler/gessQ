@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as parser from './parser';
 import { getCachedScope } from './scope';
 import { debug } from '../infra/logger';
+import { filesExcludeGlob } from '../infra/config';
 
 export type SymbolCategory =
 	| 'question'
@@ -139,7 +140,13 @@ export class SymbolIndex {
 
 	public dispose(): void {
 		this.watcher?.dispose();
+		this.watcher = undefined;
 		this.byFile.clear();
+	}
+
+	/** Re-run the full scan (e.g. after `gessq.files.exclude` changed). */
+	public rebuild(): void {
+		this.refreshing = this.refresh();
 	}
 
 	/** All indexed `.q` file URIs. */
@@ -170,12 +177,13 @@ export class SymbolIndex {
 
 	private async refresh(): Promise<void> {
 		this.byFile.clear();
+		const extra = filesExcludeGlob();
+		const exclude = extra
+			? '{**/node_modules/**,' + extra + '}'
+			: '**/node_modules/**';
 		let uris: vscode.Uri[];
 		try {
-			uris = await vscode.workspace.findFiles(
-				'**/*.q',
-				'**/node_modules/**',
-			);
+			uris = await vscode.workspace.findFiles('**/*.q', exclude);
 		} catch {
 			return;
 		}

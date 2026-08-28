@@ -11,6 +11,7 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
  * counts as a reference when at least one of these matches outside a comment.
  */
 function referencePatterns(word: string): RegExp[] {
+	const w = escapeRe(word);
 	return [
 		parser.questionDefRe(word),
 		parser.definitionDefRe(word),
@@ -20,6 +21,10 @@ function referencePatterns(word: string): RegExp[] {
 		parser.assertRe(word),
 		parser.computeRe(word),
 		parser.actionBlockDefRe(word),
+		parser.macroDefRe(word),
+		// macro instantiation: `&name;` and `#domacro name`
+		new RegExp('&' + w + '\\b', 'i'),
+		new RegExp('#domacro\\s+' + w + '\\b', 'i'),
 	];
 }
 

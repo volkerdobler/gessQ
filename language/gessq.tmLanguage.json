@@ -42,6 +42,21 @@
             ]
         },
         {
+            "begin": "(?i)\\b(html|htmlPreText|htmlPostText|htmlPreLabels|htmlPostLabels|writePreText|writePostText|writeQText|writeTitle|errorPreText|errorPostText|feedback|text|title)\\s*=\\s*\"",
+            "end": "\";",
+            "name": "meta.embedded.block.html",
+            "beginCaptures": {
+                "1": {
+                    "name": "support.class.gessQ"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "text.html.basic"
+                }
+            ]
+        },
+        {
             "name": "comment.gessQ",
             "match": "//.*"
         },

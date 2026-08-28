@@ -5,6 +5,23 @@ Current version number is first:
 
 ### Unreleased
 
+New language features (Phase 5):
+
+- Diagnostics: unbalanced `{}` / `()`, unmatched `#macro`/`#endmacro` and
+  `#ifdef`/`#endif`, missing `#include` files, duplicate names in a file and
+  unknown `#domacro` targets. Toggle with `gessq.diagnostics.enable`.
+- `#include "…"` paths are clickable links.
+- Rename (F2) for questions, opennumformats, blocks/screens, macros and
+  action targets, across the workspace.
+- Hover on a workspace symbol shows where it is defined plus a code preview.
+- CodeLens "N references" above every definition; occurrences of the symbol
+  under the cursor are highlighted.
+- Experimental "Format Document": re-indents by `{`/`(` nesting depth.
+- New settings: `gessq.diagnostics.enable`,
+  `gessq.completion.includeWorkspaceSymbols`, `gessq.files.exclude`.
+- Grammar: HTML is highlighted inside `html=` / `text=` / `title=` and the
+  `htmlPre*` / `write*` text blocks.
+
 Completion (Phase 5.2):
 
 - Context-aware: after `#`/`@` only preprocessor directives, after `&` or

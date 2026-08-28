@@ -77,6 +77,21 @@
           "default": false,
           "deprecationMessage": "Deprecated: use 'gessq.logLevel' instead. When set, this is treated as logLevel = debug.",
           "description": "Deprecated. Enable debug logging (equivalent to gessq.logLevel = debug)."
+        },
+        "gessq.diagnostics.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Report unbalanced brackets, unmatched #macro/#ifdef, missing #include files, duplicate names and unknown #domacro targets."
+        },
+        "gessq.completion.includeWorkspaceSymbols": {
+          "type": "boolean",
+          "default": true,
+          "description": "Offer names defined elsewhere in the workspace (questions, blocks, macros, …) as completions."
+        },
+        "gessq.files.exclude": {
+          "type": "string",
+          "default": "",
+          "description": "Additional glob pattern excluded from the workspace symbol scan, e.g. \"**/backup/**\"."
         }
       }
     }

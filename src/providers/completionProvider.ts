@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { getCachedScope } from '../core/scope';
 import { SymbolIndex, IndexedSymbol } from '../core/symbolIndex';
 import { loadGlossary, lookupEntry } from '../data/glossary';
+import { completionIncludesWorkspaceSymbols } from '../infra/config';
 import {
 	ALL_KEYWORDS,
 	CORE_KEYWORDS,
@@ -117,7 +118,9 @@ export class GessQCompletionProvider implements vscode.CompletionItemProvider {
 		const items = ALL_KEYWORDS.map((kw) =>
 			item(kw, keywordKind(kw), 'gessQ'),
 		);
-		items.push(...this.symbolItems());
+		if (completionIncludesWorkspaceSymbols()) {
+			items.push(...this.symbolItems());
+		}
 		return items;
 	}
 

@@ -28,11 +28,27 @@ export enum CompletionItemKind {
 	Variable = 5,
 }
 
+export enum DiagnosticSeverity {
+	Error = 0,
+	Warning = 1,
+	Information = 2,
+	Hint = 3,
+}
+
+export enum DocumentHighlightKind {
+	Text = 0,
+	Read = 1,
+	Write = 2,
+}
+
 export class Position {
 	constructor(
 		public readonly line: number,
 		public readonly character: number,
 	) {}
+	isEqual(other: Position): boolean {
+		return this.line === other.line && this.character === other.character;
+	}
 }
 
 export class Range {
@@ -62,6 +78,65 @@ export class Location {
 	) {}
 }
 
+export class Diagnostic {
+	source?: string;
+	code?: string | number;
+	constructor(
+		public range: Range,
+		public message: string,
+		public severity: DiagnosticSeverity = DiagnosticSeverity.Error,
+	) {}
+}
+
+export class DocumentHighlight {
+	constructor(
+		public range: Range,
+		public kind: DocumentHighlightKind = DocumentHighlightKind.Text,
+	) {}
+}
+
+export class DocumentLink {
+	tooltip?: string;
+	constructor(
+		public range: Range,
+		public target?: Uri,
+	) {}
+}
+
+function normalize(p: string): string {
+	const parts: string[] = [];
+	for (const seg of p.split('/')) {
+		if (seg === '' || seg === '.') {
+			continue;
+		}
+		if (seg === '..') {
+			parts.pop();
+		} else {
+			parts.push(seg);
+		}
+	}
+	return '/' + parts.join('/');
+}
+
+export class Uri {
+	private constructor(public readonly path: string) {}
+	static file(p: string): Uri {
+		return new Uri(normalize(p.replace(/\\/g, '/')));
+	}
+	static parse(p: string): Uri {
+		return new Uri(normalize(p.replace(/^[a-z]+:\/\//i, '/')));
+	}
+	static joinPath(base: Uri, ...segments: string[]): Uri {
+		return new Uri(normalize(base.path + '/' + segments.join('/')));
+	}
+	get fsPath(): string {
+		return this.path;
+	}
+	toString(): string {
+		return 'file://' + this.path;
+	}
+}
+
 export const workspace = {
 	getConfiguration() {
 		return {
@@ -69,6 +144,9 @@ export const workspace = {
 				return defaultValue;
 			},
 		};
+	},
+	asRelativePath(uri: Uri | string): string {
+		return typeof uri === 'string' ? uri : uri.path;
 	},
 };
 
