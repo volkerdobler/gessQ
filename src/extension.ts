@@ -79,9 +79,10 @@ export function activate(context: vscode.ExtensionContext): void {
 		),
 		vscode.languages.registerCompletionItemProvider(
 			FILE,
-			new GessQCompletionProvider(index),
+			new GessQCompletionProvider(index, extensionUri),
 			'#',
 			'@',
+			'&',
 			' ',
 		),
 		vscode.languages.registerHoverProvider(

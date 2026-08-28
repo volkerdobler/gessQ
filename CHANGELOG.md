@@ -5,6 +5,15 @@ Current version number is first:
 
 ### Unreleased
 
+Completion (Phase 5.2):
+
+- Context-aware: after `#`/`@` only preprocessor directives, after `&` or
+  `#domacro ` only macro names, otherwise keywords plus workspace symbols.
+- Workspace symbol names (questions, blocks, macros, opennumformats, action
+  targets) are offered with a per-kind icon.
+- Highlighting a keyword now shows its glossary description; symbol entries
+  show where they are defined.
+
 Language core (Phase 4):
 
 - New workspace symbol index (`src/core/symbolIndex.ts`): a single scan via

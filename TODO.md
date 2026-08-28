@@ -557,7 +557,18 @@ Migration in kleinen Schritten:
       mehr check/assert-Vorkommen.
 
 ### Phase 5 – Neue Features
-- [ ] 5.2 Completion aufwerten (scope-aware, dynamische Symbole, Doku).
+- [x] 5.2 Completion aufgewertet:
+      - scope-aware (in Kommentar/String keine Vorschläge) – bereits Phase 4;
+      - **kontextabhängig**: nach `#` nur `#`-Direktiven, nach `@` nur
+        `@`-Direktiven, nach `&` bzw. `#domacro ` nur Makronamen, sonst
+        Keywords + Workspace-Symbole (`detectContext`, unit-getestet);
+      - **dynamische Symbole** aus dem `SymbolIndex` (Fragen, Blöcke, Makros,
+        opennumformat, Action-Targets) mit `CompletionItemKind` je Kategorie;
+      - **Doku**: `resolveCompletionItem` hängt lazy den Glossar-Eintrag als
+        `MarkdownString` an; Symbol-Items zeigen `keyword – datei:zeile`.
+      Offen: Label-IDs als Vorschläge, `labels=`-Kontext, sowie das
+      explizite Einmischen der Snippets (VS Code liefert `contributes.snippets`
+      ohnehin automatisch in dieselbe Liste).
 - [ ] 5.4 DocumentLinkProvider für `#include`.
 - [ ] 5.3 Diagnostics/Linter (light).
 - [ ] 5.5 Hover für Benutzer-Symbole.

@@ -19,7 +19,9 @@ Betrifft Dateien mit der Endung `.q`.
   - „Go to Definition“ (`F12`) und „Find All References“ (`Shift+F12`).
 - **Folding** für `#macro`/`#endmacro`, `#ifdef`/`#endif`, `{ … }` und
   Blockkommentare.
-- **Auto-Vervollständigung** von Schlüsselwörtern.
+- **Auto-Vervollständigung**: Schlüsselwörter, Workspace-Symbole (Fragen,
+  Blöcke, Makros, …) und – kontextabhängig – Präprozessor-Direktiven nach
+  `#`/`@` bzw. Makronamen nach `&`. Glossar-Beschreibung beim Markieren.
 - **Hover** mit Kurzbeschreibung und Link in die GESS-Onlinehilfe
   (auf Basis von `manualGlossary.json`).
 - **Signaturhilfe** (Parameterhinweise) für Makro-/Funktionsaufrufe.
