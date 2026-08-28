@@ -47,6 +47,10 @@ Zum Debuggen in VS Code die Konfiguration **„Run Extension“** (F5) starten.
 Die Extension befindet sich noch in einer Alpha-Phase. Details siehe
 [CHANGELOG.md](CHANGELOG.md).
 
+## Lizenz
+
+Academic Free License v3.0 (AFL-3.0) – siehe [LICENSE](LICENSE).
+
 ## Contributors 🙏
 
 Ein großes Dankeschön an alle, die zu diesem Projekt beigetragen haben:
