@@ -1,745 +1,739 @@
 {
   "include": {
     "prefix": "include",
-    "body": "#include \"$1\";\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "#include \"$1\";\n",
+    "description": ""
   },
   "includeifexists": {
     "prefix": "includeifexists",
-    "body": "#includeifexists \"$1\";\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "#includeifexists \"$1\";\n",
+    "description": ""
   },
   "iAB, initActionBlock": {
-    "prefix": "iAB, initActionBlock",
-    "body": "${2:InitActionBlock = {\r\n${1}\r\n\\};}\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "iAB",
+      "initActionBlock"
+    ],
+    "body": "${2:InitActionBlock = {\n${1}\n\\};}\n",
+    "description": ""
   },
   "iAB, cAB, bAB, paAC, initActionBlock, continueActionBlock, preAssertionActionBlock, backActionBlock": {
-    "prefix": "iAB, cAB, initActionBlock, continueActionBlock, preAssertionActionBlock, backActionBlock",
-    "body": "${2:InitActionBlock = {\r\n${1}\r\n\\};}\r\n${4:continueActionBlock = {\r\n${3}\r\n\\};}\r\n${6:preAssertionActionBlock = {\r\n${5}\r\n\\};\r\n}\r\n${8:backActionBlock = {\r\n${7}\r\n\\};\r\n}\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "iAB",
+      "cAB",
+      "initActionBlock",
+      "continueActionBlock",
+      "preAssertionActionBlock",
+      "backActionBlock"
+    ],
+    "body": "${2:InitActionBlock = {\n${1}\n\\};}\n${4:continueActionBlock = {\n${3}\n\\};}\n${6:preAssertionActionBlock = {\n${5}\n\\};\n}\n${8:backActionBlock = {\n${7}\n\\};\n}\n",
+    "description": ""
   },
   "sAB, rAB, tAB, cmAB, clAB, startActionBlock, resumeActionBlock, timeoutActionBlock, cmplActionBlock, changelanguageActionBlock": {
-    "prefix": "sAB, rAB, tAB, complete, startActionBlock, resumeActionBlock, timeoutActionBlock, cmplActionBlock",
-    "body": "${2:startActionBlock = {\r\n${1}\r\n\\};}\r\n${4:resumeActionBlock = {\r\n${3}\r\n\\};}\r\n${6:timeoutAssertationActionBlock = {\r\n${5}\r\n\\};}\r\n${8:cmplActionBlock = {\r\n${7}\r\n\\};\r\n}\r\n${10:changelanguageActionBlock = {\r\n${9}\r\n\\};\r\n}\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "sAB",
+      "rAB",
+      "tAB",
+      "complete",
+      "startActionBlock",
+      "resumeActionBlock",
+      "timeoutActionBlock",
+      "cmplActionBlock"
+    ],
+    "body": "${2:startActionBlock = {\n${1}\n\\};}\n${4:resumeActionBlock = {\n${3}\n\\};}\n${6:timeoutAssertationActionBlock = {\n${5}\n\\};}\n${8:cmplActionBlock = {\n${7}\n\\};\n}\n${10:changelanguageActionBlock = {\n${9}\n\\};\n}\n",
+    "description": ""
   },
   "assert": {
-    "prefix": "assert, ass",
-    "body": "assert (${1:true}) \"${2:Nachricht}\";\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "assert",
+      "ass"
+    ],
+    "body": "assert (${1:true}) \"${2:Nachricht}\";\n",
+    "description": ""
   },
   "assertexit": {
-    "prefix": "assertexit, assert, ass",
-    "body": "assert (${1:true}) \"${2:Nachricht}\" ${4:exit ${3:ExitCode}};\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "assertexit",
+      "assert",
+      "ass"
+    ],
+    "body": "assert (${1:true}) \"${2:Nachricht}\" ${4:exit ${3:ExitCode}};\n",
+    "description": ""
   },
   "assertexitattempts": {
-    "prefix": "assertexitattempts, assert, ass",
-    "body": "assert (${1:true}) \"${2:Nachricht}\" ${4:exit ${3:ExitCode}} ${7:attempts ${6:1}};\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "assertexitattempts",
+      "assert",
+      "ass"
+    ],
+    "body": "assert (${1:true}) \"${2:Nachricht}\" ${4:exit ${3:ExitCode}} ${7:attempts ${6:1}};\n",
+    "description": ""
   },
   "block": {
     "prefix": "block",
-    "body": "block $1 = ( $2 );\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "block $1 = ( $2 );\n",
+    "description": ""
   },
   "followup": {
     "prefix": "followup",
-    "body": "followup;\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "followup;\n",
+    "description": ""
   },
   "cAB, continueActionBlock": {
-    "prefix": "cAB, continueActionBlock",
-    "body": "${2:continueActionBlock = {\r\n  ${1}\r\n\\};\r\n}\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "cAB",
+      "continueActionBlock"
+    ],
+    "body": "${2:continueActionBlock = {\n  ${1}\n\\};\n}\n",
+    "description": ""
   },
   "cmAB, cmplActionBlock": {
-    "prefix": "cmAB, cmplActionBlock",
-    "body": "${2:cmplActionBlock = {\r\n  ${1}\r\n\\};\r\n}\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "cmAB",
+      "cmplActionBlock"
+    ],
+    "body": "${2:cmplActionBlock = {\n  ${1}\n\\};\n}\n",
+    "description": ""
   },
   "clAB, changelanguageActionBlock": {
-    "prefix": "clAB, changelanguageActionBlock",
-    "body": "${2:changelanguageActionBlock = {\r\n  ${1}\r\n\\};\r\n}\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "clAB",
+      "changelanguageActionBlock"
+    ],
+    "body": "${2:changelanguageActionBlock = {\n  ${1}\n\\};\n}\n",
+    "description": ""
   },
-  "cgo, check_grid_open\r\n": {
-    "prefix": "check_grid_open\r\n",
-    "body": "&check_grid_open;\\$co1=${1:Frage};\\$co2=${2:Code};\\$co3=${3:Valid};\\$co4=\"${4:Sonstiges}\"\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+  "cgo, check_grid_open": {
+    "prefix": "check_grid_open",
+    "body": "&check_grid_open;\\$co1=${1:Frage};\\$co2=${2:Code};\\$co3=${3:Valid};\\$co4=\"${4:Sonstiges}\"\n",
+    "description": ""
   },
-  "co, check_open\r\n": {
-    "prefix": "check_open\r\n",
-    "body": "&check_open;\\$co1=${1:Frage};\\$co2=${2:Code};\\$co3=${1:Frage}.${2:Code}.open;\\$co4=\"${3:Sonstiges}\"\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+  "co, check_open": {
+    "prefix": "check_open",
+    "body": "&check_open;\\$co1=${1:Frage};\\$co2=${2:Code};\\$co3=${1:Frage}.${2:Code}.open;\\$co4=\"${3:Sonstiges}\"\n",
+    "description": ""
   },
   "singleopen, so": {
-    "prefix": "so, singleopen",
+    "prefix": [
+      "so",
+      "singleopen"
+    ],
     "body": "&singleopen;\\$name=\"${1:Frage}\";\\$label=\"${2:Code}\";",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "multiopen, mo": {
-    "prefix": "mo, multiopen",
+    "prefix": [
+      "mo",
+      "multiopen"
+    ],
     "body": "&multiopen;\\$name=\"${1:Frage}\";\\$label=\"${2:Code}\";",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "multiopen_x, mox": {
-    "prefix": "mox, multiopen_x",
+    "prefix": [
+      "mox",
+      "multiopen_x"
+    ],
     "body": [
       "javascript=\"",
       "&multiopen_x;\\$name=\"${1:Frage}\";\\$label=\"${2:Code1}\";",
       "&multiopen_x;\\$name=\"${1:Frage}\";\\$label=\"${3:Code2}\";",
       "\";"
     ],
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "css": {
     "prefix": "css",
-    "body": "css=\"\r\n${1:  css-Anweisung}\r\n\";\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "css=\"\n${1:  css-Anweisung}\n\";\n",
+    "description": ""
   },
   "flt, filter": {
-    "prefix": "flt, filter",
+    "prefix": [
+      "flt",
+      "filter"
+    ],
     "body": "flt (${1:true})",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "flt=": {
     "prefix": "flt=",
     "body": "flt = ($1);",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "setfilter": {
     "prefix": "setfilter",
     "body": "setfilter = ($1);",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "endfilter": {
     "prefix": "endfilter",
     "body": "endfilter;",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "grp, group": {
-    "prefix": "grp, group",
-    "body": "group ${1:Frage};\r\nlabels=\r\n1 \"${2}\" (${3:true})\r\n${6:2 \"${4}\" (${5:true})}\r\n;\r\n${7:export;}\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "grp",
+      "group"
+    ],
+    "body": "group ${1:Frage};\nlabels=\n1 \"${2}\" (${3:true})\n${6:2 \"${4}\" (${5:true})}\n;\n${7:export;}\n",
+    "description": ""
   },
   "Postinterviewerhelptext": {
     "prefix": "Postinterviewerhelptext",
     "body": "postinterviewerhelptext = \"${1}\";",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "Preinterviewerhelptext": {
     "prefix": "Preinterviewerhelptext",
     "body": "preinterviewerhelptext = \"${1}\";",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "Posthelptext": {
     "prefix": "Posthelptext",
     "body": "posthelptext = \"${1}\";",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "Prehelptext": {
     "prefix": "Prehelptext",
     "body": "prehelptext = \"${1}\";",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "HtmlPreText, HtmlPostText": {
-    "prefix": "HtmlPreText, HtmlPostText",
-    "body": "${2:HtmlpreText=\"\r\n${1}\r\n\";}\r\n${4:HtmlpostText=\"\r\n${3}\r\n\";}\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "HtmlPreText",
+      "HtmlPostText"
+    ],
+    "body": "${2:HtmlpreText=\"\n${1}\n\";}\n${4:HtmlpostText=\"\n${3}\n\";}\n",
+    "description": ""
   },
   "if": {
     "prefix": "if",
-    "body": "if ( ${1:condition} ) {\r\n $2\r\n\\};\r\n",
-    "description": "if then",
-    "scope": "source.gessQ"
+    "body": "if ( ${1:condition} ) {\n $2\n\\};\n",
+    "description": "if then"
   },
   "INT:": {
     "prefix": "INT:",
-    "body": "<p><i><b>INT: </b>$1</i></p>\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "<p><i><b>INT: </b>$1</i></p>\n",
+    "description": ""
   },
   "js, javascript": {
-    "prefix": "js, javascript",
-    "body": "javascript=\"\r\n${1:alert('Hallo in einem Fenster');}\r\n\";\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "js",
+      "javascript"
+    ],
+    "body": "javascript=\"\n${1:alert('Hallo in einem Fenster');}\n\";\n",
+    "description": ""
   },
   "jshandler": {
     "prefix": "jshandler",
-    "body": "jshandler=\"\r\n${1:alert('Hallo bei Aktion');}\r\n\";\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "jshandler=\"\n${1:alert('Hallo bei Aktion');}\n\";\n",
+    "description": ""
   },
   "lab, labels": {
-    "prefix": "lab, labels",
-    "body": "labels=\r\n$0\r\n;",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "lab",
+      "labels"
+    ],
+    "body": "labels=\n$0\n;",
+    "description": ""
   },
   "sgq, singlegridq": {
-    "prefix": "sgq, singlegridq",
-    "body": "singlegridq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}gridlabels=\r\n${6}\r\n;\r\ngriditems=\r\n${7}\r\n;\r\n$0",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "sgq",
+      "singlegridq"
+    ],
+    "body": "singlegridq ${1:Frage};\n${3:text=\"\n${2:Fragentext}\n\";\n}${5:title=\"\n${4}\n\";\n}gridlabels=\n${6}\n;\ngriditems=\n${7}\n;\n$0",
+    "description": ""
   },
   "mgq, multigridq": {
-    "prefix": "mgq, multigridq",
-    "body": "multigridq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}gridlabels=\r\n${6}\r\n;\r\ngriditems=\r\n${7}\r\n;\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "mgq",
+      "multigridq"
+    ],
+    "body": "multigridq ${1:Frage};\n${3:text=\"\n${2:Fragentext}\n\";\n}${5:title=\"\n${4}\n\";\n}gridlabels=\n${6}\n;\ngriditems=\n${7}\n;\n",
+    "description": ""
   },
   "showAllErrors": {
     "prefix": "showAllErrors",
     "body": "showAllErrors;",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "gridLabelRestrict": {
     "prefix": "gridLabelRestrict",
-    "body": "gridLabelRestrict = (${1:Variable});\r\n$0",
-    "description": "Filtert die Labelliste",
-    "scope": "source.gessQ"
+    "body": "gridLabelRestrict = (${1:Variable});\n$0",
+    "description": "Filtert die Labelliste"
   },
   "gridItemRestrict": {
     "prefix": "gridItemRestrict",
-    "body": "gridItemRestrict = (${1:Variable});\r\n$0",
-    "description": "Filtert die Itemliste",
-    "scope": "source.gessQ"
+    "body": "gridItemRestrict = (${1:Variable});\n$0",
+    "description": "Filtert die Itemliste"
   },
   "gridlabelheader": {
     "prefix": "gridlabelheader",
-    "body": "gridLabelHeader = (\r\n\"${1:Text über erster Labelgruppe}\"\r\n);\r\n$0",
-    "description": "Text über erster Labelgruppe",
-    "scope": "source.gessQ"
+    "body": "gridLabelHeader = (\n\"${1:Text über erster Labelgruppe}\"\n);\n$0",
+    "description": "Text über erster Labelgruppe"
   },
   "gridlabelfooter": {
     "prefix": "gridlabelfooter",
-    "body": "gridlabelfooter = (\r\n\"${1:Text unter erster Labelgruppe}\"\r\n);\r\n$0",
-    "description": "Text unter erster Labelgruppe",
-    "scope": "source.gessQ"
+    "body": "gridlabelfooter = (\n\"${1:Text unter erster Labelgruppe}\"\n);\n$0",
+    "description": "Text unter erster Labelgruppe"
   },
   "anchortext": {
     "prefix": "anchortext",
-    "body": "anchorText = \"${1:Text links oben}\";\r\n$0",
-    "description": "Text links oben",
-    "scope": "source.gessQ"
+    "body": "anchorText = \"${1:Text links oben}\";\n$0",
+    "description": "Text links oben"
   },
   "repeatGridAnchor": {
     "prefix": "repeatGridAnchor",
-    "body": "repeatGridAnchor;\r\n$0",
-    "description": "Anchortext wiederholen",
-    "scope": "source.gessQ"
+    "body": "repeatGridAnchor;\n$0",
+    "description": "Anchortext wiederholen"
   },
   "labelrepeat": {
     "prefix": "labelrepeat",
-    "body": "labelRepeat = ${1:20};\r\n$0",
-    "description": "Labels wiederholen",
-    "scope": "source.gessQ"
+    "body": "labelRepeat = ${1:20};\n$0",
+    "description": "Labels wiederholen"
   },
   "sq, singleq": {
-    "prefix": "sq, singleq",
-    "body": "singleq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}${6:labels=\r\n};",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "sq",
+      "singleq"
+    ],
+    "body": "singleq ${1:Frage};\n${3:text=\"\n${2:Fragentext}\n\";\n}${5:title=\"\n${4}\n\";\n}${6:labels=\n};",
+    "description": ""
   },
   "mq, multiq": {
-    "prefix": "mq, multiq",
-    "body": "multiq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}${6:labels=\r\n;\r\n}",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "mq",
+      "multiq"
+    ],
+    "body": "multiq ${1:Frage};\n${3:text=\"\n${2:Fragentext}\n\";\n}${5:title=\"\n${4}\n\";\n}${6:labels=\n;\n}",
+    "description": ""
   },
   "nq, numq": {
-    "prefix": "nq, numq",
-    "body": "numq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}labels=\r\n1 \"${6:@input}\" format ${7:onf_FORMAT}\r\n;\r\n$0",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "nq",
+      "numq"
+    ],
+    "body": "numq ${1:Frage};\n${3:text=\"\n${2:Fragentext}\n\";\n}${5:title=\"\n${4}\n\";\n}labels=\n1 \"${6:@input}\" format ${7:onf_FORMAT}\n;\n$0",
+    "description": ""
   },
   "sum": {
     "prefix": "sum",
     "body": "sum \"${1:Text}\" [${2:Labelcodes}]",
-    "description": "Summe für NumQ (Wenn keine Labelcodes angegeben, dann werden alle genommen)",
-    "scope": "source.gessQ"
+    "description": "Summe für NumQ (Wenn keine Labelcodes angegeben, dann werden alle genommen)"
   },
   "onf, opennumformat": {
-    "prefix": "onf, opennumformat",
-    "body": "opennumformat ${1:onf_FORMAT} = ${2:minVorkomma} ${3:maxVorkomma} ${4:minNachkomma} ${5:maxNachkomma} ${6:minWert} ${7:maxWert} ${8:ZusatzWert} \"${9:Fehlermeldung}\";\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "onf",
+      "opennumformat"
+    ],
+    "body": "opennumformat ${1:onf_FORMAT} = ${2:minVorkomma} ${3:maxVorkomma} ${4:minNachkomma} ${5:maxNachkomma} ${6:minWert} ${7:maxWert} ${8:ZusatzWert} \"${9:Fehlermeldung}\";\n",
+    "description": ""
   },
   "oq, openq": {
-    "prefix": "oq, openq",
-    "body": "openq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";}\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "oq",
+      "openq"
+    ],
+    "body": "openq ${1:Frage};\n${3:text=\"\n${2:Fragentext}\n\";\n}${5:title=\"\n${4}\n\";}\n",
+    "description": ""
   },
   "pq, passwdq": {
-    "prefix": "pq, passwdq",
-    "body": "passwdq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";}\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "pq",
+      "passwdq"
+    ],
+    "body": "passwdq ${1:Frage};\n${3:text=\"\n${2:Fragentext}\n\";\n}${5:title=\"\n${4}\n\";}\n",
+    "description": ""
   },
   "uq, UploadQ": {
-    "prefix": "uq, UploadQ",
-    "body": "UploadQ ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";}\r\nMaxFileSize = 2048; // max. erlaubte Dateigröße in KB \r\nExtensions = \"png jpg gif bmp jpeg tif psp xcf\"; //Liste der erlaubten Dateinamenserweiterungen \r\nFileViolation = \"Datei zu groß oder falsches Format.\"; //Auszugebende Fehlermeldung \r\nassert (hasMediaUpload(${1:Name}) eq 1) \"Dateiupload fehlgeschlagen.\" attempts 3; \r\n$0",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "uq",
+      "UploadQ"
+    ],
+    "body": "UploadQ ${1:Frage};\n${3:text=\"\n${2:Fragentext}\n\";\n}${5:title=\"\n${4}\n\";}\nMaxFileSize = 2048; // max. erlaubte Dateigröße in KB \nExtensions = \"png jpg gif bmp jpeg tif psp xcf\"; //Liste der erlaubten Dateinamenserweiterungen \nFileViolation = \"Datei zu groß oder falsches Format.\"; //Auszugebende Fehlermeldung \nassert (hasMediaUpload(${1:Name}) eq 1) \"Dateiupload fehlgeschlagen.\" attempts 3; \n$0",
+    "description": ""
   },
   "qv, quotavar": {
-    "prefix": "qv, quotavar",
-    "body": "quotavar $1 = ($2);\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "qv",
+      "quotavar"
+    ],
+    "body": "quotavar $1 = ($2);\n",
+    "description": ""
   },
   "qgb, quotagroupbegin": {
-    "prefix": "qgb, quotagroupbegin",
-    "body": "quotagroup $1 begin;\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "qgb",
+      "quotagroupbegin"
+    ],
+    "body": "quotagroup $1 begin;\n",
+    "description": ""
   },
   "qge, quotagroupend": {
-    "prefix": "qge, quotagroupend",
-    "body": "quotagroup end;\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "qge",
+      "quotagroupend"
+    ],
+    "body": "quotagroup end;\n",
+    "description": ""
   },
   "screen": {
     "prefix": "screen",
-    "body": "screen $1 = ${2|column,row|}( $3 );\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "screen $1 = ${2|column,row|}( $3 );\n",
+    "description": ""
   },
   "set": {
     "prefix": "set",
     "body": "set(${1:variable}=${2:value});\n",
-    "description": "if then",
-    "scope": "source.gessQ"
+    "description": "if then"
   },
   "sortID": {
     "prefix": "sortID",
-    "body": "sortID=\"${1:sID_01}\";\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "sortID=\"${1:sID_01}\";\n",
+    "description": ""
   },
   "sortorder": {
     "prefix": "sortorder",
-    "body": "sortOrder = ${1};\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "sortOrder = ${1};\n",
+    "description": ""
   },
   "tq, textq": {
-    "prefix": "tq, textq",
-    "body": "textq ${1:Frage};\r\n${3:text=\"\r\n${2:Fragentext}\r\n\";\r\n}${5:title=\"\r\n${4}\r\n\";\r\n}\r\n",
-    "description": "",
-    "scope": "source.gessQ"
+    "prefix": [
+      "tq",
+      "textq"
+    ],
+    "body": "textq ${1:Frage};\n${3:text=\"\n${2:Fragentext}\n\";\n}${5:title=\"\n${4}\n\";\n}\n",
+    "description": ""
   },
   "@insert": {
     "prefix": "insert",
     "body": "@insert($0)",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "defaultnomissing": {
-    "prefix": "defaultnomissing, dnm",
+    "prefix": [
+      "defaultnomissing",
+      "dnm"
+    ],
     "body": "defaultnomissing = ${1| ,no,yes|};",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "nomissing": {
     "prefix": "nomissing",
     "body": "nomissing = ${1|no,yes|};",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "textarearows": {
     "prefix": "textarearows",
     "body": "HTML{ textAreaRows = ${1:Anzahl Zeilen in der Offenen}; };",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "textareacols": {
     "prefix": "textareacols",
     "body": "HTML{ textAreaCols = ${1:Anzahl Spalten in der Offenen}; };",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "singleQAutoSubmit": {
     "prefix": "singleQAutoSubmit",
     "body": "HTML{ singleQAutoSubmit = ${1|no,yes|}; };",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "SingleQFormat": {
     "prefix": "SingleQFormat",
     "body": "HTML{ SingleQFormat = ${1|standard,table,select|}; };",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "input": {
     "prefix": "input",
     "body": "HTML{ Input = ${1|yes,no|}; };",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "num()": {
     "prefix": "num",
     "body": "num($1)",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "timessent()": {
     "prefix": "timessent",
     "body": "timessent($1)",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "transpose": {
-    "prefix": "trans,transpose",
+    "prefix": [
+      "trans",
+      "transpose"
+    ],
     "body": "transpose;",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "bipolar": {
     "prefix": "bipolar",
     "body": "bipolar;",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "restrict": {
     "prefix": "restrict",
     "body": "restrict = $1;",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "array": {
     "prefix": "array",
     "body": "array ${1:Name}[${2:größe}];${3:export;}",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "clear": {
     "prefix": "clear",
     "body": "clear( $1 );",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "syncsort": {
     "prefix": "syncsort",
     "body": "syncsort( ${1:ARR1}, ${2:ARR2}, ${3|ascending,descending|});",
-    "description": "sortiert die Inhalte von ARR1 aufsteigend (ascending) oder absteigend (descending) an. Synchron zu dem Schema, wie die Elemente in ARR1 ihre Positionen verändern, wird auch ARR2 umsortiert.",
-    "scope": "source.gessQ"
+    "description": "sortiert die Inhalte von ARR1 aufsteigend (ascending) oder absteigend (descending) an. Synchron zu dem Schema, wie die Elemente in ARR1 ihre Positionen verändern, wird auch ARR2 umsortiert."
   },
   "lalign": {
     "prefix": "lalign",
     "body": "lalign( $1 );",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "target": {
     "prefix": "target",
     "body": "target( $1 )",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "macro": {
     "prefix": "macro",
-    "body": "#macro ${1:Name} \r\n$2\r\n#endmacro",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "#macro ${1:Name} \n$2\n#endmacro",
+    "description": ""
   },
   "domacro": {
     "prefix": "domacro",
     "body": "#domacro ${1:Macro} ${2:Eingabe};",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "ifdefelse": {
     "prefix": "ifdefelse",
-    "body": "#ifdef ${1:Name} \r\n$2\r\n#else\r\n$3\r\n#endif",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "#ifdef ${1:Name} \n$2\n#else\n$3\n#endif",
+    "description": ""
   },
   "ifdef": {
     "prefix": "ifdef",
-    "body": "#ifdef ${1:Name} \r\n$2\r\n#endif",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "#ifdef ${1:Name} \n$2\n#endif",
+    "description": ""
   },
   "title": {
     "prefix": "title",
     "body": "title=\"$1\";",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "text": {
     "prefix": "text",
-    "body": "text=\"\r\n$1\r\n\";",
-    "description": "",
-    "scope": "source.gessQ"
+    "body": "text=\"\n$1\n\";",
+    "description": ""
   },
   "ExportText": {
     "prefix": "ExportText",
     "body": "ExportText=\"$1\";",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "ExportTitle": {
     "prefix": "ExportTitle",
     "body": "ExportTitle=\"$1\";",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "ExportLabel": {
     "prefix": "ExportLabel",
     "body": "ExportLabel=\"$1\"",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "ShowMaxLabels": {
     "prefix": "ShowMaxLabels",
     "body": "ShowMaxLabels = ${1:Number};",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "gridlabels copy": {
-    "prefix": "gridlabels copy, copy gridlabels",
+    "prefix": [
+      "gridlabels copy",
+      "copy gridlabels"
+    ],
     "body": "gridlabels copy ${1:Frage};",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "griditems copy": {
-    "prefix": "griditems copy, copy griditems",
+    "prefix": [
+      "griditems copy",
+      "copy griditems"
+    ],
     "body": "griditems copy ${1:Frage};",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "labels copy": {
-    "prefix": "labels copy, copy labels",
+    "prefix": [
+      "labels copy",
+      "copy labels"
+    ],
     "body": "labels copy ${1:Frage};",
-    "description": "",
-    "scope": "source.gessQ"
+    "description": ""
   },
   "autoChangePBar": {
     "prefix": "autoChangePBar",
-    "body": "autoChangePBar = ${1|yes,no|};\r\n",
-    "description": "Default: No",
-    "scope": "source.gessQ"
+    "body": "autoChangePBar = ${1|yes,no|};\n",
+    "description": "Default: No"
   },
   "BackbuttonOnFinish": {
     "prefix": "BackbuttonOnFinish",
-    "body": "BackbuttonOnFinish = ${1|yes,no|};\r\n",
-    "description": "Default: No",
-    "scope": "source.gessQ"
+    "body": "BackbuttonOnFinish = ${1|yes,no|};\n",
+    "description": "Default: No"
   },
   "BadPasswordMsg": {
     "prefix": "BadPasswordMsg",
-    "body": "BadPasswordMsg = \"\r\n${1:Das eingegebene Passwort ist falsch.}\r\n\";\r\n",
-    "description": "Default: Sorry, but this password is wrong.",
-    "scope": "source.gessQ"
+    "body": "BadPasswordMsg = \"\n${1:Das eingegebene Passwort ist falsch.}\n\";\n",
+    "description": "Default: Sorry, but this password is wrong."
   },
   "CaseInUseMsg": {
     "prefix": "CaseInUseMsg",
-    "body": "CaseInUseMsg = \"\r\n${1:Ihr Interview kann im Moment nicht betreten werden.\r\n<br>Bitte versuchen Sie es später noch einmal.}\r\n\";\r\n",
-    "description": "Default: The requested case is currently in use. Please try again later.",
-    "scope": "source.gessQ"
+    "body": "CaseInUseMsg = \"\n${1:Ihr Interview kann im Moment nicht betreten werden.\n<br>Bitte versuchen Sie es später noch einmal.}\n\";\n",
+    "description": "Default: The requested case is currently in use. Please try again later."
   },
   "ClearOnFlt": {
     "prefix": "ClearOnFlt",
-    "body": "ClearOnFlt = ${1|yes,no|};\r\n",
-    "description": "Default: Yes",
-    "scope": "source.gessQ"
+    "body": "ClearOnFlt = ${1|yes,no|};\n",
+    "description": "Default: Yes"
   },
   "CompletedExitCode": {
     "prefix": "CompletedExitCode",
-    "body": "CompletedExitCode = ${1:Number};\r\n",
-    "description": "Default: 1",
-    "scope": "source.gessQ"
+    "body": "CompletedExitCode = ${1:Number};\n",
+    "description": "Default: 1"
   },
   "DataWriteCondition": {
     "prefix": "DataWriteCondition",
-    "body": "DataWriteCondition = ${1:Bedingung};\r\n",
-    "description": "Default: false",
-    "scope": "source.gessQ"
+    "body": "DataWriteCondition = ${1:Bedingung};\n",
+    "description": "Default: false"
   },
   "DisableExitOnAssert": {
     "prefix": "DisableExitOnAssert",
-    "body": "DisableExitOnAssert = ${1|yes,no|};\r\n",
-    "description": "Default: No",
-    "scope": "source.gessQ"
+    "body": "DisableExitOnAssert = ${1|yes,no|};\n",
+    "description": "Default: No"
   },
   "EnableKeyboard": {
     "prefix": "EnableKeyboard",
-    "body": "EnableKeyboard = ${1|yes,no|};\r\n",
-    "description": "Default: No",
-    "scope": "source.gessQ"
+    "body": "EnableKeyboard = ${1|yes,no|};\n",
+    "description": "Default: No"
   },
   "EnterPasswordMsg": {
     "prefix": "EnterPasswordMsg",
-    "body": "EnterPasswordMsg = \"\r\n${1:Bitte definieren Sie hier ein eigenes Passwort für den Zugang zu Ihrer Befragung.}\r\n\";\r\n",
-    "description": "Default: Please enter your password to access your personal questionnaire.",
-    "scope": "source.gessQ"
+    "body": "EnterPasswordMsg = \"\n${1:Bitte definieren Sie hier ein eigenes Passwort für den Zugang zu Ihrer Befragung.}\n\";\n",
+    "description": "Default: Please enter your password to access your personal questionnaire."
   },
   "EnterPasswordButton": {
     "prefix": "EnterPasswordButton",
-    "body": "EnterPasswordButton = \"\r\n${1:Weiter}\r\n\";\r\n",
-    "description": "Default: OK",
-    "scope": "source.gessQ"
+    "body": "EnterPasswordButton = \"\n${1:Weiter}\n\";\n",
+    "description": "Default: OK"
   },
   "ExportBlacklist": {
     "prefix": "ExportBlacklist",
-    "body": "ExportBlacklist = \"${1:VAR}\";\r\n",
-    "description": "Default: \"\"",
-    "scope": "source.gessQ"
+    "body": "ExportBlacklist = \"${1:VAR}\";\n",
+    "description": "Default: \"\""
   },
   "HelptextPosition": {
     "prefix": "HelptextPosition",
-    "body": "HelptextPosition = ${1|template,text,title|};\r\n",
-    "description": "Default: template",
-    "scope": "source.gessQ"
+    "body": "HelptextPosition = ${1|template,text,title|};\n",
+    "description": "Default: template"
   },
   "IdClosedMsg": {
     "prefix": "IdClosedMsg",
-    "body": "IdClosedMsg = \"\r\n${1:Dieser Zugang wurde bereits verwendet.}\r\n\";\r\n",
-    "description": "Default: Invalid respondent ID. This ID has an invalid syntax (only A-Z, a-z and 0-9 are allowed), is not registered to participate or has already been used.",
-    "scope": "source.gessQ"
+    "body": "IdClosedMsg = \"\n${1:Dieser Zugang wurde bereits verwendet.}\n\";\n",
+    "description": "Default: Invalid respondent ID. This ID has an invalid syntax (only A-Z, a-z and 0-9 are allowed), is not registered to participate or has already been used."
   },
   "ignoreFilter": {
     "prefix": "ignoreFilter",
-    "body": "ignoreFilter = ${1|yes,no|};\r\n",
-    "description": "Default: No",
-    "scope": "source.gessQ"
+    "body": "ignoreFilter = ${1|yes,no|};\n",
+    "description": "Default: No"
   },
   "ignoreAssert": {
     "prefix": "ignoreAssert",
-    "body": "ignoreAssert = ${1|yes,no|};\r\n",
-    "description": "Default: No",
-    "scope": "source.gessQ"
+    "body": "ignoreAssert = ${1|yes,no|};\n",
+    "description": "Default: No"
   },
   "ignoreNoMissing": {
     "prefix": "ignoreNoMissing",
-    "body": "ignoreNoMissing = ${1|yes,no|};\r\n",
-    "description": "Default: No",
-    "scope": "source.gessQ"
+    "body": "ignoreNoMissing = ${1|yes,no|};\n",
+    "description": "Default: No"
   },
   "InvalidIdMsg": {
     "prefix": "InvalidIdMsg",
-    "body": "InvalidIdMsg = \"\r\n${1:Mit Ihrem Link ist leider kein Interview möglich.}\r\n\";\r\n",
-    "description": "Default: Invalid respondent ID. This ID has an invalid syntax (only A-Z, a-z and 0-9 are allowed), is not registered to participate or has already been used.",
-    "scope": "source.gessQ"
+    "body": "InvalidIdMsg = \"\n${1:Mit Ihrem Link ist leider kein Interview möglich.}\n\";\n",
+    "description": "Default: Invalid respondent ID. This ID has an invalid syntax (only A-Z, a-z and 0-9 are allowed), is not registered to participate or has already been used."
   },
   "InvalidInterviewerMsg": {
     "prefix": "InvalidInterviewerMsg",
-    "body": "InvalidInterviewerMsg = \"\r\n${1:Dieser Fall ist Ihnen nicht zugewiesen.}\r\n\";\r\n",
-    "description": "Default: This case is assigned to another interviewer.",
-    "scope": "source.gessQ"
+    "body": "InvalidInterviewerMsg = \"\n${1:Dieser Fall ist Ihnen nicht zugewiesen.}\n\";\n",
+    "description": "Default: This case is assigned to another interviewer."
   },
   "InvalidNavMsg": {
     "prefix": "InvalidNavMsg",
-    "body": "InvalidNavMsg = \"\r\n${1:Diese Navigation ist nicht möglich.}\r\n\";\r\n",
-    "description": "Default: This navigation is not possible.",
-    "scope": "source.gessQ"
+    "body": "InvalidNavMsg = \"\n${1:Diese Navigation ist nicht möglich.}\n\";\n",
+    "description": "Default: This navigation is not possible."
   },
   "InvalidSingleMsg": {
     "prefix": "InvalidSingleMsg",
-    "body": "InvalidSingleMsg = \"\r\n${1:Die Angaben sind widersprüchlich. Bitte korrigieren.}\r\n\";\r\n",
-    "description": "Default: Labels unstimmig.",
-    "scope": "source.gessQ"
+    "body": "InvalidSingleMsg = \"\n${1:Die Angaben sind widersprüchlich. Bitte korrigieren.}\n\";\n",
+    "description": "Default: Labels unstimmig."
   },
   "InvalidStateMsg": {
     "prefix": "InvalidStateMsg",
-    "body": "InvalidStateMsg = \"\r\n${1:Ihre ID ist leider fehlerhaft. Bitte kontakieren Sie uns über... .}\r\n\";\r\n",
-    "description": "Default: Invalid respondent ID. This ID has an invalid syntax (only A-Z, a-z and 0-9 are allowed), is not registered to participate or has already been used.",
-    "scope": "source.gessQ"
+    "body": "InvalidStateMsg = \"\n${1:Ihre ID ist leider fehlerhaft. Bitte kontakieren Sie uns über... .}\n\";\n",
+    "description": "Default: Invalid respondent ID. This ID has an invalid syntax (only A-Z, a-z and 0-9 are allowed), is not registered to participate or has already been used."
   },
   "QuotaWriteCondition": {
     "prefix": "QuotaWriteCondition",
-    "body": "QuotaWriteCondition = ${1:Bedingung};\r\n",
-    "description": "Default: false",
-    "scope": "source.gessQ"
+    "body": "QuotaWriteCondition = ${1:Bedingung};\n",
+    "description": "Default: false"
   },
   "replaceInOpens": {
     "prefix": "replaceInOpens",
-    "body": "replaceInOpens = (\"${1:searchStr}\",\"${2:replacement}\");\r\n",
-    "description": "ersetzt in den Opens angegebene Zeichen durch ein anderes Zeichen",
-    "scope": "source.gessQ"
+    "body": "replaceInOpens = (\"${1:searchStr}\",\"${2:replacement}\");\n",
+    "description": "ersetzt in den Opens angegebene Zeichen durch ein anderes Zeichen"
   },
   "sanitizeOpens": {
     "prefix": "sanitizeOpens",
-    "body": "sanitizeOpens = ${1|None,Basic,SimpleText,Relaxed|};\r\n",
-    "description": "Default : Alles wird zugelassen, bereinigt HTML in den Opens (OpenQ und open Label).",
-    "scope": "source.gessQ"
+    "body": "sanitizeOpens = ${1|None,Basic,SimpleText,Relaxed|};\n",
+    "description": "Default : Alles wird zugelassen, bereinigt HTML in den Opens (OpenQ und open Label)."
   },
   "saveIP": {
     "prefix": "saveIP",
-    "body": "saveIP = ${1|yes,no|};\r\n",
-    "description": "Default: No",
-    "scope": "source.gessQ"
+    "body": "saveIP = ${1|yes,no|};\n",
+    "description": "Default: No"
   },
   "showHelptext": {
     "prefix": "showHelptext",
-    "body": "showHelptext = ${1|yes,no|};\r\n",
-    "description": "Default: Yes",
-    "scope": "source.gessQ"
+    "body": "showHelptext = ${1|yes,no|};\n",
+    "description": "Default: Yes"
   },
   "showInterviewerHelptext": {
     "prefix": "showInterviewerHelptext",
-    "body": "showInterviewerHelptext = ${1|yes,no|};\r\n",
-    "description": "Default: Yes",
-    "scope": "source.gessQ"
+    "body": "showInterviewerHelptext = ${1|yes,no|};\n",
+    "description": "Default: Yes"
   },
   "SurveyClosedMsg": {
     "prefix": "SurveyClosedMsg",
-    "body": "SurveyClosedMsg = \"\r\n${1:Tut uns leid, die Umfrage ist abgeschlossen.}\r\n\";\r\n",
-    "description": "Default: The survey is currently inactive.\r\nPlease try again in a few minutes. If this message still appears, the survey might already have been closed.",
-    "scope": "source.gessQ"
+    "body": "SurveyClosedMsg = \"\n${1:Tut uns leid, die Umfrage ist abgeschlossen.}\n\";\n",
+    "description": "Default: The survey is currently inactive.\r\nPlease try again in a few minutes. If this message still appears, the survey might already have been closed."
   },
   "TemplateOnFinish": {
     "prefix": "TemplateOnFinish",
-    "body": "TemplateOnFinish = ${1|yes,no|};\r\n",
-    "description": "Default: No",
-    "scope": "source.gessQ"
+    "body": "TemplateOnFinish = ${1|yes,no|};\n",
+    "description": "Default: No"
   },
   "WriteRescueData": {
     "prefix": "WriteRescueData",
-    "body": "WriteRescueData = ${1|yes,no|};\r\n",
-    "description": "Default: No",
-    "scope": "source.gessQ"
+    "body": "WriteRescueData = ${1|yes,no|};\n",
+    "description": "Default: No"
   },
   "WriteViewingTime": {
     "prefix": "WriteViewingTime",
-    "body": "WriteViewingTime = ${1|none,first,last,all|};\r\n",
-    "description": "Default: None",
-    "scope": "source.gessQ"
+    "body": "WriteViewingTime = ${1|none,first,last,all|};\n",
+    "description": "Default: None"
   }
 }

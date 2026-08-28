@@ -172,5 +172,6 @@ snippets/snippets_gessgroup.json
 
 previousVersion/**
 manual/**
-__tests__/scope.test.js.map
 LAST_WORK.md
+
+dokumentation/**

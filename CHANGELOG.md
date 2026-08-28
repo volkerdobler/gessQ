@@ -3,6 +3,24 @@
 All notable changes to the "gessq" extension will be documented in this file.
 Current version number is first:
 
+### Unreleased
+
+Fixes (Phase 1):
+
+- Grammar path in `package.json` corrected to lowercase `gessq.tmLanguage.json`
+  (broke case-sensitive builds / Marketplace).
+- `language-configuration.json` rewritten as valid JSON – comment toggling,
+  auto-indent, `wordPattern` and `onEnterRules` now take effect.
+- Snippets: removed invalid `scope` field, multi-prefixes converted to arrays,
+  stray newlines in prefixes/keys removed, CRLF bodies normalised to `\n`.
+- Grammar: fixed `silderq` typo, corrected `\\.` escape patterns in strings,
+  removed a bogus match that blocked embedded `source.js`, added `gnumq` /
+  `passwdq` to the core question keywords.
+- Removed dead code from `extension.ts` and unused imports.
+- Removed stale compiled test artifact; unit tests run again via a `vscode`
+  mock.
+- README updated to describe the actual feature set and settings.
+
 ### 0.3.9
 
 Improve number recognition

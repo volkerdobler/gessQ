@@ -1,0 +1,18 @@
+# Normalise line endings: store text files with LF in the repository,
+# check out with LF on every platform. Resolves the "LF will be replaced
+# by CRLF" warnings.
+* text=auto eol=lf
+
+# Explicit text types
+*.ts       text eol=lf
+*.js       text eol=lf
+*.json     text eol=lf
+*.md       text eol=lf
+*.html     text eol=lf
+*.yml      text eol=lf
+*.yaml     text eol=lf
+
+# Binary assets – never touch
+*.png      binary
+*.pdf      binary
+*.vsix     binary

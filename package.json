@@ -36,7 +36,7 @@
       {
         "language": "gessq",
         "scopeName": "source.gessQ",
-        "path": "./syntaxes/gessQ.tmLanguage.json"
+        "path": "./syntaxes/gessq.tmLanguage.json"
       }
     ],
     "snippets": [
@@ -84,7 +84,10 @@
     "testEnvironment": "node",
     "testMatch": [
       "**/__tests__/**/*.test.ts"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^vscode$": "<rootDir>/src/__tests__/__mocks__/vscode.ts"
+    }
   },
   "__metadata": {
     "id": "8369ddfc-3ff3-4da4-8712-89df76ef2c89",

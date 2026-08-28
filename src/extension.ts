@@ -3,26 +3,18 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as fs from 'fs';
 
-import {
-	getScopeAt,
-	getCachedScope,
-	clearScopeCache,
-	isNotInCommentAt,
-	isCommentAt,
-	isStringAt,
-	Scope,
-	ScopeEnum,
-	cacheDebug,
-} from './components';
+import { clearScopeCache, isNotInCommentAt } from './components';
 import {
 	fixDriveCasingInWindows,
 	getAllFilenamesInDirectory,
 } from './commons/fsUtils';
 import { getWordAtPosition } from './commons/vscodeUtils';
-import { GessQCompletionProvider, GessQHoverProvider } from './components';
-import { GessQSignatureProvider } from './components';
+import {
+	GessQCompletionProvider,
+	GessQHoverProvider,
+	GessQSignatureProvider,
+} from './components';
 import * as parser from './commons/parserUtils';
 import { setOutputChannel, error as logError, info } from './commons/logger';
 
@@ -156,27 +148,9 @@ function getWorkspaceFolderPath(fileUri?: vscode.Uri): string | undefined {
 	}
 }
 
-/**
- * Build a regex fragment that matches a literal word or a quoted string.
- * @param word literal word to match
- */
-function getWordDefinition(word: string): string {
-	return '(?:(?:\\b' + word + '\\b)|(?:"' + word + '")|(?:\'' + word + "'))";
-}
-
 const constTokenVarNameRest = parser.constTokenVarNameRest;
 
 // regex factories are provided by parserUtils; use them via `parser`.
-
-class GessQCompletionProviderLocal extends GessQCompletionProvider {}
-
-/**
- * Wrapper for macro definition regex factory from parser utils.
- * @param word optional macro name to match
- */
-const macroDefRe = function (word: string): RegExp {
-	return parser.macroDefRe(word);
-};
 
 /**
  * Search for a definition of `word` inside a single file and return its Location.

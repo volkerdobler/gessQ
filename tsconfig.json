@@ -10,5 +10,5 @@
 		"typeRoots": ["./node_modules/@types"],
 		"strict": true
 	},
-	"exclude": ["node_modules", ".vscode-test", "out"]
+	"exclude": ["node_modules", ".vscode-test", "out", "src/__tests__"]
 }

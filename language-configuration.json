@@ -1,9 +1,9 @@
 {
     "comments": {
-        // symbol used for single line comment. Remove this entry if your language does not support line comments
+        // symbol used for single line comment
         "lineComment": "//",
-        // symbols used for start and end a block comment. Remove this entry if your language does not support block comments
-        "blockComment": [ "/*", "*/" ]
+        // symbols used to start and end a block comment
+        "blockComment": ["/*", "*/"]
     },
     // symbols used as brackets
     "brackets": [
@@ -11,8 +11,8 @@
         ["[", "]"],
         ["(", ")"]
     ],
-		"autoCloseBefore": ";:.,=}])>` \n\t\t",
-        "wordPattern": "(-?\\d*\\.\\d\w*)|([A-Za-zÄÖÜäöüß_$][A-Za-zÄÖÜäöüß0-9_$]*)",
+    "autoCloseBefore": ";:.,=}])> \n\t",
+    "wordPattern": "(-?\\d*\\.\\d\\w*)|([A-Za-zÄÖÜäöüß_$][A-Za-zÄÖÜäöüß0-9_$]*)",
     // symbols that are auto closed when typing
     "autoClosingPairs": [
         { "open": "{", "close": "}" },
@@ -20,19 +20,19 @@
         { "open": "(", "close": ")" },
         { "open": "\"", "close": "\"", "notIn": ["string"] },
         { "open": "'", "close": "'", "notIn": ["string"] },
-        { "open": "/*", "close": "*/" }
+        { "open": "/*", "close": "*/", "notIn": ["string"] }
     ],
-    // symbols that that can be used to surround a selection
+    // symbols that can be used to surround a selection
     "surroundingPairs": [
         ["{", "}"],
         ["[", "]"],
         ["(", ")"],
         ["\"", "\""],
         ["'", "'"]
-    ]
+    ],
     "indentationRules": {
-        "increaseIndentPattern": "^.*(\{\s*$|\b(block|screen|if|for|foreach)\b.*(=|\().*)",
-        "decreaseIndentPattern": "^\s*\}"
+        "increaseIndentPattern": "[{(]\\s*$",
+        "decreaseIndentPattern": "^\\s*[)}]"
     },
     "onEnterRules": [
         {
@@ -40,7 +40,7 @@
             "action": { "indentAction": "indent" }
         },
         {
-            "beforeText": "^\\s*\\}\\s*$",
+            "beforeText": "^\\s*\\}\\s*;?\\s*$",
             "action": { "indentAction": "outdent" }
         }
     ]
