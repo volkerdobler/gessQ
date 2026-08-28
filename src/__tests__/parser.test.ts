@@ -5,7 +5,7 @@ import {
 	blockRe,
 	macroDefRe,
 	getWordDefinition,
-} from '../commons/parserUtils';
+} from '../core/parser';
 
 describe('questionDefRe', () => {
 	test('matches a question definition and captures type + name', () => {

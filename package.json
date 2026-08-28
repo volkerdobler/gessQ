@@ -47,23 +47,36 @@
       {
         "language": "gessq",
         "scopeName": "source.gessQ",
-        "path": "./syntaxes/gessq.tmLanguage.json"
+        "path": "./language/gessq.tmLanguage.json"
       }
     ],
     "snippets": [
       {
         "language": "gessq",
-        "path": "./snippets/snippets.json"
+        "path": "./language/snippets.json"
       }
     ],
     "configuration": {
       "type": "object",
       "title": "gessQ",
       "properties": {
+        "gessq.logLevel": {
+          "type": "string",
+          "enum": [
+            "off",
+            "error",
+            "warn",
+            "info",
+            "debug"
+          ],
+          "default": "error",
+          "description": "Verbosity of the gessQ Output channel ('gessQ')."
+        },
         "gessq.debugMode": {
           "type": "boolean",
           "default": false,
-          "description": "Enable debug logging for the gessQ extension (logs to Output channel 'gessQ')."
+          "deprecationMessage": "Deprecated: use 'gessq.logLevel' instead. When set, this is treated as logLevel = debug.",
+          "description": "Deprecated. Enable debug logging (equivalent to gessq.logLevel = debug)."
         }
       }
     }

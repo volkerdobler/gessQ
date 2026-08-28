@@ -5,6 +5,20 @@ Current version number is first:
 
 ### Unreleased
 
+Restructure (Phase 3):
+
+- Source tree reorganised: `src/core` (parser, scope, symbol search),
+  `src/providers` (one file per language feature), `src/infra` (logger, fs,
+  vscode helpers), `src/data` (glossary); grammar and snippets moved to
+  `language/`. `extension.ts` is now just activation + registration.
+- Single scope implementation. The scanner is a proper state machine and now
+  honours backslash escapes, so `\"` no longer ends a double-quoted string.
+- Logger gains a `gessq.logLevel` setting (`off`/`error`/`warn`/`info`/
+  `debug`); `gessq.debugMode` stays as a deprecated alias.
+- Removed the process-wide `unhandledRejection` listener.
+- "Go to Symbol in Workspace" now waits for all files before returning
+  results instead of resolving after the first file.
+
 Build & resources (Phase 2):
 
 - Bundle with esbuild (`esbuild.js`); `tsc` is now type-check only.

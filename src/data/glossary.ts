@@ -1,7 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { debug, warn } from './logger';
+import { debug, warn } from '../infra/logger';
 
 export interface GlossaryEntry {
 	short: string;
@@ -36,12 +36,7 @@ export function normalizeKey(s: string): string {
 function candidateUris(extensionUri: vscode.Uri): vscode.Uri[] {
 	return [
 		vscode.Uri.joinPath(extensionUri, 'out', 'manualGlossary.json'),
-		vscode.Uri.joinPath(
-			extensionUri,
-			'src',
-			'commons',
-			'manualGlossary.json',
-		),
+		vscode.Uri.joinPath(extensionUri, 'src', 'data', 'manualGlossary.json'),
 	];
 }
 

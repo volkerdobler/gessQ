@@ -1,7 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { loadGlossary, type Glossary } from '../commons/glossary';
+import { loadGlossary, type Glossary } from '../data/glossary';
 
 /**
  * Signature Help provider for the gessQ language.

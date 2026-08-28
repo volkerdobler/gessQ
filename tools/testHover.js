@@ -4,7 +4,7 @@ const glossaryPath = path.join(
 	__dirname,
 	'..',
 	'src',
-	'commons',
+	'data',
 	'manualGlossary.json',
 );
 const glossary = JSON.parse(fs.readFileSync(glossaryPath, 'utf8'));

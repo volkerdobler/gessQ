@@ -1,7 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { debug, warn } from '../commons/logger';
+import { debug, warn } from '../infra/logger';
 
 const FALLBACK_KEYWORDS = [
 	'singleq',
@@ -53,7 +53,7 @@ export async function buildCompletionKeywords(
 	try {
 		const uri = vscode.Uri.joinPath(
 			extensionUri,
-			'syntaxes',
+			'language',
 			'gessq.tmLanguage.json',
 		);
 		const bytes = await vscode.workspace.fs.readFile(uri);

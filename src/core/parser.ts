@@ -14,11 +14,6 @@ const constStringVarName = '(?:"[^"]+")|(?:\'[^\']+\')';
 const constVarName: string =
 	'(?:' + constTokenVarName + '|' + constStringVarName + ')';
 
-const constVarList: string =
-	'(' + constVarName + '(?:\\s+(?:' + constVarName + '))*)';
-const constVarToList: string =
-	'(?:' + constVarList + '\\s*\\bto\\b\\s*' + constVarList + ')';
-
 /**
  * Expose token suffix used by workspace symbol queries.
  */

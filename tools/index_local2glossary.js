@@ -26,12 +26,12 @@ while ((m = re.exec(html)) !== null) {
 	if (!map[key]) map[key] = { short: label, detail: href };
 }
 fs.writeFileSync(
-	'src/commons/manualGlossary.json',
+	'src/data/manualGlossary.json',
 	JSON.stringify(map, null, 2),
 	'utf8',
 );
 console.log(
 	'Wrote',
 	Object.keys(map).length,
-	'entries to src/commons/manualGlossary.json',
+	'entries to src/data/manualGlossary.json',
 );

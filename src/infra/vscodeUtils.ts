@@ -1,6 +1,26 @@
 'use strict';
 
 import * as vscode from 'vscode';
+import { fixDriveCasingInWindows } from './fsUtils';
+
+/**
+ * Resolve the workspace folder path that contains `fileUri`. When no URI is
+ * given, falls back to the first workspace folder. Returns `undefined` when
+ * neither can be determined.
+ */
+export function getWorkspaceFolderPath(
+	fileUri?: vscode.Uri,
+): string | undefined {
+	if (fileUri) {
+		const folder = vscode.workspace.getWorkspaceFolder(fileUri);
+		return folder ? fixDriveCasingInWindows(folder.uri.fsPath) : undefined;
+	}
+	const folders = vscode.workspace.workspaceFolders;
+	if (folders && folders.length) {
+		return fixDriveCasingInWindows(folders[0].uri.fsPath);
+	}
+	return undefined;
+}
 
 /**
  * Return the word under `position` and an adjusted position inside the word.

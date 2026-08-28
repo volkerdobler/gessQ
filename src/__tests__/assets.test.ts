@@ -39,8 +39,8 @@ describe('language-configuration.json', () => {
 	});
 });
 
-describe('snippets/snippets.json', () => {
-	const snippets = JSON.parse(read('snippets/snippets.json')) as Record<
+describe('language/snippets.json', () => {
+	const snippets = JSON.parse(read('language/snippets.json')) as Record<
 		string,
 		{ prefix: string | string[]; body: string | string[]; scope?: string }
 	>;
@@ -75,8 +75,8 @@ describe('snippets/snippets.json', () => {
 	});
 });
 
-describe('syntaxes/gessq.tmLanguage.json', () => {
-	const grammar = JSON.parse(read('syntaxes/gessq.tmLanguage.json'));
+describe('language/gessq.tmLanguage.json', () => {
+	const grammar = JSON.parse(read('language/gessq.tmLanguage.json'));
 
 	test('scopeName matches package.json contribution', () => {
 		const pkg = JSON.parse(read('package.json'));
@@ -89,23 +89,25 @@ describe('syntaxes/gessq.tmLanguage.json', () => {
 	test('match / begin / end patterns are non-empty single-line strings', () => {
 		const bad: string[] = [];
 		const walk = (node: unknown): void => {
-			if (!node || typeof node !== 'object') return;
+			if (!node || typeof node !== 'object') {
+				return;
+			}
 			const obj = node as Record<string, unknown>;
 			for (const key of ['match', 'begin', 'end']) {
 				const v = obj[key];
-				if (v !== undefined) {
-					if (
-						typeof v !== 'string' ||
-						v.length === 0 ||
-						/\n/.test(v)
-					) {
-						bad.push(`${key}: ${JSON.stringify(v)}`);
-					}
+				if (
+					v !== undefined &&
+					(typeof v !== 'string' || v.length === 0 || /\n/.test(v))
+				) {
+					bad.push(`${key}: ${JSON.stringify(v)}`);
 				}
 			}
 			for (const v of Object.values(obj)) {
-				if (Array.isArray(v)) v.forEach(walk);
-				else if (v && typeof v === 'object') walk(v);
+				if (Array.isArray(v)) {
+					v.forEach(walk);
+				} else if (v && typeof v === 'object') {
+					walk(v);
+				}
 			}
 		};
 		walk(grammar);
@@ -115,7 +117,7 @@ describe('syntaxes/gessq.tmLanguage.json', () => {
 
 describe('manualGlossary.json', () => {
 	test('parses to an object of {short, detail} entries', () => {
-		const g = JSON.parse(read('src/commons/manualGlossary.json'));
+		const g = JSON.parse(read('src/data/manualGlossary.json'));
 		const keys = Object.keys(g);
 		expect(keys.length).toBeGreaterThan(100);
 		for (const k of keys.slice(0, 25)) {

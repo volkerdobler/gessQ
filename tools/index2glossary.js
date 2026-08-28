@@ -42,7 +42,7 @@ https
 				}
 			}
 			const outPath =
-				process.argv[2] || 'src/commons/manualGlossary.json';
+				process.argv[2] || 'src/data/manualGlossary.json';
 			fs.writeFileSync(outPath, JSON.stringify(map, null, 2), 'utf8');
 			console.log(
 				'Wrote',

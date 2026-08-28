@@ -1,9 +1,9 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { getWordAtPosition } from '../commons/vscodeUtils';
-import { debug } from '../commons/logger';
-import { loadGlossary, lookupEntry } from '../commons/glossary';
+import { getWordAtPosition } from '../infra/vscodeUtils';
+import { debug } from '../infra/logger';
+import { loadGlossary, lookupEntry } from '../data/glossary';
 
 export class GessQHoverProvider implements vscode.HoverProvider {
 	constructor(private readonly extensionUri: vscode.Uri) {}

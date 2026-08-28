@@ -11,10 +11,10 @@ npm install --save-dev pdf-parse
 2. Run the extractor:
 
 ```bash
-node ./tools/pdf2glossary.js manual/qdot_manual.pdf src/commons/manualGlossary.json
+node ./tools/pdf2glossary.js manual/qdot_manual.pdf src/data/manualGlossary.json
 ```
 
-This will write `src/commons/manualGlossary.txt` (raw extracted text) and a best-effort `manualGlossary.json`.
+This will write `src/data/manualGlossary.txt` (raw extracted text) and a best-effort `manualGlossary.json`.
 
 Notes:
 

@@ -499,11 +499,34 @@ Migration in kleinen Schritten:
       an `engines` angeglichen (`^1.99.0`), `typescript` als devDependency;
       `package-lock.json` wird jetzt committet (reproduzierbares `npm ci`).
 
-### Phase 3 – Umstrukturierung
-- [ ] 6. Ordner-/Dateistruktur migrieren (schrittweise, je PR ein Teil).
-- [ ] 4.1 Eine Scope-Implementierung.
-- [ ] 4.4 Logger mit LogLevel.
-- [ ] 4.5 Globalen `unhandledRejection`-Listener entfernen.
+### Phase 3 – Umstrukturierung  ✅ erledigt
+- [x] 6. Ordner-/Dateistruktur migriert:
+      `commons/` → `infra/` (logger, fsUtils, vscodeUtils) + `core/`
+      (parser, scope, symbolSearch); `components/` → `providers/`;
+      `syntaxes/` + `snippets/` → `language/`; Glossar nach `src/data/`.
+      Die Inline-Provider aus `extension.ts` (Definition, Reference,
+      DocumentSymbol, WorkspaceSymbol, FoldingRange) sind jetzt eigene
+      Dateien in `providers/` mit Barrel `providers/index.ts`.
+      `extension.ts` ist auf ~110 Zeilen geschrumpft (nur `activate` /
+      `deactivate` + Registrierung) und hat jetzt ein `deactivate`.
+      Abweichungen vom Zielbaum: Tests bleiben in `src/__tests__/`
+      (jest-idiomatisch, kein Config-Churn) statt `src/test/unit/`;
+      `core/scopeDelimiters.ts` entfiel (Delimiter in `scope.ts` inlined).
+- [x] 4.1 Eine Scope-Implementierung: `getScopeAt` gelöscht, `Scope`-Klasse
+      als State-Machine mit Backslash-Escape-Handling neu geschrieben
+      (behebt: `\"` beendete einen String fälschlich nicht → jetzt korrekt);
+      alle `isNotInCommentAt`/`isCommentAt`/`isStringAt` laufen über den
+      Cache. `scope.test.ts` deckt Escapes, mehrzeilige Strings/Blöcke und
+      Out-of-range ab.
+- [x] 4.4 Logger mit `LogLevel` (`off|error|warn|info|debug`), gespeist aus
+      neuem Setting `gessq.logLevel`; `gessq.debugMode` bleibt als
+      deprecated Fallback. `onDidChangeConfiguration` aktualisiert live.
+- [x] 4.5 Globaler `process.on('unhandledRejection')`-Listener aus
+      `activate()` entfernt.
+- [x] Nebenbei: `WorkspaceSymbolProvider` löste bisher nach der *ersten*
+      Datei auf (racy, unvollständig) – jetzt `Promise.allSettled` über
+      alle Dateien. Restliche Lint-Warnungen (ungenutzte `token`-Parameter,
+      totes `constVarToList`) beseitigt → `npm run check` 0 Warnings.
 
 ### Phase 4 – Sprachkern
 - [ ] 4.2 `SymbolIndex` + FileSystemWatcher; Provider auf Index umstellen.

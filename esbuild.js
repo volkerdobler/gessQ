@@ -21,7 +21,7 @@ const watch = process.argv.includes('--watch');
 const production = process.argv.includes('--production');
 
 /** Files copied verbatim into `out/`. Source path -> output basename. */
-const ASSETS = [['src/commons/manualGlossary.json', 'manualGlossary.json']];
+const ASSETS = [['src/data/manualGlossary.json', 'manualGlossary.json']];
 
 /** esbuild plugin: copy the data assets after every (re)build. */
 const copyAssetsPlugin = {
