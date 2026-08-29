@@ -11,7 +11,9 @@ export type SymbolCategory =
 	| 'definition'
 	| 'block'
 	| 'macro'
-	| 'action';
+	| 'action'
+	| 'array'
+	| 'quota';
 
 export interface IndexedSymbol {
 	/** Name as written, with surrounding quotes stripped. */
@@ -41,6 +43,10 @@ export function symbolKindOf(category: SymbolCategory): vscode.SymbolKind {
 			return vscode.SymbolKind.Constant;
 		case 'action':
 			return vscode.SymbolKind.Variable;
+		case 'array':
+			return vscode.SymbolKind.Array;
+		case 'quota':
+			return vscode.SymbolKind.Variable;
 	}
 }
 
@@ -61,6 +67,8 @@ const FACTORIES: Factory[] = [
 	{ re: () => parser.blockDefRe(), category: 'block' },
 	{ re: () => parser.macroDefRe(), category: 'macro' },
 	{ re: () => parser.actionDefRe(), category: 'action' },
+	{ re: () => parser.arrayDefRe(), category: 'array' },
+	{ re: () => parser.quotavarDefRe(), category: 'quota' },
 ];
 
 /**

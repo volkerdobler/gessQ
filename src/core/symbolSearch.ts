@@ -15,6 +15,8 @@ function referencePatterns(word: string): RegExp[] {
 	return [
 		parser.questionDefRe(word),
 		parser.definitionDefRe(word),
+		parser.arrayDefRe(word),
+		parser.quotavarDefRe(word),
 		parser.blockDefRe(word),
 		parser.blockRe(word),
 		parser.checkRe(word),

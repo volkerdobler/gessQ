@@ -8,6 +8,17 @@ const section = () => vscode.workspace.getConfiguration('gessq');
 export const diagnosticsEnabled = (): boolean =>
 	section().get<boolean>('diagnostics.enable', true);
 
+/** `gessq.hover.enable` – master switch for the gessQ hover. */
+export const hoverEnabled = (): boolean =>
+	section().get<boolean>('hover.enable', true);
+
+/**
+ * `gessq.codeLens.enable` – show the "N references" lens above every
+ * definition.
+ */
+export const codeLensEnabled = (): boolean =>
+	section().get<boolean>('codeLens.enable', true);
+
 /** `gessq.completion.includeWorkspaceSymbols`. */
 export const completionIncludesWorkspaceSymbols = (): boolean =>
 	section().get<boolean>('completion.includeWorkspaceSymbols', true);

@@ -116,14 +116,48 @@ describe('language/gessq.tmLanguage.json', () => {
 });
 
 describe('manualGlossary.json', () => {
-	test('parses to an object of {short, detail} entries', () => {
-		const g = JSON.parse(read('src/data/manualGlossary.json'));
-		const keys = Object.keys(g);
-		expect(keys.length).toBeGreaterThan(100);
-		for (const k of keys.slice(0, 25)) {
-			expect(typeof g[k].short).toBe('string');
-			expect(typeof g[k].detail).toBe('string');
+	const g = JSON.parse(read('src/data/manualGlossary.json')) as Record<
+		string,
+		{
+			short: string;
+			detail: string;
+			syntax?: string;
+			summary?: string;
 		}
+	>;
+	const keys = Object.keys(g);
+
+	test('parses to an object of entries', () => {
+		expect(keys.length).toBeGreaterThan(100);
+	});
+
+	test('every entry has string short + detail; optional syntax/summary are strings', () => {
+		const bad: string[] = [];
+		for (const k of keys) {
+			const e = g[k];
+			if (typeof e.short !== 'string' || typeof e.detail !== 'string') {
+				bad.push(k + ' (short/detail)');
+			}
+			if ('syntax' in e && typeof e.syntax !== 'string') {
+				bad.push(k + ' (syntax)');
+			}
+			if ('summary' in e && typeof e.summary !== 'string') {
+				bad.push(k + ' (summary)');
+			}
+		}
+		expect(bad).toEqual([]);
+	});
+
+	test('detail is an https handbook URL', () => {
+		const bad = keys.filter(
+			(k) => !/^https:\/\/help\.gessgroup\.de\//.test(g[k].detail),
+		);
+		expect(bad).toEqual([]);
+	});
+
+	test('one-line syntax hints (no newlines)', () => {
+		const bad = keys.filter((k) => g[k].syntax?.includes('\n'));
+		expect(bad).toEqual([]);
 	});
 });
 

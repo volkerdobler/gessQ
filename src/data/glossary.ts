@@ -4,8 +4,41 @@ import * as vscode from 'vscode';
 import { debug, warn } from '../infra/logger';
 
 export interface GlossaryEntry {
+	/** Display name / heading of the command (as in the handbook index). */
 	short: string;
+	/** Handbook URL. */
 	detail: string;
+	/**
+	 * Optional one-line syntax hint, e.g. `array NAME [ <size> ];`. Rendered
+	 * as a gessQ code block in hover / completion docs.
+	 */
+	syntax?: string;
+	/**
+	 * Optional shortened prose description (1–3 sentences), hand-written for
+	 * hover use. See TODO.md 5.5c.
+	 */
+	summary?: string;
+}
+
+/**
+ * Render a glossary entry as Markdown for hover / completion documentation:
+ * heading, optional syntax block, optional summary, handbook link.
+ * @param word the word as written by the user (heading fallback)
+ * @param entry the resolved glossary entry
+ */
+export function formatEntryMarkdown(
+	word: string,
+	entry: GlossaryEntry,
+): string {
+	const parts = ['**' + word + '** — ' + entry.short];
+	if (entry.syntax) {
+		parts.push('```gessq\n' + entry.syntax + '\n```');
+	}
+	if (entry.summary) {
+		parts.push(entry.summary);
+	}
+	parts.push(entry.detail);
+	return parts.join('\n\n');
 }
 
 export type Glossary = Record<string, GlossaryEntry>;

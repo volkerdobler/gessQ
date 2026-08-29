@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { SymbolIndex, parseDocumentSymbols } from '../core/symbolIndex';
 import { findReferences } from '../core/symbolSearch';
+import { codeLensEnabled } from '../infra/config';
 
 class SymbolCodeLens extends vscode.CodeLens {
 	constructor(
@@ -19,13 +20,25 @@ class SymbolCodeLens extends vscode.CodeLens {
  * action-target definition. The count is computed lazily in `resolveCodeLens`.
  */
 export class GessQCodeLensProvider implements vscode.CodeLensProvider {
+	private readonly changed = new vscode.EventEmitter<void>();
+	public readonly onDidChangeCodeLenses = this.changed.event;
+
 	constructor(private readonly index: SymbolIndex) {}
+
+	/** Re-query lenses, e.g. after `gessq.codeLens.enable` changed. */
+	public refresh(): void {
+		this.changed.fire();
+	}
+
+	public dispose(): void {
+		this.changed.dispose();
+	}
 
 	public provideCodeLenses(
 		document: vscode.TextDocument,
 		token: vscode.CancellationToken,
 	): vscode.CodeLens[] {
-		if (token.isCancellationRequested) {
+		if (token.isCancellationRequested || !codeLensEnabled()) {
 			return [];
 		}
 		return parseDocumentSymbols(document).map(

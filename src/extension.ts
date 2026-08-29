@@ -47,6 +47,11 @@ export function activate(context: vscode.ExtensionContext): void {
 	symbolIndex = index;
 	context.subscriptions.push(index);
 
+	const { extensionUri } = context;
+	const formatter = new GessQFormattingProvider();
+	const codeLens = new GessQCodeLensProvider(index);
+	context.subscriptions.push(codeLens);
+
 	context.subscriptions.push(
 		vscode.workspace.onDidChangeConfiguration((e) => {
 			if (e.affectsConfiguration('gessq')) {
@@ -55,15 +60,15 @@ export function activate(context: vscode.ExtensionContext): void {
 			if (e.affectsConfiguration('gessq.files')) {
 				index.rebuild();
 			}
+			if (e.affectsConfiguration('gessq.codeLens')) {
+				codeLens.refresh();
+			}
 		}),
 		vscode.workspace.onDidChangeWorkspaceFolders(() => {
 			index.dispose();
 			index.start();
 		}),
 	);
-
-	const { extensionUri } = context;
-	const formatter = new GessQFormattingProvider();
 
 	context.subscriptions.push(
 		vscode.languages.registerDocumentSymbolProvider(
@@ -97,10 +102,7 @@ export function activate(context: vscode.ExtensionContext): void {
 			FILE,
 			new GessQRenameProvider(index),
 		),
-		vscode.languages.registerCodeLensProvider(
-			FILE,
-			new GessQCodeLensProvider(index),
-		),
+		vscode.languages.registerCodeLensProvider(FILE, codeLens),
 		vscode.languages.registerDocumentFormattingEditProvider(
 			FILE,
 			formatter,

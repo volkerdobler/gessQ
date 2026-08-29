@@ -5,7 +5,7 @@
   "version": "0.3.9",
   "publisher": "volkerdobler",
   "engines": {
-    "vscode": "^1.99.0"
+    "vscode": "^1.85.0"
   },
   "categories": [
     "Programming Languages",
@@ -83,6 +83,16 @@
           "default": true,
           "description": "Report unbalanced brackets, unmatched #macro/#ifdef, missing #include files, duplicate names and unknown #domacro targets."
         },
+        "gessq.hover.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the gessQ hover (glossary description for keywords, and the definition location plus code preview for workspace names). Turn off to suppress the gessQ hover entirely."
+        },
+        "gessq.codeLens.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the \"N references\" CodeLens above every definition. Turn off to hide the reference-count text."
+        },
         "gessq.completion.includeWorkspaceSymbols": {
           "type": "boolean",
           "default": true,
@@ -114,12 +124,13 @@
     "@eslint/js": "^9.39.5",
     "@types/jest": "^29.5.2",
     "@types/node": "^22.14.0",
-    "@types/vscode": "^1.99.0",
+    "@types/vscode": "1.85.0",
     "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.28.2",
     "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.1",
     "jest": "^29.6.1",
+    "ovsx": "^1.1.1",
     "pdf-parse": "^1.1.1",
     "prettier": "^3.5.3",
     "rimraf": "^6.1.3",

@@ -2,8 +2,13 @@
 
 import * as vscode from 'vscode';
 import { getWordAtPosition } from '../infra/vscodeUtils';
-import { loadGlossary, lookupEntry } from '../data/glossary';
+import {
+	loadGlossary,
+	lookupEntry,
+	formatEntryMarkdown,
+} from '../data/glossary';
 import { SymbolIndex, parseDocumentSymbols } from '../core/symbolIndex';
+import { hoverEnabled } from '../infra/config';
 
 /**
  * Hover for gessQ: a glossary description for language keywords, and – for
@@ -21,6 +26,10 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		position: vscode.Position,
 		token: vscode.CancellationToken,
 	): Promise<vscode.Hover | null> {
+		if (!hoverEnabled()) {
+			return null;
+		}
+
 		const [found, word] = getWordAtPosition(document, position);
 		if (!found) {
 			return null;
@@ -29,7 +38,7 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		const md = new vscode.MarkdownString();
 		md.isTrusted = false;
 
-		const symbolPart = await this.symbolHover(document, word);
+		const symbolPart = await this.symbolHover(document, position, word);
 		if (token.isCancellationRequested) {
 			return null;
 		}
@@ -42,8 +51,7 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 			if (symbolPart) {
 				md.appendMarkdown('\n\n---\n\n');
 			}
-			md.appendMarkdown('**' + word + '** — ' + entry.short + '\n\n');
-			md.appendMarkdown(entry.detail);
+			md.appendMarkdown(formatEntryMarkdown(word, entry));
 		}
 
 		return md.value.length > 0 ? new vscode.Hover(md) : null;
@@ -51,14 +59,25 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 
 	private async symbolHover(
 		document: vscode.TextDocument,
+		position: vscode.Position,
 		word: string,
 	): Promise<string | undefined> {
 		const lower = word.toLowerCase();
 		await this.index.ready;
 
 		const here = document.uri.toString();
+		const local = parseDocumentSymbols(document).filter(
+			(s) => s.lower === lower,
+		);
+
+		// Standing on the name in its own definition – the line itself is
+		// already visible, so a "defined here" hover adds nothing.
+		if (local.some((s) => s.nameRange.contains(position))) {
+			return undefined;
+		}
+
 		const defs = [
-			...parseDocumentSymbols(document).filter((s) => s.lower === lower),
+			...local,
 			...this.index
 				.definitionsOf(word)
 				.filter((s) => s.uri.toString() !== here),

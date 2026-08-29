@@ -17,6 +17,7 @@ export enum SymbolKind {
 	Module = 1,
 	Property = 6,
 	Operator = 25,
+	Array = 17,
 }
 
 export enum CompletionItemKind {
@@ -68,6 +69,17 @@ export class Range {
 			this.start = startLine;
 			this.end = startChar as Position;
 		}
+	}
+
+	contains(pos: Position): boolean {
+		const afterStart =
+			pos.line > this.start.line ||
+			(pos.line === this.start.line &&
+				pos.character >= this.start.character);
+		const beforeEnd =
+			pos.line < this.end.line ||
+			(pos.line === this.end.line && pos.character <= this.end.character);
+		return afterStart && beforeEnd;
 	}
 }
 
@@ -137,8 +149,27 @@ export class Uri {
 	}
 }
 
+export class EventEmitter<T> {
+	private readonly listeners: ((e: T) => void)[] = [];
+	public readonly event = (listener: (e: T) => void): { dispose(): void } => {
+		this.listeners.push(listener);
+		return { dispose: () => void 0 };
+	};
+	fire(data: T): void {
+		for (const l of this.listeners) {
+			l(data);
+		}
+	}
+	dispose(): void {
+		this.listeners.length = 0;
+	}
+}
+
+/** Overridable in tests via `jest.spyOn` / direct assignment. */
 export const workspace = {
-	getConfiguration() {
+	getConfiguration(): {
+		get<T>(key: string, defaultValue?: T): T | undefined;
+	} {
 		return {
 			get<T>(_key: string, defaultValue?: T): T | undefined {
 				return defaultValue;

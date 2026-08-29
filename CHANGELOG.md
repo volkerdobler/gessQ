@@ -5,6 +5,45 @@ Current version number is first:
 
 ### Unreleased
 
+- Lowered the minimum VS Code version to **1.85.0** (`engines.vscode` and
+  `@types/vscode` pinned in sync); the extension only uses APIs available
+  since 1.45, and 1.85 is the first release shipping Node 18 (matching the
+  esbuild `node18` target).
+- CI now also publishes to **Open VSX** (VSCodium, Cursor, Windsurf, Gitpod,
+  code-server) alongside the VS Code Marketplace. One-time setup: claim the
+  Open VSX namespace and add an `OVSX_PAT` repo secret.
+- New `keywordIndex.test.ts` guard: every code-shaped label in the committed
+  handbook keyword index must be a grammar keyword or listed in the baseline
+  ignore file — a handbook refresh that adds a keyword now fails CI until it
+  is triaged. `tools/gen-keyword-ignore.js` regenerates the baseline.
+- Decided the glossary stays **bundled-only** (no `gessq.glossary.source`
+  online option); the `detail` links already point to the live handbook.
+- `array` / `vararray` declarations (`array NAME [n];`, `array NAME = […];`,
+  `vararray NAME = ( … );`) are now indexed as variable definitions, so Go to
+  Definition, Find All References, Rename, hover and the symbol outline pick
+  them up – e.g. alongside a `group` of the same name.
+- `quotavar NAME = ( <condition> );` is indexed as a quota-variable
+  definition, so Go to Definition / Find All References / Rename resolve
+  `NAME`.
+- Hovering the name on its own definition line no longer shows the
+  "defined here" hover – the line is already visible.
+- New settings `gessq.hover.enable` and `gessq.codeLens.enable` (both
+  default `true`): turn off the gessQ hover entirely, or hide the
+  "N references" CodeLens.
+- Glossary hover / completion docs now show a one-line `syntax` hint and a
+  short German `summary` on top of the handbook link (rendered: heading,
+  syntax block, summary, link). **Every glossary entry** is filled in, and
+  **every keyword the extension highlights now has a hover** (892 entries) –
+  this adds the frequently-hovered `text` / `title` / `labels` / `export` /
+  `format` / `sortid` attributes, the `sq`/`mq`/`sgq`… type short forms, the
+  `sys_*` internal-variable aliases and the graphical-button / `ki_*` / class
+  parameters that were missing before. A `glossary.test.ts` check keeps the
+  keyword list and the glossary in sync.
+- `manualGlossary.json` now covers every keyword of the handbook index (61
+  added, incl. `sl_*` / `pg_*` slider & packaging params and template CSS
+  classes). New `tools/sync-glossary.js` does a non-destructive re-sync;
+  the old overwrite-everything generators were removed.
+
 New language features (Phase 5):
 
 - Diagnostics: unbalanced `{}` / `()`, unmatched `#macro`/`#endmacro` and

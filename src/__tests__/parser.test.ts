@@ -5,6 +5,8 @@ import {
 	blockRe,
 	macroDefRe,
 	actionBlockDefRe,
+	arrayDefRe,
+	quotavarDefRe,
 	getWordDefinition,
 } from '../core/parser';
 
@@ -109,6 +111,65 @@ describe('actionBlockDefRe', () => {
 
 	test('does not match a bare "load" without parenthesised assignment', () => {
 		expect('loaded = 1'.match(actionBlockDefRe(''))).toBeNull();
+	});
+});
+
+describe('arrayDefRe', () => {
+	test('matches "array NAME [SIZE];" and captures keyword + name', () => {
+		const m = 'array group [3];'.match(arrayDefRe(''));
+		expect(m).not.toBeNull();
+		expect(m![1].toLowerCase()).toBe('array');
+		expect(m![2]).toBe('group');
+	});
+
+	test('matches "array NAME = [ … ];"', () => {
+		const m = 'array werte = [ 0*10 ];'.match(arrayDefRe(''));
+		expect(m).not.toBeNull();
+		expect(m![2]).toBe('werte');
+	});
+
+	test('matches "vararray NAME = ( … );"', () => {
+		const m = 'vararray group = ( v1 v2 v3 );'.match(arrayDefRe(''));
+		expect(m).not.toBeNull();
+		expect(m![1].toLowerCase()).toBe('vararray');
+		expect(m![2]).toBe('group');
+	});
+
+	test('is case-insensitive and tolerates missing spaces', () => {
+		expect('ARRAY x=[1 2 3];'.match(arrayDefRe(''))).not.toBeNull();
+	});
+
+	test('named variant only matches that name', () => {
+		expect('array group [3];'.match(arrayDefRe('group'))).not.toBeNull();
+		expect('array other [3];'.match(arrayDefRe('group'))).toBeNull();
+	});
+
+	test('does not match the "arrayinitmode" parameter', () => {
+		expect('arrayinitmode = 1;'.match(arrayDefRe(''))).toBeNull();
+	});
+});
+
+describe('quotavarDefRe', () => {
+	test('matches "quotavar NAME = ( … );" and captures keyword + name', () => {
+		const m = 'quotavar qAge = ( age ge 18 );'.match(quotavarDefRe(''));
+		expect(m).not.toBeNull();
+		expect(m![1].toLowerCase()).toBe('quotavar');
+		expect(m![2]).toBe('qAge');
+	});
+
+	test('is case-insensitive', () => {
+		expect('QUOTAVAR X = (1);'.match(quotavarDefRe(''))).not.toBeNull();
+	});
+
+	test('named variant only matches that name', () => {
+		expect(
+			'quotavar qAge = (1)'.match(quotavarDefRe('qAge')),
+		).not.toBeNull();
+		expect('quotavar qSex = (1)'.match(quotavarDefRe('qAge'))).toBeNull();
+	});
+
+	test('does not match the "prequotavar" parameter', () => {
+		expect('prequotavar foo = (1);'.match(quotavarDefRe(''))).toBeNull();
 	});
 });
 

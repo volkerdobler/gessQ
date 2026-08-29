@@ -67,6 +67,32 @@ export const definitionDefRe = memoizeEmpty((word) => {
 	);
 });
 
+/**
+ * `array NAME [ … ]` / `array NAME = …` / `vararray NAME = ( … )` definitions
+ * (g1 keyword, g2 name).
+ *
+ * All three forms introduce a new variable, so the name is treated as a
+ * definition target for "Go to Definition" – on par with a question of the
+ * same name (e.g. `array group [3];` beside `group …`).
+ */
+export const arrayDefRe = memoizeEmpty((word) => {
+	return new RegExp(
+		'\\b(array|vararray)\\b\\s+(' + nameFrag(word) + ')\\s*(?=[[=;]|$)',
+		'i',
+	);
+});
+
+/**
+ * `quotavar NAME = ( <condition> );` definitions (g1 keyword, g2 name).
+ *
+ * Defines the quota variable NAME, so the name is a "Go to Definition" /
+ * "Find All References" target. `\b` keeps `prequotavar` (a script
+ * parameter) from matching.
+ */
+export const quotavarDefRe = memoizeEmpty((word) => {
+	return new RegExp('\\b(quotavar)\\b\\s+(' + nameFrag(word) + ')\\s*=', 'i');
+});
+
 /** `block NAME =` / `screen NAME =` definitions (g1 keyword, g2 name). */
 export const blockDefRe = memoizeEmpty((word) => {
 	return new RegExp(

@@ -27,8 +27,8 @@ jobs:
 
             - name: Generated files are up to date
               run: |
-                npm run gen:language
-                git diff --exit-code -- src/data/language.ts
+                  npm run gen:language
+                  git diff --exit-code -- src/data/language.ts
 
             - name: Type-check and lint
               run: npm run check
@@ -60,7 +60,19 @@ jobs:
                   cache: npm
             - run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev
             - run: npm ci
+            - name: Package VSIX
+              run: npx vsce package -o gessq.vsix
+
             - name: Publish to VS Code Marketplace
-              run: npx vsce publish --pat "$VSCE_PAT"
+              run: npx vsce publish --pat "$VSCE_PAT" --packagePath gessq.vsix
               env:
                   VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+            # Open VSX (VSCodium, Cursor, Windsurf, Gitpod, code-server).
+            # One-time setup: create an eclipse.org account, claim the
+            # "volkerdobler" namespace (`npx ovsx create-namespace volkerdobler
+            # -p <token>`), then add the token as the OVSX_PAT repo secret.
+            - name: Publish to Open VSX
+              run: npx ovsx publish gessq.vsix --pat "$OVSX_PAT"
+              env:
+                  OVSX_PAT: ${{ secrets.OVSX_PAT }}

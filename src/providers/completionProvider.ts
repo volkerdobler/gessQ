@@ -3,7 +3,11 @@
 import * as vscode from 'vscode';
 import { getCachedScope } from '../core/scope';
 import { SymbolIndex, IndexedSymbol } from '../core/symbolIndex';
-import { loadGlossary, lookupEntry } from '../data/glossary';
+import {
+	loadGlossary,
+	lookupEntry,
+	formatEntryMarkdown,
+} from '../data/glossary';
 import { completionIncludesWorkspaceSymbols } from '../infra/config';
 import {
 	ALL_KEYWORDS,
@@ -49,6 +53,8 @@ const SYMBOL_KIND: Record<
 	block: K.Module,
 	macro: K.Constant,
 	action: K.Variable,
+	array: K.Variable,
+	quota: K.Variable,
 };
 
 type Ctx =
@@ -139,7 +145,7 @@ export class GessQCompletionProvider implements vscode.CompletionItemProvider {
 		const entry = lookupEntry(glossary, label);
 		if (entry) {
 			it.documentation = new vscode.MarkdownString(
-				'**' + label + '** — ' + entry.short + '\n\n' + entry.detail,
+				formatEntryMarkdown(label, entry),
 			);
 		}
 		return it;

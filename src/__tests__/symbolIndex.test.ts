@@ -36,6 +36,26 @@ test('extracts question / definition / block / macro / action symbols', () => {
 	expect(byName['qTarget'].category).toBe('action');
 });
 
+test('extracts array / vararray definitions', () => {
+	const syms = parseDocumentSymbols(
+		makeDoc(['array grp [3];', 'vararray members = ( a b c );']),
+	);
+	const byName = Object.fromEntries(syms.map((s) => [s.name, s]));
+	expect(byName['grp'].category).toBe('array');
+	expect(byName['grp'].detail).toBe('array');
+	expect(byName['members'].category).toBe('array');
+	expect(byName['members'].detail).toBe('vararray');
+});
+
+test('extracts quotavar definitions', () => {
+	const [sym] = parseDocumentSymbols(
+		makeDoc(['quotavar qAge = ( age ge 18 );']),
+	);
+	expect(sym.name).toBe('qAge');
+	expect(sym.category).toBe('quota');
+	expect(sym.detail).toBe('quotavar');
+});
+
 test('name range points at the name token, not the keyword', () => {
 	const [sym] = parseDocumentSymbols(makeDoc(['singleq   Frage1;']));
 	expect(sym.nameRange.start.character).toBe('singleq   '.length);
