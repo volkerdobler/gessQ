@@ -31,7 +31,7 @@ Lösung: **Request-Forwarding über ein virtuelles Dokument** (wie VS Code bei
   mitnutzen); mehrere Regionen pro Datei möglich.
 - Eigener Hover-/Completion-/Signature-Provider: liegt die Position in einer
   Region → `vscode.commands.executeCommand('vscode.executeHoverProvider' |
-  '…CompletionItemProvider' | '…SignatureHelpProvider', virtualUri, position)`
+'…CompletionItemProvider' | '…SignatureHelpProvider', virtualUri, position)`
   und Ergebnis durchreichen. Diagnostics vorerst nicht weiterreichen.
 - **`globals.d.ts` mitliefern** (im VSIX gebündelt) mit ambient-Decls für die
   im GESS Q.-Kontext verfügbaren Globals: `QDot` (inkl. `QDot.onSubmit`,
@@ -65,10 +65,11 @@ Lösung: **Request-Forwarding über ein virtuelles Dokument** (wie VS Code bei
 ### B2 – `language.json` als Single Source
 
 Eine gepflegte Datendatei generiert Grammar-Keyword-Listen + Completion-Items
-+ Hover-Texte + Signaturhilfe-Parameter aus einer Quelle (statt Grammar
-handgepflegt und Glossar separat). Großer Umbau, aktuell rein kosmetisch – alles
-funktioniert. Zurückgestellt; Alternativen B1 (umgesetzt) / B3 siehe
-[HISTORY.md](HISTORY.md) §9.8.
+
+- Hover-Texte + Signaturhilfe-Parameter aus einer Quelle (statt Grammar
+  handgepflegt und Glossar separat). Großer Umbau, aktuell rein kosmetisch – alles
+  funktioniert. Zurückgestellt; Alternativen B1 (umgesetzt) / B3 siehe
+  [HISTORY.md](HISTORY.md) §9.8.
 
 ---
 
@@ -84,15 +85,10 @@ funktioniert. Zurückgestellt; Alternativen B1 (umgesetzt) / B3 siehe
 ## Wiederkehrende Wartung
 
 - **Glossar-Abgleich (~alle 1–2 Jahre)** – Details in
-  [tools/README.md](tools/README.md):
-    1. `tools/index.html` neu aus dem Schlüsselwort-Index speichern (curl mit
-       Browser-User-Agent).
-    2. `node tools/sync-glossary.js` (dry run) → `--write`.
-    3. `syntax` / `summary` der neuen Einträge von Hand nachtragen
-       (bestehende Einträge nicht anfassen, `detail` nur bei Seitenumzug).
-    4. `node tools/gen-keyword-ignore.js` (dry run) → `--write`; neue
-       „code-förmige“ Labels prüfen: Grammar oder Ignore-Liste?
-    5. `npx prettier --write src/data/manualGlossary.json
-       src/__tests__/fixtures/keywordIndexIgnore.ts` → `npm test`.
+  [tools/README.md](tools/README.md): 1. `tools/index.html` neu aus dem Schlüsselwort-Index speichern (curl mit
+  Browser-User-Agent). 2. `node tools/sync-glossary.js` (dry run) → `--write`. 3. `syntax` / `summary` der neuen Einträge von Hand nachtragen
+  (bestehende Einträge nicht anfassen, `detail` nur bei Seitenumzug). 4. `node tools/gen-keyword-ignore.js` (dry run) → `--write`; neue
+  „code-förmige“ Labels prüfen: Grammar oder Ignore-Liste? 5. `npx prettier --write src/data/manualGlossary.json
+src/__tests__/fixtures/keywordIndexIgnore.ts` → `npm test`.
 - **Nach Grammar-Änderungen** `npm run gen:language` (CI prüft den Sync von
   `src/data/language.ts`).

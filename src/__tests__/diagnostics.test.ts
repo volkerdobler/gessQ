@@ -56,3 +56,25 @@ test('flags a duplicate question definition', () => {
 	const msgs = messages('singleq q1;\nmultiq q1;\n');
 	expect(msgs.some((m) => m.includes('Duplicate'))).toBe(true);
 });
+
+test('"rendering = thymeleaf;" at the top is fine', () => {
+	expect(messages('rendering = thymeleaf;\nsingleq q1;\n')).toEqual([]);
+});
+
+test('flags a second "rendering ="', () => {
+	const msgs = messages('rendering = thymeleaf;\nrendering = html;\n');
+	expect(msgs).toContain(
+		'"rendering" should be set only once (it is global).',
+	);
+});
+
+test('flags "rendering =" after the first question', () => {
+	const msgs = messages('singleq q1;\nrendering = thymeleaf;\n');
+	expect(msgs).toContain(
+		'"rendering" must be set before the first question definition.',
+	);
+});
+
+test('"renderClass" at a question is not mistaken for "rendering"', () => {
+	expect(messages('singleq q1;\nrenderClass = "version1";\n')).toEqual([]);
+});

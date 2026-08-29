@@ -61,10 +61,14 @@ type Ctx =
 	| { kind: 'hashDirective' }
 	| { kind: 'atDirective' }
 	| { kind: 'macroRef' }
+	| { kind: 'renderingValue' }
 	| { kind: 'default' };
 
 /** Decide what to offer from the text left of the cursor. */
 export function detectContext(linePrefix: string): Ctx {
+	if (/\brendering\s*=\s*"?\w*$/i.test(linePrefix)) {
+		return { kind: 'renderingValue' };
+	}
 	if (/(?:^|[^&])&\w*$/.test(linePrefix)) {
 		return { kind: 'macroRef' };
 	}
@@ -119,6 +123,11 @@ export class GessQCompletionProvider implements vscode.CompletionItemProvider {
 		}
 		if (ctx.kind === 'macroRef') {
 			return this.symbolItems((s) => s.category === 'macro');
+		}
+		if (ctx.kind === 'renderingValue') {
+			return ['html', 'thymeleaf'].map((v) =>
+				item(v, K.Constant, 'rendering'),
+			);
 		}
 
 		const items = ALL_KEYWORDS.map((kw) =>

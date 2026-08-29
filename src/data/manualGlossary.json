@@ -4461,15 +4461,21 @@
 	},
 	"renderclass": {
 		"short": "renderClass",
-		"detail": "https://help.gessgroup.de/q-help/05_02_01_html-weitere-erklaerungen.html",
-		"syntax": "HTML{ renderClass = WERT; };",
-		"summary": "HTML-Parameter: wählt eine alternative Renderklasse für die Frage (analog multiQClass / numQClass)."
+		"detail": "https://help.gessgroup.de/rendering/grundlagen/templates.html",
+		"syntax": "renderClass = \"NAME\";",
+		"summary": "Frage-Attribut beim Thymeleaf-Rendering: die Frage wird nicht als Standard-Fragetyp dargestellt, sondern mit einem Template, dessen Name aus Fragetyp, Bindestrich und NAME besteht (z. B. renderClass=\"version1\" an einer SingleQ → singleq-version1.html). Ohne passendes Template greift das Standard-Template des Fragetyps."
 	},
 	"rendering": {
 		"short": "rendering",
-		"detail": "https://help.gessgroup.de/q-help/16_00_manipulation-der-fragedarstell.html",
-		"syntax": "rendering = \"…\";",
-		"summary": "Steuert die Art der grafischen Aufbereitung einer Frage (Renderklasse/-modus)."
+		"detail": "https://help.gessgroup.de/rendering/grundlagen/grundlagen.html",
+		"syntax": "rendering = html | thymeleaf;",
+		"summary": "Globaler Schalter für das Renderingverfahren (ab GESS Q. 4.3) – einmalig am Skriptanfang (in main.q, vor der ersten Fragedefinition). html (Default, auch wenn der Befehl fehlt): der Fragebogen wird aus template.html aufgebaut. thymeleaf: template.html wird ignoriert, stattdessen rendert die serverseitige Thymeleaf-Engine aus HTML-Templates."
+	},
+	"thymeleaf": {
+		"short": "thymeleaf",
+		"detail": "https://help.gessgroup.de/rendering/",
+		"syntax": "rendering = thymeleaf;",
+		"summary": "Wert für rendering = : aktiviert das template-basierte Rendering über die serverseitige Thymeleaf-Engine (statt template.html; ab GESS Q. 4.3). Gegenwert: html."
 	},
 	"feedback": {
 		"short": "feedback",

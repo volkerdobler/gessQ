@@ -34,4 +34,13 @@ describe('detectContext', () => {
 	test('&& (logical and) is not a macro reference', () => {
 		expect(kind('if (a && b')).toBe('default');
 	});
+
+	test('after "rendering =" → rendering value', () => {
+		expect(kind('rendering = ')).toBe('renderingValue');
+		expect(kind('rendering=thy')).toBe('renderingValue');
+		expect(kind('  rendering  =  html')).toBe('renderingValue');
+		expect(kind('rendering = "')).toBe('renderingValue');
+		expect(kind('rendering')).toBe('default');
+		expect(kind('rendering = thymeleaf;')).toBe('default');
+	});
 });

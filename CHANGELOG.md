@@ -5,6 +5,11 @@ Current version number is first:
 
 ### Unreleased
 
+- Thymeleaf rendering support: `rendering` / `renderClass` / `thymeleaf` are
+  highlighted and explained on hover (links to the rendering docs);
+  `html` / `thymeleaf` are offered as completions after `rendering =`; a
+  diagnostic warns when `rendering =` is set more than once or after the
+  first question definition.
 - The extension's display name is now **GESS Q.** (was "gessQ") – shown in the
   Marketplace, the settings section, the Output channel and diagnostic
   sources. Config keys (`gessq.*`), the language id and the grammar scope are

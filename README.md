@@ -18,14 +18,17 @@ Betrifft Dateien mit der Endung `.q`.
   - „Go to Definition“ (`F12`), „Find All References“ (`Shift+F12`),
     **Rename** (`F2`), **CodeLens** („N references“), Vorkommen-Highlighting.
 - **Diagnostics**: unbalancierte `{}`/`()`, offene `#macro`/`#ifdef`, fehlende
-  `#include`-Dateien, doppelte Namen, unbekanntes `#domacro`-Ziel
-  (`gessq.diagnostics.enable`).
+  `#include`-Dateien, doppelte Namen, unbekanntes `#domacro`-Ziel, `rendering =`
+  mehrfach oder zu spät gesetzt (`gessq.diagnostics.enable`).
+- **Thymeleaf-Rendering**: `rendering` / `renderClass` / `thymeleaf` werden
+  gehighlightet und im Hover erklärt; nach `rendering =` werden `html` und
+  `thymeleaf` vorgeschlagen.
 - **Klickbare `#include`-Pfade**.
 - **Folding** für `#macro`/`#endmacro`, `#ifdef`/`#endif`, `{ … }` und
   Blockkommentare.
 - **Auto-Vervollständigung**: Schlüsselwörter, Workspace-Symbole und –
-  kontextabhängig – Direktiven nach `#`/`@` bzw. Makronamen nach `&`;
-  Glossar-Beschreibung beim Markieren.
+  kontextabhängig – Direktiven nach `#`/`@`, Makronamen nach `&`,
+  `html`/`thymeleaf` nach `rendering =`; Glossar-Beschreibung beim Markieren.
 - **Hover** mit Glossar-Beschreibung (Kurzname, ggf. Syntaxzeile + gekürzte
   Beschreibung, Handbuch-Link) bzw. Definitionsort + Code-Vorschau
   (`gessq.hover.enable`; auf der Definitionszeile selbst unterdrückt).

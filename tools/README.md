@@ -36,6 +36,10 @@ The sync is **non-destructive**: it only *adds* missing keywords (as
 page. `short`, `syntax` and `summary` of existing entries are never touched.
 After a sync, fill in `syntax` / `summary` for the new keywords by hand.
 
+**Hand-maintained entries** (not in the keyword index, so `sync-glossary.js`
+never touches them – keep them current manually from their own docs):
+`rendering`, `renderclass`, `thymeleaf` → <https://help.gessgroup.de/rendering/>.
+
 4. Regenerate the keyword-index baseline for `keywordIndex.test.ts`:
 
    ```bash

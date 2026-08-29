@@ -158,6 +158,50 @@ function checkDuplicates(document: vscode.TextDocument): vscode.Diagnostic[] {
 }
 
 /**
+ * `rendering = html|thymeleaf;` must be global: only once, and before the
+ * first question definition (see the rendering docs). Only flagged within a
+ * single file – across `#include`s the check cannot see the whole script.
+ */
+function checkRendering(document: vscode.TextDocument): vscode.Diagnostic[] {
+	const out: vscode.Diagnostic[] = [];
+	const re = /\brendering\s*=/i;
+
+	const firstQuestionLine = parseDocumentSymbols(document)
+		.filter((s) => s.category === 'question')
+		.reduce(
+			(min, s) => Math.min(min, s.nameRange.start.line),
+			Number.POSITIVE_INFINITY,
+		);
+
+	let seen = 0;
+	for (let line = 0; line < document.lineCount; line++) {
+		const at = document.lineAt(line).text.search(re);
+		if (at < 0 || !isNotInCommentAt(document, line, at)) {
+			continue;
+		}
+		seen++;
+		const range = new vscode.Range(line, at, line, at + 'rendering'.length);
+		if (seen > 1) {
+			out.push(
+				diag(
+					range,
+					'"rendering" should be set only once (it is global).',
+				),
+			);
+		}
+		if (line > firstQuestionLine) {
+			out.push(
+				diag(
+					range,
+					'"rendering" must be set before the first question definition.',
+				),
+			);
+		}
+	}
+	return out;
+}
+
+/**
  * Synchronous lint checks (no file-system access).
  */
 export function lintDocument(
@@ -167,6 +211,7 @@ export function lintDocument(
 		...checkBrackets(document),
 		...checkDirectiveNesting(document),
 		...checkDuplicates(document),
+		...checkRendering(document),
 	];
 }
 

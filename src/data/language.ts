@@ -595,6 +595,7 @@ export const PARAMETERS: readonly string[] = [
 	'sl_visibility',
 	'textareacols',
 	'textarearows',
+	'thymeleaf',
 	'unspecified_button_checked',
 	'unspecified_button_unchecked',
 	'writeposttext',

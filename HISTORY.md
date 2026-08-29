@@ -674,6 +674,26 @@ Migration in kleinen Schritten:
       Bewusst simpel → nur auf manuelles „Format Document“.
 - [x] 5.10 Grammar: `text.html.basic` in `html=`/`text=`/`title=`/
       `htmlPre*`/`write*`/`errorPre*Text`-Blöcken eingebettet.
+- [x] 5.14 Thymeleaf-Rendering (GESS Q. ≥ 4.3.0): ab `rendering =
+      html | thymeleaf;` (globaler Befehl, einmalig vor der ersten
+      Fragedefinition) rendert der Server aus HTML-Templates statt aus
+      `template.html`; `renderClass = "NAME";` wählt je Frage ein
+      spezialisiertes Template. Skriptseitig umgesetzt:
+      - Glossar `rendering` / `renderclass` korrigiert (waren geratene
+        Batch-I-Einträge), neuer Eintrag `thymeleaf`; `detail` → Rendering-Doku
+        <https://help.gessgroup.de/rendering/>. Diese drei stehen **nicht** im
+        q-help-Index und werden von Hand gepflegt (Vermerk in
+        `tools/README.md`).
+      - Grammar: `thymeleaf` als `support.constant` ergänzt; `language.ts`
+        regeneriert.
+      - Completion: nach `rendering =` → `html` / `thymeleaf`
+        (`detectContext` → `renderingValue`).
+      - Diagnostics: `checkRendering` warnt bei mehrfachem `rendering =` bzw.
+        `rendering =` nach der ersten Fragedefinition.
+      - README aktualisiert. `component` (auch ein Batch-I-Rateeintrag) bleibt
+        vage – kein Beleg gefunden.
+      Die Template-Seite (`.html`, Thymeleaf/JEXL) erzeugt der Q.-Server
+      (Java) – kein `.q`, damit **nichts für die Extension**.
 - [ ] 5.13 Echte Sprachfeatures in eingebetteten JS-/CSS-Blöcken → **offen,
       siehe [TODO.md](TODO.md)**.
 
