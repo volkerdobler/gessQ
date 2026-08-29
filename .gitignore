@@ -175,3 +175,5 @@ manual/**
 LAST_WORK.md
 
 dokumentation/**
+
+*.pdf
