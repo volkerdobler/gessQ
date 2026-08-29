@@ -7,7 +7,7 @@ the underlying source (the handbook, the grammar) changes.
 
 `manualGlossary.json` feeds the hover / completion documentation. Every command
 from the GESS Q. keyword index should have an entry; entries may additionally
-carry a hand-written `syntax` hint and a shortened `summary` (see TODO.md 5.5c).
+carry a hand-written `syntax` hint and a shortened `summary` (see HISTORY.md 5.5c).
 
 Run every year or two:
 
@@ -46,7 +46,7 @@ After a sync, fill in `syntax` / `summary` for the new keywords by hand.
 
 ## gen-keyword-ignore.js — baseline of index labels that are NOT grammar keywords
 
-Feeds `src/__tests__/keywordIndex.test.ts` (TODO.md §9.8): every "code-shaped"
+Feeds `src/__tests__/keywordIndex.test.ts` (HISTORY.md §9.8): every "code-shaped"
 label in `tools/index.html` must be either a grammar keyword (`ALL_KEYWORDS`)
 or in this list (section titles, `qonline.cfg` params, CSS classes, template
 JS vars, UI/export terms). After a handbook refresh the test fails on any new

@@ -5,7 +5,7 @@ import { KEYWORD_INDEX_IGNORE } from './fixtures/keywordIndexIgnore';
 
 /**
  * Guards that a handbook update does not silently introduce a gessQ keyword
- * the extension neither highlights nor documents (see TODO.md §9.8 / B1).
+ * the extension neither highlights nor documents (see HISTORY.md §9.8 / B1).
  *
  * `tools/index.html` is the committed snapshot of
  * https://help.gessgroup.de/q-help/hmkwindex.html. Every "code-shaped" label

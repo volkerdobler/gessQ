@@ -15,7 +15,7 @@ export interface GlossaryEntry {
 	syntax?: string;
 	/**
 	 * Optional shortened prose description (1–3 sentences), hand-written for
-	 * hover use. See TODO.md 5.5c.
+	 * hover use. See HISTORY.md 5.5c.
 	 */
 	summary?: string;
 }

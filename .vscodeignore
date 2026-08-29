@@ -23,5 +23,6 @@ esbuild.js
 .gitattributes
 package-lock.json
 TODO.md
+HISTORY.md
 LAST_WORK.md
 *.vsix

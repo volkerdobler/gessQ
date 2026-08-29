@@ -2,7 +2,7 @@
 
 /**
  * Regenerate `src/__tests__/fixtures/keywordIndexIgnore.ts` – the baseline of
- * keyword-index labels that are NOT gessQ grammar keywords (see TODO.md §9.8).
+ * keyword-index labels that are NOT gessQ grammar keywords (see HISTORY.md §9.8).
  *
  * Run after `tools/sync-glossary.js` has refreshed `tools/index.html`:
  *

@@ -3,7 +3,7 @@
 /**
  * Merge the GESS Q. keyword index into `src/data/manualGlossary.json`.
  *
- * Non-destructive sync (see TODO.md 5.5c):
+ * Non-destructive sync (see HISTORY.md 5.5c):
  *   - keywords in the index but not in the glossary are ADDED as
  *     `{ short, detail }`;
  *   - for keywords already in the glossary the `detail` URL is refreshed only
