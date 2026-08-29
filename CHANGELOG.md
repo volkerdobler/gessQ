@@ -3,7 +3,10 @@
 All notable changes to the "GESS Q." extension will be documented in this file.
 Current version number is first:
 
-### Unreleased
+### 0.99.0 — 2026-08-29
+
+Interner Testbuild (nur als `.vsix`, nicht über den Marketplace). Bündelt die
+gesamte Überarbeitung (siehe `HISTORY.md`) für den Praxistest.
 
 - Thymeleaf rendering support: `rendering` / `renderClass` / `thymeleaf` are
   highlighted and explained on hover (links to the rendering docs);
