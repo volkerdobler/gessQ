@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Build script for the gessQ extension.
+ * Build script for the GESS Q. extension.
  *
  *   node esbuild.js               – one-off development build
  *   node esbuild.js --watch       – rebuild on change

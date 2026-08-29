@@ -10,7 +10,7 @@ export interface GlossaryEntry {
 	detail: string;
 	/**
 	 * Optional one-line syntax hint, e.g. `array NAME [ <size> ];`. Rendered
-	 * as a gessQ code block in hover / completion docs.
+	 * as a GESS Q. code block in hover / completion docs.
 	 */
 	syntax?: string;
 	/**

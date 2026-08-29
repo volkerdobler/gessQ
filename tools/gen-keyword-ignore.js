@@ -2,7 +2,7 @@
 
 /**
  * Regenerate `src/__tests__/fixtures/keywordIndexIgnore.ts` – the baseline of
- * keyword-index labels that are NOT gessQ grammar keywords (see HISTORY.md §9.8).
+ * keyword-index labels that are NOT GESS Q. grammar keywords (see HISTORY.md §9.8).
  *
  * Run after `tools/sync-glossary.js` has refreshed `tools/index.html`:
  *
@@ -54,7 +54,7 @@ function indexLabels() {
 const HEADER = `// AUTO-GENERATED BASELINE – regenerate with \`node tools/gen-keyword-ignore.js --write\`
 // after refreshing tools/index.html (see tools/README.md).
 //
-// Schlüsselwort-Index-Einträge, die KEINE gessQ-Grammar-Keywords sind:
+// Schlüsselwort-Index-Einträge, die KEINE GESS Q.-Grammar-Keywords sind:
 // Abschnittsüberschriften, qonline.cfg-Parameter, CSS-Klassen, Template-
 // JavaScript-Variablen, UI-/Export-/Admin-Begriffe. \`keywordIndex.test.ts\`
 // akzeptiert jedes "code-förmige" Index-Label, das entweder in ALL_KEYWORDS

@@ -4,7 +4,7 @@ import { ALL_KEYWORDS } from '../data/language';
 import { KEYWORD_INDEX_IGNORE } from './fixtures/keywordIndexIgnore';
 
 /**
- * Guards that a handbook update does not silently introduce a gessQ keyword
+ * Guards that a handbook update does not silently introduce a GESS Q. keyword
  * the extension neither highlights nor documents (see HISTORY.md §9.8 / B1).
  *
  * `tools/index.html` is the committed snapshot of

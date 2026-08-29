@@ -81,7 +81,7 @@ export function detectContext(linePrefix: string): Ctx {
 }
 
 /**
- * Completion for gessQ.
+ * Completion for GESS Q.
  *
  * - suppressed inside comments and strings;
  * - after `#` / `@` only preprocessor directives, after `&` / `#domacro`
@@ -122,7 +122,7 @@ export class GessQCompletionProvider implements vscode.CompletionItemProvider {
 		}
 
 		const items = ALL_KEYWORDS.map((kw) =>
-			item(kw, keywordKind(kw), 'gessQ'),
+			item(kw, keywordKind(kw), 'GESS Q.'),
 		);
 		if (completionIncludesWorkspaceSymbols()) {
 			items.push(...this.symbolItems());

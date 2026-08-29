@@ -2,7 +2,7 @@
 
 /**
  * Regenerate `src/data/language.ts` from the TextMate grammar so the
- * completion provider has a single, non-scraped source of gessQ keywords.
+ * completion provider has a single, non-scraped source of GESS Q. keywords.
  *
  *   node tools/gen-language.js
  *

@@ -1,7 +1,7 @@
 {
   "name": "gessq",
-  "displayName": "gessQ",
-  "description": "gess.Q Support",
+  "displayName": "GESS Q.",
+  "description": "GESS Q. Support",
   "version": "0.3.9",
   "publisher": "volkerdobler",
   "engines": {
@@ -13,7 +13,7 @@
   ],
   "keywords": [
     "gessq",
-    "gess.Q",
+    "GESS Q.",
     "survey",
     "questionnaire",
     "market research"
@@ -34,6 +34,7 @@
       {
         "id": "gessq",
         "aliases": [
+          "GESS Q.",
           "gessQ",
           "gessq"
         ],
@@ -58,7 +59,7 @@
     ],
     "configuration": {
       "type": "object",
-      "title": "gessQ",
+      "title": "GESS Q.",
       "properties": {
         "gessq.logLevel": {
           "type": "string",
@@ -70,7 +71,7 @@
             "debug"
           ],
           "default": "error",
-          "description": "Verbosity of the gessQ Output channel ('gessQ')."
+          "description": "Verbosity of the GESS Q. Output channel ('GESS Q.')."
         },
         "gessq.debugMode": {
           "type": "boolean",
@@ -86,7 +87,7 @@
         "gessq.hover.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Show the gessQ hover (glossary description for keywords, and the definition location plus code preview for workspace names). Turn off to suppress the gessQ hover entirely."
+          "description": "Show the GESS Q. hover (glossary description for keywords, and the definition location plus code preview for workspace names). Turn off to suppress the GESS Q. hover entirely."
         },
         "gessq.codeLens.enable": {
           "type": "boolean",

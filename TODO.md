@@ -1,4 +1,4 @@
-# TODO – gessQ VS Code Extension
+# TODO – GESS Q. VS Code Extension
 
 Nur offene Punkte. Abgeschlossene Arbeit, die Ausgangs-Analyse und der
 Entscheidungslog stehen in [HISTORY.md](HISTORY.md).
@@ -34,7 +34,7 @@ Lösung: **Request-Forwarding über ein virtuelles Dokument** (wie VS Code bei
   '…CompletionItemProvider' | '…SignatureHelpProvider', virtualUri, position)`
   und Ergebnis durchreichen. Diagnostics vorerst nicht weiterreichen.
 - **`globals.d.ts` mitliefern** (im VSIX gebündelt) mit ambient-Decls für die
-  im gessQ-Kontext verfügbaren Globals: `QDot` (inkl. `QDot.onSubmit`,
+  im GESS Q.-Kontext verfügbaren Globals: `QDot` (inkl. `QDot.onSubmit`,
   `QDot.logger`, `QDot.clickranking`, `QDot.heatplotter`, `QDot.keyboard`),
   `$`/`jQuery`, `Android`, `startBackgroundAudioRecording`,
   `stopAudioRecording`, `openBarcodeScanner`, `hideq`, `insertLayer`,

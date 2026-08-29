@@ -38,7 +38,7 @@ test('detects block comments spanning lines', () => {
 	expect(scopeAt(lines, 1, lines[1].indexOf('code'))).toBe(ScopeEnum.normal);
 });
 
-test('detects strings spanning lines (gessQ text="…" blocks)', () => {
+test('detects strings spanning lines (GESS Q. text="…" blocks)', () => {
 	const lines = ['text="', 'Fragentext', '";'];
 	expect(scopeAt(lines, 1, 3)).toBe(ScopeEnum.string);
 	expect(scopeAt(lines, 2, 0)).toBe(ScopeEnum.string);

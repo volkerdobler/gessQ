@@ -9,7 +9,7 @@ import { diagnosticsEnabled } from '../infra/config';
 const DEBOUNCE_MS = 400;
 
 /**
- * Owns the gessQ `DiagnosticCollection` and (re)lints documents on open,
+ * Owns the GESS Q. `DiagnosticCollection` and (re)lints documents on open,
  * edit (debounced) and save. Honours `gessq.diagnostics.enable`.
  */
 export class DiagnosticsManager {

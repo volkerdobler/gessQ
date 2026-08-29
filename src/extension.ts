@@ -36,11 +36,11 @@ let symbolIndex: SymbolIndex | undefined;
  * symbol index, diagnostics and all language feature providers.
  */
 export function activate(context: vscode.ExtensionContext): void {
-	const out = vscode.window.createOutputChannel('gessQ');
+	const out = vscode.window.createOutputChannel('GESS Q.');
 	context.subscriptions.push(out);
 	setOutputChannel(out);
 	refreshLogLevelFromConfig();
-	info('gessQ extension activated');
+	info('GESS Q. extension activated');
 
 	const index = new SymbolIndex();
 	index.start();

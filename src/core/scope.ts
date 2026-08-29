@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 
 /**
- * Lexical scope of a character in a gessQ document.
+ * Lexical scope of a character in a GESS Q. document.
  */
 export enum ScopeEnum {
 	normal,

@@ -121,7 +121,7 @@ interface FileEntry {
 }
 
 /**
- * Workspace-wide index of gessQ symbol definitions. Built once from
+ * Workspace-wide index of GESS Q. symbol definitions. Built once from
  * `workspace.findFiles` and kept current with a `FileSystemWatcher`, so the
  * navigation providers no longer rescan every `.q` file on each request.
  */

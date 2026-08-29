@@ -1,4 +1,4 @@
-# Historie – gessQ VS Code Extension
+# Historie – GESS Q. VS Code Extension
 
 Abgeschlossene Analyse, Umbau (Phase 1–5) und der Entscheidungslog.
 **Offene Punkte stehen in [TODO.md](TODO.md).**
@@ -690,7 +690,7 @@ Offene Reste (→ [TODO.md](TODO.md)): 5.2 (Label-IDs / `labels=`-Kontext),
    Node 18, die keine Build-Änderung erzwingt. `package.json` `engines.vscode`
    und `@types/vscode` (exakt `1.85.0`) angepasst; `tsc` gegen die 1.85-API grün.
 3. **Linter „fehlendes `;`“** – **bewusst nicht umgesetzt** (5.3), es gibt
-   dazu **keine** Einstellung. gessQ hat mehrzeilige Statements, `};`-Blöcke
+   dazu **keine** Einstellung. GESS Q. hat mehrzeilige Statements, `};`-Blöcke
    und eingebettete HTML-/JS-Bereiche → `;`-Erkennung produziert zu viele
    Fehlalarme. *Nur als Idee, falls die Entscheidung je gekippt wird:* ein
    opt-in-Setting (Arbeitstitel `gessq.diagnostics.missingSemicolon`, Default

@@ -1235,7 +1235,7 @@
 	"datum": {
 		"short": "Datum",
 		"detail": "https://help.gessgroup.de/q-help/09_01_datum-und-uhrzeit.html#_currentdate",
-		"summary": "Datumsangaben in gessQ haben das Format YYYYMMDD (interne Variablen _currentdate, _startdate, _finishdate)."
+		"summary": "Datumsangaben in GESS Q. haben das Format YYYYMMDD (interne Variablen _currentdate, _startdate, _finishdate)."
 	},
 	"dbhost": {
 		"short": "dbHost",
@@ -1692,7 +1692,7 @@
 		"summary": "Datenaustausch CAPI-Gerät ↔ Webserver: Studien/Skript herunterladen, erhobene Datensätze hochladen."
 	},
 	"gess-q-desktop": {
-		"short": "Gess Q. Desktop",
+		"short": "GESS Q. Desktop",
 		"detail": "https://help.gessgroup.de/q-help/01_01_programmversionen.html#gessq.desktop",
 		"summary": "GESS Q. Desktop: die lokale Variante für Skripterstellung, Test und kleine Feldarbeiten."
 	},
@@ -1702,7 +1702,7 @@
 		"summary": "Server-Konfiguration über die Dateien im config-Verzeichnis (qonline.cfg, server.lst, users.lst, res/locales.json)."
 	},
 	"gess-q-server": {
-		"short": "Gess Q. Server",
+		"short": "GESS Q. Server",
 		"detail": "https://help.gessgroup.de/q-help/01_01_programmversionen.html#gessq.server",
 		"summary": "GESS Q. Server: die serverbasierte Variante für Online-Feldarbeit (CAWI) und zentrale Studienverwaltung."
 	},
@@ -1862,7 +1862,7 @@
 	"groß-und-kleinschreibung": {
 		"short": "Groß- und Kleinschreibung",
 		"detail": "https://help.gessgroup.de/q-help/01_03_einfuehrung.html#gro-undkleinschreibung",
-		"summary": "Schlüsselwörter sind in gessQ case-insensitiv (singleq = SingleQ); bei #define-Parametern und Pfaden (unter Linux) zählt die Groß-/Kleinschreibung dagegen."
+		"summary": "Schlüsselwörter sind in GESS Q. case-insensitiv (singleq = SingleQ); bei #define-Parametern und Pfaden (unter Linux) zählt die Groß-/Kleinschreibung dagegen."
 	},
 	"textersatz": {
 		"short": "Textersatz",
@@ -3239,7 +3239,7 @@
 		"short": "Schleife",
 		"detail": "https://help.gessgroup.de/q-help/13_02_kontrollstrukturen.html",
 		"syntax": "for (x = 1 to 10) { … };   forEach (x = 1 2 5) { … };   while (…) { … };",
-		"summary": "Sammelbegriff für die Schleifen der gessQ-Kontrollstrukturen: for (von-bis), forEach (Werteserie) und while (solange)."
+		"summary": "Sammelbegriff für die Schleifen der GESS Q.-Kontrollstrukturen: for (von-bis), forEach (Werteserie) und while (solange)."
 	},
 	"screenduration": {
 		"short": "SCREEN.duration",
@@ -3742,7 +3742,7 @@
 	"uhrzeit": {
 		"short": "Uhrzeit",
 		"detail": "https://help.gessgroup.de/q-help/09_01_datum-und-uhrzeit.html#_currenttime",
-		"summary": "Uhrzeitangaben in gessQ haben das Format HHMMSS (interne Variablen _currenttime, _starttime, _finishtime)."
+		"summary": "Uhrzeitangaben in GESS Q. haben das Format HHMMSS (interne Variablen _currenttime, _starttime, _finishtime)."
 	},
 	"unknown-ids": {
 		"short": "Unknown IDs",

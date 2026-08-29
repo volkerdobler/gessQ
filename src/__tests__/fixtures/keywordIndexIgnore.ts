@@ -1,7 +1,7 @@
 // AUTO-GENERATED BASELINE – regenerate after refreshing tools/index.html
 // (see tools/README.md “keyword-index-ignore”).
 //
-// Schlüsselwort-Index-Einträge, die KEINE gessQ-Grammar-Keywords sind:
+// Schlüsselwort-Index-Einträge, die KEINE GESS Q.-Grammar-Keywords sind:
 // Abschnittsüberschriften, qonline.cfg-Parameter, CSS-Klassen, Template-
 // JavaScript-Variablen, UI-/Export-/Admin-Begriffe. `keywordIndex.test.ts`
 // akzeptiert jedes „code-förmige“ Index-Label, das entweder in

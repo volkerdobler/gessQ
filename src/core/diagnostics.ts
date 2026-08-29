@@ -5,7 +5,7 @@ import { getCachedScope, ScopeEnum, isNotInCommentAt } from './scope';
 import { parseDocumentSymbols } from './symbolIndex';
 import { parseIncludes } from './includes';
 
-const SRC = 'gessQ';
+const SRC = 'GESS Q.';
 
 function diag(
 	range: vscode.Range,

@@ -1,4 +1,4 @@
-// Barrel: all language feature providers for the gessQ extension.
+// Barrel: all language feature providers for the GESS Q. extension.
 export { GessQCompletionProvider } from './completionProvider';
 export { GessQHoverProvider } from './hoverProvider';
 export { GessQSignatureProvider } from './signatureProvider';

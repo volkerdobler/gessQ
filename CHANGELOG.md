@@ -1,10 +1,14 @@
 # Change Log
 
-All notable changes to the "gessq" extension will be documented in this file.
+All notable changes to the "GESS Q." extension will be documented in this file.
 Current version number is first:
 
 ### Unreleased
 
+- The extension's display name is now **GESS Q.** (was "gessQ") – shown in the
+  Marketplace, the settings section, the Output channel and diagnostic
+  sources. Config keys (`gessq.*`), the language id and the grammar scope are
+  unchanged.
 - Lowered the minimum VS Code version to **1.85.0** (`engines.vscode` and
   `@types/vscode` pinned in sync); the extension only uses APIs available
   since 1.45, and 1.85 is the first release shipping Node 18 (matching the
@@ -28,7 +32,7 @@ Current version number is first:
 - Hovering the name on its own definition line no longer shows the
   "defined here" hover – the line is already visible.
 - New settings `gessq.hover.enable` and `gessq.codeLens.enable` (both
-  default `true`): turn off the gessQ hover entirely, or hide the
+  default `true`): turn off the GESS Q. hover entirely, or hide the
   "N references" CodeLens.
 - Glossary hover / completion docs now show a one-line `syntax` hint and a
   short German `summary` on top of the handbook link (rendered: heading,
@@ -245,7 +249,7 @@ Add "Find all References" and update to new version
 
 ### 0.0.19
 
-Add gessQ icon from www.gessgroup.de
+Add GESS Q. icon from www.gessgroup.de
 
 ### 0.0.18
 
@@ -291,7 +295,7 @@ optimize symbol search
 
 ### 0.0.8
 
-colorization of some gessq commands have been added
+colorization of some GESS Q. commands have been added
 
 ### 0.0.7
 

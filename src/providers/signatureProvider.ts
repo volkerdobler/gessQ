@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { loadGlossary, type Glossary } from '../data/glossary';
 
 /**
- * Signature Help provider for the gessQ language.
+ * Signature Help provider for the GESS Q. language.
  *
  * Uses `manualGlossary.json` (when available) to produce parameter lists for
  * known macros / commands and falls back to heuristics otherwise.

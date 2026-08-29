@@ -8,7 +8,7 @@ const section = () => vscode.workspace.getConfiguration('gessq');
 export const diagnosticsEnabled = (): boolean =>
 	section().get<boolean>('diagnostics.enable', true);
 
-/** `gessq.hover.enable` – master switch for the gessQ hover. */
+/** `gessq.hover.enable` – master switch for the GESS Q. hover. */
 export const hoverEnabled = (): boolean =>
 	section().get<boolean>('hover.enable', true);
 

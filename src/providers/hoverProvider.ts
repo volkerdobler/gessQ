@@ -11,7 +11,7 @@ import { SymbolIndex, parseDocumentSymbols } from '../core/symbolIndex';
 import { hoverEnabled } from '../infra/config';
 
 /**
- * Hover for gessQ: a glossary description for language keywords, and – for
+ * Hover for GESS Q.: a glossary description for language keywords, and – for
  * names defined in the workspace – the definition location plus a short code
  * preview.
  */

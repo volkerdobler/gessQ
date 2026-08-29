@@ -1,6 +1,6 @@
-# gessQ
+# GESS Q.
 
-VS Code Sprachunterstützung für **gess.Q**, die Skriptsprache für
+VS Code Sprachunterstützung für **GESS Q.**, die Skriptsprache für
 Online-Befragungen von [GESS](https://www.gessgroup.de).
 
 Betrifft Dateien mit der Endung `.q`.
@@ -37,10 +37,10 @@ Betrifft Dateien mit der Endung `.q`.
 
 | Einstellung                                | Typ       | Standard  | Beschreibung                                                        |
 | ------------------------------------------ | --------- | --------- | ------------------------------------------------------------------ |
-| `gessq.logLevel`                           | `string`  | `"error"` | Ausführlichkeit des Output-Channels „gessQ“ (`off`…`debug`).       |
+| `gessq.logLevel`                           | `string`  | `"error"` | Ausführlichkeit des Output-Channels „GESS Q.“ (`off`…`debug`).     |
 | `gessq.diagnostics.enable`                 | `boolean` | `true`    | Linter (Klammern, `#macro`/`#ifdef`, `#include`, Duplikate) an/aus. |
 | `gessq.completion.includeWorkspaceSymbols` | `boolean` | `true`    | Symbolnamen aus dem Workspace als Vervollständigung anbieten.       |
-| `gessq.hover.enable`                       | `boolean` | `true`    | gessQ-Hover (Glossar + Definitionsort) anzeigen.                    |
+| `gessq.hover.enable`                       | `boolean` | `true`    | GESS Q.-Hover (Glossar + Definitionsort) anzeigen.                  |
 | `gessq.codeLens.enable`                    | `boolean` | `true`    | „N references“-CodeLens über Definitionen anzeigen.                 |
 | `gessq.files.exclude`                      | `string`  | `""`      | Zusätzliches Glob, das vom Workspace-Scan ausgeschlossen wird.      |
 | `gessq.debugMode`                          | `boolean` | `false`   | Veraltet – entspricht `gessq.logLevel = debug`.                    |

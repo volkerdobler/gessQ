@@ -5,7 +5,7 @@ import { SymbolIndex, parseDocumentSymbols } from '../core/symbolIndex';
 import { findReferences } from '../core/symbolSearch';
 
 /**
- * Workspace-wide rename for gessQ symbols (questions, opennumformats,
+ * Workspace-wide rename for GESS Q. symbols (questions, opennumformats,
  * blocks/screens, macros, action targets). Only offered when the identifier
  * under the cursor is a known symbol.
  */
@@ -26,7 +26,7 @@ export class GessQRenameProvider implements vscode.RenameProvider {
 			parseDocumentSymbols(document).some((s) => s.lower === word) ||
 			this.index.definitionsOf(word).length > 0;
 		if (!known) {
-			throw new Error('Rename is only available for gessQ symbols.');
+			throw new Error('Rename is only available for GESS Q. symbols.');
 		}
 		return range;
 	}
@@ -44,7 +44,7 @@ export class GessQRenameProvider implements vscode.RenameProvider {
 		const word = document.getText(range);
 
 		if (!/^[A-Za-zÄÖÜäöüß_$][A-Za-zÄÖÜäöüß0-9_$]*$/.test(newName)) {
-			throw new Error('"' + newName + '" is not a valid gessQ name.');
+			throw new Error('"' + newName + '" is not a valid GESS Q. name.');
 		}
 
 		await this.index.ready;

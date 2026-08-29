@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { SymbolIndex, symbolKindOf } from '../core/symbolIndex';
 
 /**
- * "Go to Symbol in Workspace" (Ctrl+T): serves gessQ definitions (questions,
+ * "Go to Symbol in Workspace" (Ctrl+T): serves GESS Q. definitions (questions,
  * opennumformats, blocks/screens, macros, action targets) straight from the
  * {@link SymbolIndex}.
  */
