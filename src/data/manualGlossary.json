@@ -3421,7 +3421,13 @@
 		"short": "single",
 		"detail": "https://help.gessgroup.de/q-help/03_02_antwortlabels.html#single",
 		"syntax": "1 \"…\" single",
-		"summary": "Labelattribut (MultiQ / MultiGridQ): exklusive Antwort – wird sie gewählt, werden alle anderen Nennungen zurückgesetzt."
+		"summary": "Labelattribut (MultiQ / MultiGridQ): exklusive Antwort – wird sie gewählt, werden alle anderen Nennungen zurückgesetzt. Nicht zu verwechseln mit dem Group-Attribut `single = yes|no;`."
+	},
+	"single-group": {
+		"short": "single (Group-Attribut)",
+		"detail": "https://help.gessgroup.de/q-help/08_02_group.html",
+		"syntax": "group NAME; labels= CODE \"TEXT\" (BEDINGUNG) … ; single = yes|no; export;",
+		"summary": "Eigener Group-Befehl (nicht das Label-Attribut `single`): aktiviert die Einfachauswahl für eine Group – die erste zutreffende Bedingung gewinnt. Sollte vor `export` stehen. Dokumentiert im Neuigkeiten-Archiv: https://gessgroup.de/software/support/neuigkeiten/gess-q/neuigkeiten-archiv/"
 	},
 	"singlegridq": {
 		"short": "SingleGridQ",

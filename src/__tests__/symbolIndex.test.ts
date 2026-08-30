@@ -47,6 +47,26 @@ test('extracts array / vararray definitions', () => {
 	expect(byName['members'].detail).toBe('vararray');
 });
 
+test('extracts compute / textarray / textelement / intrandom definitions', () => {
+	const syms = parseDocumentSymbols(
+		makeDoc([
+			'compute alter = 2026 - gebjahr;',
+			'textarray tx = { "a" "b" };',
+			'textelement te = "hi";',
+			'IntRandom rnd = 1 6;',
+		]),
+	);
+	const byName = Object.fromEntries(syms.map((s) => [s.name, s]));
+	expect(byName['alter'].category).toBe('definition');
+	expect(byName['alter'].detail).toBe('compute');
+	expect(byName['tx'].category).toBe('array');
+	expect(byName['tx'].detail).toBe('textarray');
+	expect(byName['te'].category).toBe('definition');
+	expect(byName['te'].detail).toBe('textelement');
+	expect(byName['rnd'].category).toBe('definition');
+	expect(byName['rnd'].detail).toBe('intrandom');
+});
+
 test('extracts quotavar definitions', () => {
 	const [sym] = parseDocumentSymbols(
 		makeDoc(['quotavar qAge = ( age ge 18 );']),

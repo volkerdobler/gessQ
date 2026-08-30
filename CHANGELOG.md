@@ -3,6 +3,27 @@
 All notable changes to the "GESS Q." extension will be documented in this file.
 Current version number is first:
 
+### Unreleased
+
+- Symbol name grammar is now context-sensitive: definition sites require a
+  letter-initial name, reference sites also accept a leading `_` so the
+  built-in system variables (`_finished`, `_caseid`, …) stay navigable
+  ("Find References", highlight, hover). Names – quoted or bare – must obey
+  the identifier grammar; umlauts, `$`, spaces and `.` no longer produce
+  broken regexes.
+- `compute NAME =`, `textarray NAME =`, `textelement NAME` and
+  `intrandom NAME =` are now indexed as variable definitions, so Go to
+  Definition, Find All References, Rename, hover and the symbol outline pick
+  them up (`textarray` alongside arrays, the others alongside opennumformats).
+- Find All References for an `opennumformat` now also finds its uses in
+  NumQ / GNumQ / SliderQ labels (`… format NAME`).
+- Hover on `single` in `single = yes|no;` now shows the Group single-choice
+  attribute instead of the (unrelated) exclusive-answer label attribute.
+- `language-configuration.json`: `wordPattern` aligned with the parser
+  grammar; `onEnterRules` use the `indent` action key (the previous
+  `indentAction` key was silently ignored, so auto-indent/outdent on Enter
+  did nothing).
+
 ### 0.99.0 — 2026-08-29
 
 Interner Testbuild (nur als `.vsix`, nicht über den Marketplace). Bündelt die

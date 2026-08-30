@@ -248,4 +248,49 @@ export const macroDefRe = memoizeEmpty(
 		new RegExp('(?<!\\w)#(macro)\\b\\s+(' + defNameFrag(word) + ')', 'i'),
 );
 
+/**
+ * `compute NAME = …` definitions (g1 keyword, g2 name).
+ *
+ * `compute` introduces a new calculated variable, so `NAME` is a
+ * "Go to Definition" / "Find All References" target – like a question of the
+ * same name. (`computeRe` above is the complementary *usage* pattern.)
+ */
+export const computeDefRe = memoizeEmpty(
+	(word) =>
+		new RegExp(
+			'\\b(compute)\\b\\s+(' + defNameFrag(word) + ')\\s*=',
+			'i',
+		),
+);
+
+/**
+ * `textarray NAME = { … }` / `textarray NAME = FRAGE;` definitions
+ * (g1 keyword, g2 name).
+ */
+export const textArrayDefRe = memoizeEmpty(
+	(word) =>
+		new RegExp(
+			'\\b(textarray)\\b\\s+(' + defNameFrag(word) + ')\\s*=',
+			'i',
+		),
+);
+
+/** `textelement NAME [= "…"] [saved;]` definitions (g1 keyword, g2 name). */
+export const textElementDefRe = memoizeEmpty(
+	(word) =>
+		new RegExp(
+			'\\b(textelement)\\b\\s+(' + defNameFrag(word) + ')\\b',
+			'i',
+		),
+);
+
+/** `intrandom NAME = VON BIS;` definitions (g1 keyword, g2 name). */
+export const intRandomDefRe = memoizeEmpty(
+	(word) =>
+		new RegExp(
+			'\\b(intrandom)\\b\\s+(' + defNameFrag(word) + ')\\s*=',
+			'i',
+		),
+);
+
 export { constTokenVarNameRestExport as constTokenVarNameRest };

@@ -22,11 +22,17 @@ function referencePatterns(word: string): RegExp[] {
 		parser.checkRe(word),
 		parser.assertRe(word),
 		parser.computeRe(word),
+		parser.computeDefRe(word),
+		parser.textArrayDefRe(word),
+		parser.textElementDefRe(word),
+		parser.intRandomDefRe(word),
 		parser.actionBlockDefRe(word),
 		parser.macroDefRe(word),
 		// macro instantiation: `&name;` and `#domacro name`
 		new RegExp('&' + w + '\\b', 'i'),
 		new RegExp('#domacro\\s+' + w + '\\b', 'i'),
+		// opennumformat used in a NumQ/GNumQ/SliderQ label: `… format ONF`
+		new RegExp('\\bformat\\b\\s+' + w + '\\b', 'i'),
 	];
 }
 

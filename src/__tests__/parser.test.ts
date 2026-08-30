@@ -8,6 +8,10 @@ import {
 	actionBlockDefRe,
 	arrayDefRe,
 	quotavarDefRe,
+	computeDefRe,
+	textArrayDefRe,
+	textElementDefRe,
+	intRandomDefRe,
 	getWordDefinition,
 	getWordDefinitionStrict,
 } from '../core/parser';
@@ -172,6 +176,50 @@ describe('quotavarDefRe', () => {
 
 	test('does not match the "prequotavar" parameter', () => {
 		expect('prequotavar foo = (1);'.match(quotavarDefRe(''))).toBeNull();
+	});
+});
+
+describe('computeDefRe / textArrayDefRe / textElementDefRe / intRandomDefRe', () => {
+	test('computeDefRe captures keyword + name', () => {
+		const m = 'compute alter = 2026 - gebjahr;'.match(computeDefRe(''));
+		expect(m).not.toBeNull();
+		expect(m![1].toLowerCase()).toBe('compute');
+		expect(m![2]).toBe('alter');
+	});
+
+	test('textArrayDefRe matches both the "{ … }" and "= FRAGE" forms', () => {
+		expect(
+			'textarray tx = { "a" "b" };'.match(textArrayDefRe(''))![2],
+		).toBe('tx');
+		expect('TextArray tx2 = Frage1;'.match(textArrayDefRe(''))![2]).toBe(
+			'tx2',
+		);
+	});
+
+	test('textElementDefRe matches bare, "= \\"…\\"" and "saved" forms', () => {
+		expect('textelement te;'.match(textElementDefRe(''))![2]).toBe('te');
+		expect('textelement te2 = "hi";'.match(textElementDefRe(''))![2]).toBe(
+			'te2',
+		);
+		expect('textelement te3 saved;'.match(textElementDefRe(''))![2]).toBe(
+			'te3',
+		);
+	});
+
+	test('intRandomDefRe captures keyword + name', () => {
+		const m = 'IntRandom r = 1 6;'.match(intRandomDefRe(''));
+		expect(m).not.toBeNull();
+		expect(m![2]).toBe('r');
+	});
+
+	test('named variants are specific', () => {
+		expect('compute a = 1;'.match(computeDefRe('a'))).not.toBeNull();
+		expect('compute b = 1;'.match(computeDefRe('a'))).toBeNull();
+	});
+
+	test('a leading-underscore name is not accepted as a definition', () => {
+		expect('compute _x = 1;'.match(computeDefRe('_x'))).toBeNull();
+		expect('textelement _y;'.match(textElementDefRe('_y'))).toBeNull();
 	});
 });
 

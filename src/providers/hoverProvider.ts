@@ -11,6 +11,25 @@ import { SymbolIndex, parseDocumentSymbols } from '../core/symbolIndex';
 import { hoverEnabled } from '../infra/config';
 
 /**
+ * Some keywords mean different things in different positions and need a
+ * context-specific glossary key. Returns that key, or `undefined` to fall back
+ * to the plain lowercase lookup.
+ *
+ * - `single = yes|no;` on its own is the Group attribute (single choice for a
+ *   group); as a bare token after a label it is the exclusive-answer label
+ *   attribute. The handbook only indexes the latter.
+ */
+export function disambiguateKeyword(
+	word: string,
+	lineText: string,
+): string | undefined {
+	if (word.toLowerCase() === 'single' && /^\s*single\s*=/i.test(lineText)) {
+		return 'single-group';
+	}
+	return undefined;
+}
+
+/**
  * Hover for GESS Q.: a glossary description for language keywords, and – for
  * names defined in the workspace – the definition location plus a short code
  * preview.
@@ -46,7 +65,11 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 			md.appendMarkdown(symbolPart);
 		}
 
-		const entry = lookupEntry(await loadGlossary(this.extensionUri), word);
+		const glossary = await loadGlossary(this.extensionUri);
+		const lineText = document.lineAt(position.line).text;
+		const entry =
+			lookupEntry(glossary, disambiguateKeyword(word, lineText) ?? word) ??
+			lookupEntry(glossary, word);
 		if (entry) {
 			if (symbolPart) {
 				md.appendMarkdown('\n\n---\n\n');
