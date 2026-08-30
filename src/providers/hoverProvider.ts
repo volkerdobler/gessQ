@@ -12,6 +12,7 @@ import {
 	parseDocumentSymbols,
 	type IndexedSymbol,
 } from '../core/symbolIndex';
+import { REVEAL_COMMAND, revealLink } from './revealLocation';
 import {
 	hoverEnabled,
 	hoverReferenceDetail,
@@ -231,7 +232,8 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 
 		const glossary = await loadGlossary(this.extensionUri);
 		const md = new vscode.MarkdownString();
-		md.isTrusted = false;
+		// Only the "jump to definition" link in a symbol hover is a command.
+		md.isTrusted = { enabledCommands: [REVEAL_COMMAND] };
 
 		const onDefLine = localDefs.some((s) => s.lineRange.contains(position));
 		const here = document.uri.toString();
@@ -277,10 +279,14 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		d: IndexedSymbol,
 		detail: Exclude<HoverReferenceDetail, 'off'>,
 	): Promise<string> {
-		const where =
+		const where = revealLink(
 			vscode.workspace.asRelativePath(d.uri) +
-			':' +
-			(d.nameRange.start.line + 1);
+				':' +
+				(d.nameRange.start.line + 1),
+			d.uri.toString(),
+			d.nameRange.start.line,
+			d.nameRange.start.character,
+		);
 		const head =
 			'**' + d.name + '** — ' + d.category + ' `' + d.detail + '` · ' + where;
 

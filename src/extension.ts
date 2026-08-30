@@ -24,6 +24,7 @@ import {
 	GessQCodeLensProvider,
 	GessQFormattingProvider,
 	DiagnosticsManager,
+	registerRevealLocation,
 } from './providers';
 
 const FILE = { language: 'gessq', scheme: 'file' } as const;
@@ -46,6 +47,8 @@ export function activate(context: vscode.ExtensionContext): void {
 	index.start();
 	symbolIndex = index;
 	context.subscriptions.push(index);
+
+	registerRevealLocation(context);
 
 	const { extensionUri } = context;
 	const formatter = new GessQFormattingProvider();

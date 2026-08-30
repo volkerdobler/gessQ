@@ -13,3 +13,4 @@ export { GessQRenameProvider } from './renameProvider';
 export { GessQCodeLensProvider } from './codeLensProvider';
 export { GessQFormattingProvider } from './formattingProvider';
 export { DiagnosticsManager } from './diagnostics';
+export { registerRevealLocation } from './revealLocation';

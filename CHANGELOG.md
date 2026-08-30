@@ -38,8 +38,9 @@ Current version number is first:
     e.g. `singleq`, for its documentation);
   - on a language keyword: the glossary entry as before;
   - on a reference to a question / variable: name, kind and where it is
-    defined – no command description or handbook link (hover the keyword for
-    those). New setting **`gessq.hover.referenceDetail`** (`off` / `summary`
+    defined (the `file:line` is a link – click it to jump there) – no
+    command description or handbook link (hover the keyword for those). New
+    setting **`gessq.hover.referenceDetail`** (`off` / `summary`
     / `definition` / `full`, default `summary`) adds, from `definition` up,
     an **excerpt of the definition** – the `singleq` line plus `text` /
     `title` / `labels` / `flt` / `assert` …, up to the next definition.

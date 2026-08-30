@@ -38,7 +38,9 @@ sie ersetzt die alte.
   Schlüsselwort ein kurzer Syntaxhinweis, ein bis drei erklärende Sätze und
   ein Link ins GESS-Q.-Handbuch. Zeigst du auf einen selbst vergebenen
   Fragen-/Block-/Makronamen, steht dort, in welcher Datei und Zeile er
-  definiert ist – mit Vorschau.
+  definiert ist (die Angabe `Datei:Zeile` ist ein Link – Klick springt
+  dorthin); wie viel sonst noch gezeigt wird, steuert
+  `gessq.hover.referenceDetail`.
 
 - **Navigation im Skript** (auch über `#include` hinweg):
   - Als „Projekt“ zählt `script.q` (genau dieser Name) plus alles, was von
