@@ -142,10 +142,10 @@
 		"summary": "Bindet den Wert bzw. die Labeltexte einer anderen Variablen (Frage, Group, TextElement, Array …) in einen beliebigen Textbereich ein. Kernbefehl für dynamische Frage- und Labeltexte."
 	},
 	"javascript": {
-		"short": "@javascript",
-		"detail": "https://help.gessgroup.de/q-help/14_00_template_-layout_-grafische-el.html#platzhalter",
-		"syntax": "@javascript",
-		"summary": "Template-Platzhalter: das an Fragen/Screens notierte Javascript sowie template-seitige Skriptblöcke."
+		"short": "javascript",
+		"detail": "https://help.gessgroup.de/q-help/03_00_fragedefinitionenen.html",
+		"syntax": "javascript = \"<Javascript-Code>\";",
+		"summary": "Frageattribut: bindet zusätzlichen Javascript-Code ein, der nur für diese Frage gilt."
 	},
 	"language": {
 		"short": "@language",
@@ -1165,6 +1165,12 @@
 		"detail": "https://help.gessgroup.de/q-help/14_02_grafische-formatierung-und-lay.html#cssclassesfrsinglequndmultiq",
 		"syntax": ".qvlabelcell { … }",
 		"summary": "CSS-Klasse im gerenderten Fragebogen für die vertikale Labelzelle einer Grid-Frage."
+	},
+	"css": {
+		"short": "css",
+		"detail": "https://help.gessgroup.de/q-help/03_00_fragedefinitionenen.html",
+		"syntax": "css = \"<CSS-Code>\";",
+		"summary": "Frageattribut: bindet zusätzlichen CSS-Code ein, der nur für diese Frage gilt."
 	},
 	"css-media-nbspqueries": {
 		"short": "CSS media &nbsp;queries",

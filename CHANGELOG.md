@@ -33,6 +33,10 @@ Current version number is first:
   `begin` … `end` block folds.
 - Hover on `single` in `single = yes|no;` now shows the Group single-choice
   attribute instead of the (unrelated) exclusive-answer label attribute.
+- Hover on the `css =` / `javascript =` question attributes: `css` had no
+  entry at all, `javascript` showed the unrelated `@javascript` template
+  placeholder. Both now describe embedding extra CSS / Javascript for the
+  current question and link to the question-definitions handbook page.
 - Hover on a fixed action-block attribute (`continueActionBlock`,
   `initActionBlock`, `globalContinueActionBlock`, …) shows just the summary
   and handbook link – the misleading `NAME = { … };` syntax line is
