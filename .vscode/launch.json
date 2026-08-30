@@ -6,7 +6,10 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--user-data-dir=${workspaceFolder}/.vscode-test-userdata"
+			],
 			"outFiles": ["${workspaceFolder}/out/**/*.js"],
 			"preLaunchTask": "npm: compile"
 		},
@@ -15,7 +18,10 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--user-data-dir=${workspaceFolder}/.vscode-test-userdata"
+			],
 			"outFiles": ["${workspaceFolder}/out/**/*.js"]
 		},
 		{

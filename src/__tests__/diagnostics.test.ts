@@ -78,3 +78,64 @@ test('flags "rendering =" after the first question', () => {
 test('"renderClass" at a question is not mistaken for "rendering"', () => {
 	expect(messages('singleq q1;\nrenderClass = "version1";\n')).toEqual([]);
 });
+
+const hasDuplicate = (src: string) =>
+	messages(src).some((m) => m.includes('Duplicate'));
+
+describe('duplicate definitions across #ifdef branches', () => {
+	test('plain top-level duplicate is still flagged', () => {
+		expect(hasDuplicate('block b = ( q );\nblock b = ( q );\n')).toBe(true);
+	});
+
+	test('mutually exclusive #ifdef X / #ifndef X branches → no error', () => {
+		expect(
+			hasDuplicate(
+				'#ifdef X\n#ifdef Y\nblock b = ( q );\n#endif\n#endif\n' +
+					'#ifndef X\nblock b = ( q );\n#endif\n',
+			),
+		).toBe(false);
+	});
+
+	test('same #ifdef X twice → error', () => {
+		expect(
+			hasDuplicate(
+				'#ifdef X\nblock b = ( q );\n#endif\n' +
+					'#ifdef X\nblock b = ( q );\n#endif\n',
+			),
+		).toBe(true);
+	});
+
+	test('nested {X,Y} vs {X} still shares X → error', () => {
+		expect(
+			hasDuplicate(
+				'#ifdef X\n#ifdef Y\nblock b = ( q );\n#endif\n#endif\n' +
+					'#ifdef X\nblock b = ( q );\n#endif\n',
+			),
+		).toBe(true);
+	});
+
+	test('#ifdef X vs its own #else branch → no error', () => {
+		expect(
+			hasDuplicate(
+				'#ifdef X\nblock b = ( q );\n#else\nblock b = ( q );\n#endif\n',
+			),
+		).toBe(false);
+	});
+
+	test('a #ifdef inside a comment does not guard anything', () => {
+		expect(
+			hasDuplicate(
+				'// #ifdef X\nblock b = ( q );\n// #endif\nblock b = ( q );\n',
+			),
+		).toBe(true);
+	});
+
+	test('three definitions: X, !X, X → only the third is flagged', () => {
+		const msgs = messages(
+			'#ifdef X\nblock b = ( q );\n#endif\n' +
+				'#ifndef X\nblock b = ( q );\n#endif\n' +
+				'#ifdef X\nblock b = ( q );\n#endif\n',
+		);
+		expect(msgs.filter((m) => m.includes('Duplicate'))).toHaveLength(1);
+	});
+});

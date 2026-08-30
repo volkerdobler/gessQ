@@ -63,16 +63,19 @@ export function activateReleaseNotes(context: vscode.ExtensionContext): void {
 	const version = String(context.extension.packageJSON.version ?? '');
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand(SHOW_RELEASE_NOTES_COMMAND, async () => {
-			const uri = await noteUri(context.extensionUri, version);
-			if (uri) {
-				await openNotes(uri);
-			} else {
-				void vscode.window.showInformationMessage(
-					`GESS Q.: keine Release Notes für Version ${version}.`,
-				);
-			}
-		}),
+		vscode.commands.registerCommand(
+			SHOW_RELEASE_NOTES_COMMAND,
+			async () => {
+				const uri = await noteUri(context.extensionUri, version);
+				if (uri) {
+					await openNotes(uri);
+				} else {
+					void vscode.window.showInformationMessage(
+						`GESS Q.: keine Release Notes für Version ${version}.`,
+					);
+				}
+			},
+		),
 	);
 
 	if (

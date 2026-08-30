@@ -5,6 +5,12 @@ Current version number is first:
 
 ### Unreleased
 
+- The "Duplicate <kind> …" diagnostic now understands `#ifdef` / `#ifndef`
+  (nesting and `#else` included): two definitions in mutually exclusive
+  branches (`#ifdef X` vs `#ifndef X` for the same `X`) are no longer
+  flagged. Anything else that could both be compiled in – the same guard
+  twice, a nested `{X,Y}` beside a plain `{X}`, or plain top-level
+  duplicates – still is.
 - "What's new": after an install or update the extension opens
   `release-notes/<version>.md` once (if that file exists; suppress with
   `gessq.releaseNotes.showOnUpdate: false`). Re-open any time with the
