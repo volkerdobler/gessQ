@@ -86,6 +86,41 @@ describe('definitionExcerpt', () => {
 		expect(ex).toContain('export;');
 	});
 
+	test('drops a brace-delimited actionblock whole (nested braces, blank lines, comments)', () => {
+		const lines = [
+			'multiq s8;',
+			'labels=',
+			'1 "a"',
+			'15 "keine" single',
+			';',
+			'assert ([1:14] in s8) "" exit 2;',
+			'continueActionBlock = {',
+			'\t// LQ für F11',
+			'//\tset(lqWarengruppenIndex[x] = x);',
+			'\tfor (i = 1 to 14) {',
+			'\t\tset(v[i] = 9999999);',
+			'',
+			'\t\tif (i in s8) {',
+			'\t\t\tset(v[i] = 1);',
+			'\t\t};',
+			'\t};',
+			'/* Sammel-Kommentar */',
+			'\tif (x eq 1) { exit(3); };',
+			'};',
+			'',
+			'multiq s9;',
+			'text = "next";',
+		];
+		const ex = definitionExcerpt(lines, 0);
+		expect(ex).toContain('multiq s8;');
+		expect(ex).toContain('15 "keine" single');
+		expect(ex).toContain('assert ([1:14] in s8) "" exit 2;');
+		expect(ex).not.toMatch(/continueActionBlock/i);
+		expect(ex).not.toContain('set(v[i] = 9999999);');
+		expect(ex).not.toContain('exit(3)');
+		expect(ex).not.toContain('s9');
+	});
+
 	test('truncates with an ellipsis past maxLines', () => {
 		const many = ['compute c = 1;', ...Array(50).fill('add = 1;')];
 		const ex = definitionExcerpt(many, 0, 5);

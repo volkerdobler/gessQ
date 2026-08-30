@@ -38,15 +38,23 @@ export function disambiguateKeyword(
 const DEF_BOUNDARY =
 	/^\s*(?:singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group|sliderq|compute|array|vararray|textelement|textarray|intrandom|opennumformat|quotavar|block|screen|page|chapter|endchapter|filter|endfilter|#\w+)\b/i;
 
-/** Attribute statements dropped from a definition excerpt (long / noisy). */
+/**
+ * Attribute statements dropped from a definition excerpt (long / noisy).
+ * Covers every `*ActionBlock` plus `javascript` / `jsHandler` / `css`, whether
+ * written as `attr = "…";` or as a brace block `attr = { … };`.
+ */
 const EXCERPT_OMIT = /^\s*(?:[a-z]*actionblock|javascript|jshandler|css)\s*=/i;
+
+/** How many source lines to scan before giving up (guards runaway braces). */
+const EXCERPT_SCAN_LIMIT = 600;
 
 /**
  * Build a readable excerpt of a definition for a hover: the definition line
  * plus its attribute statements, up to the next top-level definition, a blank
  * line or `maxLines`. `actionblock` / `javascript` / `css` attributes are left
- * out. String literals (which may span lines and contain anything) are tracked
- * so their content is never mistaken for a boundary.
+ * out whole – including brace-delimited action blocks that span dozens of
+ * lines. Strings (`"…"` / `'…'`) and comments (`//`, `/* … *\/`) are tracked so
+ * their content is never mistaken for a boundary or a brace.
  *
  * @param lines full text of the file, split into lines
  * @param start 0-based index of the definition line
@@ -58,41 +66,81 @@ export function definitionExcerpt(
 ): string {
 	const out: string[] = [];
 	let inString: '"' | "'" | '' = '';
+	let inBlockComment = false;
 	let omitting = false;
+	let omitBrace = 0;
 	let truncated = false;
 
-	for (let i = start; i < lines.length; i++) {
+	const end = Math.min(lines.length, start + EXCERPT_SCAN_LIMIT);
+	for (let i = start; i < end; i++) {
 		const raw = lines[i];
-		const startedInString = inString !== '';
+		const clearAtLineStart = inString === '' && !inBlockComment;
 
-		// Advance the string state across this line (a `//` outside a string
-		// starts a comment that runs to the end of the line).
+		// Boundaries are only meaningful on a "clear" line outside an omitted
+		// attribute – a blank line or a stray `singleq` inside an action block
+		// or a multi-line string must not end the excerpt.
+		if (!omitting && clearAtLineStart && i > start) {
+			if (raw.trim() === '' || DEF_BOUNDARY.test(raw)) {
+				break;
+			}
+			if (EXCERPT_OMIT.test(raw)) {
+				omitting = true;
+				omitBrace = 0;
+			}
+		}
+
+		// Scan the line, updating string / comment state and – while omitting –
+		// the brace depth of the attribute being skipped.
 		let lineComment = false;
+		let lastSignificant = '';
 		for (let c = 0; c < raw.length; c++) {
 			const ch = raw[c];
+			const nx = raw[c + 1];
+			if (inBlockComment) {
+				if (ch === '*' && nx === '/') {
+					inBlockComment = false;
+					c++;
+				}
+				continue;
+			}
 			if (inString) {
 				if (ch === '\\') {
 					c++;
 				} else if (ch === inString) {
 					inString = '';
 				}
-			} else if (lineComment) {
+				lastSignificant = ch;
+				continue;
+			}
+			if (lineComment) {
 				break;
-			} else if (ch === '/' && raw[c + 1] === '/') {
+			}
+			if (ch === '/' && nx === '/') {
 				lineComment = true;
 				c++;
-			} else if (ch === '"' || ch === "'") {
+				continue;
+			}
+			if (ch === '/' && nx === '*') {
+				inBlockComment = true;
+				c++;
+				continue;
+			}
+			if (ch === '"' || ch === "'") {
 				inString = ch as '"' | "'";
+				lastSignificant = ch;
+				continue;
 			}
-		}
-
-		if (!startedInString && i > start) {
-			if (raw.trim() === '' || DEF_BOUNDARY.test(raw)) {
-				break;
+			if (ch === ' ' || ch === '\t') {
+				continue;
 			}
-			if (EXCERPT_OMIT.test(raw)) {
-				omitting = true;
+			if (omitting) {
+				if (ch === '{') {
+					omitBrace++;
+				} else if (ch === '}') {
+					omitBrace--;
+				}
 			}
+			lastSignificant = ch;
 		}
 
 		if (!omitting) {
@@ -101,10 +149,14 @@ export function definitionExcerpt(
 				break;
 			}
 			out.push(raw.replace(/\s+$/, ''));
-		}
-
-		// An omitted attribute ends on the line whose `;` closes it.
-		if (omitting && !inString && /;\s*$/.test(raw)) {
+		} else if (
+			inString === '' &&
+			!inBlockComment &&
+			omitBrace <= 0 &&
+			lastSignificant === ';'
+		) {
+			// The omitted attribute's terminating `;` – `attr = "…";` or the
+			// closing `};` of a brace block.
 			omitting = false;
 		}
 	}

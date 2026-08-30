@@ -26,9 +26,9 @@ Current version number is first:
   - on a reference to a question / variable: what it is
     (`NAME — question \`singleq\``), where it is defined, and an **excerpt of
     the definition** – the `singleq` line plus `text` / `title` / `labels` /
-    `flt` / `assert` …, up to the next definition; `actionblock`,
-    `javascript` and `css` attributes are left out. Plus the command's short
-    description and handbook link.
+    `flt` / `assert` …, up to the next definition; `actionblock` (including
+    multi-line brace blocks), `javascript` and `css` attributes are left
+    out. Plus the command's short description and handbook link.
 - `language-configuration.json`: `wordPattern` aligned with the parser
   grammar; `onEnterRules` use the `indent` action key (the previous
   `indentAction` key was silently ignored, so auto-indent/outdent on Enter
