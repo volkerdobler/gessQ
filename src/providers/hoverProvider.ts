@@ -184,99 +184,15 @@ export function definitionExcerpt(
 	return out.join('\n') + (truncated ? '\n…' : '');
 }
 
-/** `<keyword>` (case-insensitive) is one of the fixed action-block attributes. */
-export function isActionBlockKeyword(word: string): boolean {
-	return /actionblock$/i.test(word);
-}
-
 /**
- * The `{ … }` body that starts on or after `start`, captured with balanced
- * braces and string / comment awareness – used to preview an action block
- * (`continueActionBlock = { … };`). Returns `''` when no `{` is found within
- * reach.
+ * `word` is one of the *fixed* action-block attributes (`continueActionBlock`,
+ * `initActionBlock`, `globalScreenContinueActionBlock`, …) – not the generic
+ * named `actionblock NAME = { … }`. Those attributes never take a NAME, so
+ * their hover shows only the summary and the handbook link.
  */
-export function braceBlockExcerpt(
-	lines: string[],
-	start: number,
-	maxLines = 40,
-): string {
-	const out: string[] = [];
-	let inString: '"' | "'" | '' = '';
-	let inBlockComment = false;
-	let depth = 0;
-	let opened = false;
-	let truncated = false;
-
-	const end = Math.min(lines.length, start + EXCERPT_SCAN_LIMIT);
-	for (let i = start; i < end; i++) {
-		const raw = lines[i];
-		let lineComment = false;
-		let closed = false;
-
-		for (let c = 0; c < raw.length; c++) {
-			const ch = raw[c];
-			const nx = raw[c + 1];
-			if (inBlockComment) {
-				if (ch === '*' && nx === '/') {
-					inBlockComment = false;
-					c++;
-				}
-				continue;
-			}
-			if (inString) {
-				if (ch === '\\') {
-					c++;
-				} else if (ch === inString) {
-					inString = '';
-				}
-				continue;
-			}
-			if (lineComment) {
-				break;
-			}
-			if (ch === '/' && nx === '/') {
-				lineComment = true;
-				c++;
-				continue;
-			}
-			if (ch === '/' && nx === '*') {
-				inBlockComment = true;
-				c++;
-				continue;
-			}
-			if (ch === '"' || ch === "'") {
-				inString = ch as '"' | "'";
-				continue;
-			}
-			if (ch === '{') {
-				depth++;
-				opened = true;
-			} else if (ch === '}' && opened) {
-				depth--;
-				if (depth <= 0) {
-					closed = true;
-					break;
-				}
-			}
-		}
-
-		out.push(raw.replace(/\s+$/, ''));
-		if (closed) {
-			break;
-		}
-		if (out.length >= maxLines) {
-			truncated = true;
-			break;
-		}
-	}
-
-	if (!opened) {
-		return '';
-	}
-	while (out.length && out[out.length - 1].trim() === '') {
-		out.pop();
-	}
-	return out.join('\n') + (truncated ? '\n…' : '');
+export function isActionBlockKeyword(word: string): boolean {
+	const w = word.toLowerCase();
+	return w !== 'actionblock' && w.endsWith('actionblock');
 }
 
 /**
@@ -354,27 +270,14 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 					glossary,
 					disambiguateKeyword(word, lineText) ?? word,
 				) ?? lookupEntry(glossary, word);
-
-			// On an action-block attribute's own line, show the block itself
-			// instead of a placeholder `NAME = { … }` syntax.
-			const block =
-				isActionBlockKeyword(word) &&
-				/actionblock\b[^;]*=\s*(\{|$)/i.test(lineText)
-					? braceBlockExcerpt(
-							document.getText().split(/\r?\n/),
-							position.line,
-						)
-					: '';
-
 			if (entry) {
+				// Fixed action-block attributes: their `NAME = { … };` syntax
+				// says nothing – summary + link are enough.
 				md.appendMarkdown(
 					formatEntryMarkdown(word, entry, {
-						includeSyntax: !block,
+						includeSyntax: !isActionBlockKeyword(word),
 					}),
 				);
-			}
-			if (block) {
-				md.appendMarkdown('\n\n```gessq\n' + block + '\n```');
 			}
 		}
 

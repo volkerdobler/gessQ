@@ -33,11 +33,11 @@ Current version number is first:
   `begin` … `end` block folds.
 - Hover on `single` in `single = yes|no;` now shows the Group single-choice
   attribute instead of the (unrelated) exclusive-answer label attribute.
-- Hover on an action-block attribute (`continueActionBlock`,
-  `initActionBlock`, `globalContinueActionBlock`, …) on its own line now
-  shows the block's contents instead of a placeholder `NAME = { … };`
-  syntax; the glossary syntax hints for these keywords use the keyword
-  itself (they never take a NAME).
+- Hover on a fixed action-block attribute (`continueActionBlock`,
+  `initActionBlock`, `globalContinueActionBlock`, …) shows just the summary
+  and handbook link – the misleading `NAME = { … };` syntax line is
+  dropped (these never take a NAME; only the generic `actionblock` does).
+  The glossary syntax hints for these keywords were corrected too.
 - Hover rework:
   - on the name in its own definition: nothing (hover the command keyword,
     e.g. `singleq`, for its documentation);

@@ -2,7 +2,6 @@ import {
 	disambiguateKeyword,
 	definitionExcerpt,
 	isActionBlockKeyword,
-	braceBlockExcerpt,
 } from '../providers/hoverProvider';
 
 describe('disambiguateKeyword', () => {
@@ -153,63 +152,27 @@ describe('definitionExcerpt', () => {
 });
 
 describe('isActionBlockKeyword', () => {
-	test('matches every *ActionBlock, nothing else', () => {
+	test('matches the fixed *ActionBlock attributes only', () => {
 		for (const w of [
 			'continueActionBlock',
 			'initActionBlock',
 			'globalContinueActionBlock',
+			'globalScreenContinueActionBlock',
 			'cmplActionBlock',
-			'actionblock',
-			'ACTIONBLOCK',
+			'CONTINUEACTIONBLOCK',
 		]) {
 			expect(isActionBlockKeyword(w)).toBe(true);
 		}
-		for (const w of ['continueButton', 'assert', 'block', 'actionblocks']) {
+		// the generic named block, and non-blocks
+		for (const w of [
+			'actionblock',
+			'ACTIONBLOCK',
+			'continueButton',
+			'assert',
+			'block',
+			'actionblocks',
+		]) {
 			expect(isActionBlockKeyword(w)).toBe(false);
 		}
-	});
-});
-
-describe('braceBlockExcerpt', () => {
-	const lines = [
-		'singleq q1;',
-		'continueActionBlock = {',
-		'\tset(x = 1);',
-		'\tif (x eq 1) {',
-		'\t\tset(y = 2);',
-		'\t};',
-		'};',
-		'assert ( x eq 1 );',
-	];
-
-	test('captures the balanced { … } block and stops at its close', () => {
-		const ex = braceBlockExcerpt(lines, 1);
-		expect(ex).toContain('continueActionBlock = {');
-		expect(ex).toContain('set(y = 2);');
-		expect(ex.trimEnd().endsWith('};')).toBe(true);
-		expect(ex).not.toContain('assert');
-	});
-
-	test('handles the brace opening on a later line', () => {
-		const ex = braceBlockExcerpt(['initActionBlock =', '{', 'clear(a);', '};'], 0);
-		expect(ex).toContain('clear(a);');
-		expect(ex.trimEnd().endsWith('};')).toBe(true);
-	});
-
-	test('returns "" when there is no block', () => {
-		expect(braceBlockExcerpt(['export = yes;', 'singleq q2;'], 0)).toBe('');
-	});
-
-	test('braces inside strings / comments are ignored', () => {
-		const ex = braceBlockExcerpt(
-			[
-				'continueActionBlock = {',
-				'\tsettext(t, "a { b } c"); // trailing } here',
-				'};',
-			],
-			0,
-		);
-		expect(ex.trimEnd().endsWith('};')).toBe(true);
-		expect(ex).toContain('settext(t, "a { b } c");');
 	});
 });
