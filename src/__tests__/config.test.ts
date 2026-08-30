@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import {
 	hoverEnabled,
 	hoverReferenceDetail,
-	codeLensEnabled,
+	codeLensDefinitions,
 	diagnosticsEnabled,
 } from '../infra/config';
 
@@ -26,14 +26,23 @@ describe('config toggles', () => {
 	test('default to true when unset', () => {
 		stubConfig({});
 		expect(hoverEnabled()).toBe(true);
-		expect(codeLensEnabled()).toBe(true);
 		expect(diagnosticsEnabled()).toBe(true);
 	});
 
 	test('honour an explicit false', () => {
-		stubConfig({ 'hover.enable': false, 'codeLens.enable': false });
+		stubConfig({ 'hover.enable': false });
 		expect(hoverEnabled()).toBe(false);
-		expect(codeLensEnabled()).toBe(false);
+	});
+
+	test('codeLens.definitions: default "reusable", known values pass, junk falls back', () => {
+		stubConfig({});
+		expect(codeLensDefinitions()).toBe('reusable');
+		for (const v of ['off', 'questions', 'reusable', 'all'] as const) {
+			stubConfig({ 'codeLens.definitions': v });
+			expect(codeLensDefinitions()).toBe(v);
+		}
+		stubConfig({ 'codeLens.definitions': 'nonsense' });
+		expect(codeLensDefinitions()).toBe('reusable');
 	});
 
 	test('hover.referenceDetail: default "summary", known values pass, junk falls back', () => {

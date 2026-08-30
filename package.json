@@ -102,10 +102,17 @@
           "default": "summary",
           "description": "How much a hover shows when pointing at a reference to a question or variable defined in the workspace. Requires 'gessq.hover.enable'."
         },
-        "gessq.codeLens.enable": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show the \"N references\" CodeLens above every definition. Turn off to hide the reference-count text."
+        "gessq.codeLens.definitions": {
+          "type": "string",
+          "enum": ["off", "questions", "reusable", "all"],
+          "enumDescriptions": [
+            "No \"N references\" CodeLens.",
+            "Only above question definitions (singleq, multiq, singlegridq, …, group).",
+            "Above questions plus the reusable building blocks: opennumformat, block / screen, #macro, quotavar.",
+            "Also above plain variables (compute, array / vararray / textarray, textelement, intrandom, databaseConnection). Never above set()/load() assignment targets."
+          ],
+          "default": "reusable",
+          "description": "Which definitions carry a \"N references\" CodeLens."
         },
         "gessq.completion.includeWorkspaceSymbols": {
           "type": "boolean",

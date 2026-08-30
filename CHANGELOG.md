@@ -37,6 +37,13 @@ Current version number is first:
   grammar; `onEnterRules` use the `indent` action key (the previous
   `indentAction` key was silently ignored, so auto-indent/outdent on Enter
   did nothing).
+- The "N references" CodeLens is now filtered by definition kind via
+  **`gessq.codeLens.definitions`** (`off` / `questions` / `reusable` /
+  `all`, default `reusable`) – questions plus the reusable building blocks
+  (opennumformat, block / screen, `#macro`, quotavar), and only with `all`
+  also plain variables (compute, array, textelement, …). `set()` / `load()`
+  assignment targets never get a lens. Replaces the boolean
+  `gessq.codeLens.enable` (use `off`).
 - `#ifdef` / `#ifndef` / `#else` / `#endif` are the preprocessor's, so they
   are now highlighted as directives even inside strings and inside embedded
   html / javascript / css. Folding of `#ifdef … #endif` inside a string

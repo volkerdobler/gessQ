@@ -107,6 +107,16 @@ export class DocumentHighlight {
 	) {}
 }
 
+export class CodeLens {
+	command?: unknown;
+	constructor(
+		public range: Range,
+		command?: unknown,
+	) {
+		this.command = command;
+	}
+}
+
 export class DocumentLink {
 	tooltip?: string;
 	constructor(

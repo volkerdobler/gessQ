@@ -1,9 +1,45 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { SymbolIndex, parseDocumentSymbols } from '../core/symbolIndex';
+import {
+	SymbolIndex,
+	parseDocumentSymbols,
+	type IndexedSymbol,
+} from '../core/symbolIndex';
 import { findReferences } from '../core/symbolSearch';
-import { codeLensEnabled } from '../infra/config';
+import {
+	codeLensDefinitions,
+	type CodeLensDefinitions,
+} from '../infra/config';
+
+/**
+ * Whether a "N references" CodeLens applies to `s` at the configured level.
+ * `set`/`load` assignment targets never get one (they repeat by design).
+ */
+export function lensApplies(
+	level: Exclude<CodeLensDefinitions, 'off'>,
+	s: IndexedSymbol,
+): boolean {
+	if (s.category === 'action') {
+		return false;
+	}
+	if (level === 'all') {
+		return true;
+	}
+	if (s.category === 'question') {
+		return true;
+	}
+	if (level === 'questions') {
+		return false;
+	}
+	// level === 'reusable'
+	return (
+		s.category === 'block' ||
+		s.category === 'macro' ||
+		s.category === 'quota' ||
+		(s.category === 'definition' && s.detail === 'opennumformat')
+	);
+}
 
 class SymbolCodeLens extends vscode.CodeLens {
 	constructor(
@@ -16,8 +52,9 @@ class SymbolCodeLens extends vscode.CodeLens {
 }
 
 /**
- * A "N references" lens above every question / opennumformat / block / macro /
- * action-target definition. The count is computed lazily in `resolveCodeLens`.
+ * A "N references" lens above definitions, filtered by
+ * `gessq.codeLens.definitions` (see {@link lensApplies}). The count is computed
+ * lazily in `resolveCodeLens`.
  */
 export class GessQCodeLensProvider implements vscode.CodeLensProvider {
 	private readonly changed = new vscode.EventEmitter<void>();
@@ -25,7 +62,7 @@ export class GessQCodeLensProvider implements vscode.CodeLensProvider {
 
 	constructor(private readonly index: SymbolIndex) {}
 
-	/** Re-query lenses, e.g. after `gessq.codeLens.enable` changed. */
+	/** Re-query lenses, e.g. after `gessq.codeLens.definitions` changed. */
 	public refresh(): void {
 		this.changed.fire();
 	}
@@ -38,12 +75,13 @@ export class GessQCodeLensProvider implements vscode.CodeLensProvider {
 		document: vscode.TextDocument,
 		token: vscode.CancellationToken,
 	): vscode.CodeLens[] {
-		if (token.isCancellationRequested || !codeLensEnabled()) {
+		const level = codeLensDefinitions();
+		if (token.isCancellationRequested || level === 'off') {
 			return [];
 		}
-		return parseDocumentSymbols(document).map(
-			(s) => new SymbolCodeLens(s.nameRange, document.uri, s.name),
-		);
+		return parseDocumentSymbols(document)
+			.filter((s) => lensApplies(level, s))
+			.map((s) => new SymbolCodeLens(s.nameRange, document.uri, s.name));
 	}
 
 	public async resolveCodeLens(

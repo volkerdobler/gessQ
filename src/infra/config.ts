@@ -26,12 +26,19 @@ export const hoverReferenceDetail = (): HoverReferenceDetail => {
 	return v === 'off' || v === 'definition' || v === 'full' ? v : 'summary';
 };
 
+/** Which definitions carry a "N references" CodeLens. */
+export type CodeLensDefinitions = 'off' | 'questions' | 'reusable' | 'all';
+
 /**
- * `gessq.codeLens.enable` – show the "N references" lens above every
- * definition.
+ * `gessq.codeLens.definitions` – `off` (no lens), `questions` (only question
+ * definitions), `reusable` (questions + opennumformat / block / screen /
+ * #macro / quotavar) or `all` (also compute / array / textelement / … –
+ * everything except `set`/`load` assignment targets).
  */
-export const codeLensEnabled = (): boolean =>
-	section().get<boolean>('codeLens.enable', true);
+export const codeLensDefinitions = (): CodeLensDefinitions => {
+	const v = section().get<string>('codeLens.definitions', 'reusable');
+	return v === 'off' || v === 'questions' || v === 'all' ? v : 'reusable';
+};
 
 /** `gessq.completion.includeWorkspaceSymbols`. */
 export const completionIncludesWorkspaceSymbols = (): boolean =>
