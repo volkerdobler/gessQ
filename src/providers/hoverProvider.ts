@@ -8,7 +8,11 @@ import {
 	formatEntryMarkdown,
 	type Glossary,
 } from '../data/glossary';
-import { SymbolIndex, parseDocumentSymbols } from '../core/symbolIndex';
+import {
+	SymbolIndex,
+	parseDocumentSymbols,
+	type IndexedSymbol,
+} from '../core/symbolIndex';
 import { hoverEnabled } from '../infra/config';
 
 /**
@@ -30,14 +34,97 @@ export function disambiguateKeyword(
 	return undefined;
 }
 
+/** Keywords that open a new top-level definition (and so end the previous one). */
+const DEF_BOUNDARY =
+	/^\s*(?:singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group|sliderq|compute|array|vararray|textelement|textarray|intrandom|opennumformat|quotavar|block|screen|page|chapter|endchapter|filter|endfilter|#\w+)\b/i;
+
+/** Attribute statements dropped from a definition excerpt (long / noisy). */
+const EXCERPT_OMIT = /^\s*(?:[a-z]*actionblock|javascript|jshandler|css)\s*=/i;
+
+/**
+ * Build a readable excerpt of a definition for a hover: the definition line
+ * plus its attribute statements, up to the next top-level definition, a blank
+ * line or `maxLines`. `actionblock` / `javascript` / `css` attributes are left
+ * out. String literals (which may span lines and contain anything) are tracked
+ * so their content is never mistaken for a boundary.
+ *
+ * @param lines full text of the file, split into lines
+ * @param start 0-based index of the definition line
+ */
+export function definitionExcerpt(
+	lines: string[],
+	start: number,
+	maxLines = 40,
+): string {
+	const out: string[] = [];
+	let inString: '"' | "'" | '' = '';
+	let omitting = false;
+	let truncated = false;
+
+	for (let i = start; i < lines.length; i++) {
+		const raw = lines[i];
+		const startedInString = inString !== '';
+
+		// Advance the string state across this line (a `//` outside a string
+		// starts a comment that runs to the end of the line).
+		let lineComment = false;
+		for (let c = 0; c < raw.length; c++) {
+			const ch = raw[c];
+			if (inString) {
+				if (ch === '\\') {
+					c++;
+				} else if (ch === inString) {
+					inString = '';
+				}
+			} else if (lineComment) {
+				break;
+			} else if (ch === '/' && raw[c + 1] === '/') {
+				lineComment = true;
+				c++;
+			} else if (ch === '"' || ch === "'") {
+				inString = ch as '"' | "'";
+			}
+		}
+
+		if (!startedInString && i > start) {
+			if (raw.trim() === '' || DEF_BOUNDARY.test(raw)) {
+				break;
+			}
+			if (EXCERPT_OMIT.test(raw)) {
+				omitting = true;
+			}
+		}
+
+		if (!omitting) {
+			if (out.length >= maxLines) {
+				truncated = true;
+				break;
+			}
+			out.push(raw.replace(/\s+$/, ''));
+		}
+
+		// An omitted attribute ends on the line whose `;` closes it.
+		if (omitting && !inString && /;\s*$/.test(raw)) {
+			omitting = false;
+		}
+	}
+
+	while (out.length && out[out.length - 1].trim() === '') {
+		out.pop();
+	}
+	return out.join('\n') + (truncated ? '\n…' : '');
+}
+
 /**
  * Hover for GESS Q.:
- * - a bare language keyword → the full glossary entry (heading, syntax,
- *   summary, handbook link);
- * - a name defined in the workspace → what it is (`NAME — question
- *   \`singleq\``), the definition location and a code preview, plus the
- *   command's short description and handbook link. On the definition line
- *   itself the locator and preview are dropped (the line is already visible).
+ * - the name in its own definition → nothing (hover the command keyword for
+ *   its documentation instead);
+ * - a language keyword → the full glossary entry (heading, syntax, summary,
+ *   handbook link);
+ * - a reference to a workspace symbol → what it is (`NAME — question
+ *   \`singleq\``), where it is defined, an excerpt of the definition (without
+ *   actionblock / javascript / css attributes), and the command's short
+ *   description + handbook link.
  */
 export class GessQHoverProvider implements vscode.HoverProvider {
 	constructor(
@@ -59,22 +146,38 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 			return null;
 		}
 
-		const md = new vscode.MarkdownString();
-		md.isTrusted = false;
-
-		const glossary = await loadGlossary(this.extensionUri);
-		const symbolPart = await this.symbolHover(
-			document,
-			position,
-			word,
-			glossary,
-		);
+		await this.index.ready;
 		if (token.isCancellationRequested) {
 			return null;
 		}
 
-		if (symbolPart) {
-			md.appendMarkdown(symbolPart);
+		const lower = word.toLowerCase();
+		const localDefs = parseDocumentSymbols(document).filter(
+			(s) => s.lower === lower,
+		);
+
+		// The name in its own definition: show nothing.
+		if (localDefs.some((s) => s.nameRange.contains(position))) {
+			return null;
+		}
+
+		const glossary = await loadGlossary(this.extensionUri);
+		const md = new vscode.MarkdownString();
+		md.isTrusted = false;
+
+		const onDefLine = localDefs.some((s) => s.lineRange.contains(position));
+		const here = document.uri.toString();
+		const defs = onDefLine
+			? []
+			: [
+					...localDefs,
+					...this.index
+						.definitionsOf(word)
+						.filter((s) => s.uri.toString() !== here),
+				];
+
+		if (defs.length > 0) {
+			md.appendMarkdown(await this.symbolExcerpt(defs[0], glossary));
 		} else {
 			const lineText = document.lineAt(position.line).text;
 			const entry =
@@ -87,70 +190,43 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 			}
 		}
 
+		if (token.isCancellationRequested) {
+			return null;
+		}
 		return md.value.length > 0 ? new vscode.Hover(md) : null;
 	}
 
-	private async symbolHover(
-		document: vscode.TextDocument,
-		position: vscode.Position,
-		word: string,
+	/** Heading + definition excerpt + command description for a symbol hover. */
+	private async symbolExcerpt(
+		d: IndexedSymbol,
 		glossary: Glossary,
-	): Promise<string | undefined> {
-		const lower = word.toLowerCase();
-		await this.index.ready;
+	): Promise<string> {
+		const where =
+			vscode.workspace.asRelativePath(d.uri) +
+			':' +
+			(d.nameRange.start.line + 1);
+		const head =
+			'**' + d.name + '** — ' + d.category + ' `' + d.detail + '` · ' + where;
 
-		const here = document.uri.toString();
-		const local = parseDocumentSymbols(document).filter(
-			(s) => s.lower === lower,
-		);
-
-		const defs = [
-			...local,
-			...this.index
-				.definitionsOf(word)
-				.filter((s) => s.uri.toString() !== here),
-		];
-		if (defs.length === 0) {
-			return undefined;
+		let excerpt = '';
+		try {
+			const doc = await vscode.workspace.openTextDocument(d.uri);
+			excerpt = definitionExcerpt(
+				doc.getText().split(/\r?\n/),
+				d.nameRange.start.line,
+			);
+		} catch {
+			/* ignore */
 		}
 
-		const d = defs[0];
-
-		// A short description of the underlying command plus its handbook link,
-		// pulled from the glossary entry for the keyword (`d.detail`).
 		const kw = lookupEntry(glossary, d.detail);
 		const kwDoc = kw
 			? (kw.summary ? kw.summary + '\n\n' : '') + kw.detail
 			: '';
 
-		const head =
-			'**' + d.name + '** — ' + d.category + ' `' + d.detail + '`';
-
-		// Standing anywhere on a line that defines this word: the definition is
-		// right there, so skip the "defined at …:N" locator and the code
-		// preview (they only repeat the visible line) – keep the command
-		// description and link.
-		if (local.some((s) => s.lineRange.contains(position))) {
-			return kwDoc ? head + '\n\n' + kwDoc : undefined;
-		}
-
-		const where =
-			vscode.workspace.asRelativePath(d.uri) +
-			':' +
-			(d.nameRange.start.line + 1);
-		let preview = '';
-		try {
-			const doc = await vscode.workspace.openTextDocument(d.uri);
-			preview = doc.lineAt(d.nameRange.start.line).text.trim();
-		} catch {
-			/* ignore */
-		}
-
 		return (
 			head +
-			' · ' +
-			where +
-			(preview ? '\n\n```gessq\n' + preview + '\n```' : '') +
+			(excerpt ? '\n\n```gessq\n' + excerpt + '\n```' : '') +
 			(kwDoc ? '\n\n' + kwDoc : '')
 		);
 	}

@@ -19,12 +19,16 @@ Current version number is first:
   NumQ / GNumQ / SliderQ labels (`… format NAME`).
 - Hover on `single` in `single = yes|no;` now shows the Group single-choice
   attribute instead of the (unrelated) exclusive-answer label attribute.
-- Hover on a workspace symbol is tidier: it shows what the name is
-  (`NAME — question \`singleq\``), the definition location + code preview,
-  and the command's short description + handbook link – no longer the full
-  keyword glossary block stacked on top (which repeated the name, e.g. a
-  question named `SingleQ`). On the definition line itself the location and
-  preview are dropped, since the line is already on screen.
+- Hover rework:
+  - on the name in its own definition: nothing (hover the command keyword,
+    e.g. `singleq`, for its documentation);
+  - on a language keyword: the glossary entry as before;
+  - on a reference to a question / variable: what it is
+    (`NAME — question \`singleq\``), where it is defined, and an **excerpt of
+    the definition** – the `singleq` line plus `text` / `title` / `labels` /
+    `flt` / `assert` …, up to the next definition; `actionblock`,
+    `javascript` and `css` attributes are left out. Plus the command's short
+    description and handbook link.
 - `language-configuration.json`: `wordPattern` aligned with the parser
   grammar; `onEnterRules` use the `indent` action key (the previous
   `indentAction` key was silently ignored, so auto-indent/outdent on Enter
