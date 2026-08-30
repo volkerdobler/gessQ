@@ -138,4 +138,50 @@ describe('duplicate definitions across #ifdef branches', () => {
 		);
 		expect(msgs.filter((m) => m.includes('Duplicate'))).toHaveLength(1);
 	});
+
+	// `#ifdef [X Y]` = X OR Y; stacked `#ifdef X` / `#ifdef Y` = X AND Y.
+	test('#ifdef [X Y] vs #ifndef [X Y] are mutually exclusive → no error', () => {
+		expect(
+			hasDuplicate(
+				'#ifdef [X Y]\nblock b = ( q );\n#endif\n' +
+					'#ifndef [X Y]\nblock b = ( q );\n#endif\n',
+			),
+		).toBe(false);
+	});
+
+	test('#ifdef [X Y] vs #ifndef X only → error (Y could still make both fire)', () => {
+		expect(
+			hasDuplicate(
+				'#ifdef [X Y]\nblock b = ( q );\n#endif\n' +
+					'#ifndef X\nblock b = ( q );\n#endif\n',
+			),
+		).toBe(true);
+	});
+
+	test('#ifdef X AND #ifdef Y vs #ifndef [X Y] → error-free (X clashes)', () => {
+		expect(
+			hasDuplicate(
+				'#ifdef X\n#ifdef Y\nblock b = ( q );\n#endif\n#endif\n' +
+					'#ifndef [X Y]\nblock b = ( q );\n#endif\n',
+			),
+		).toBe(false);
+	});
+
+	test('#ifdef X vs #ifdef [X Y] → error (X defined lights up both)', () => {
+		expect(
+			hasDuplicate(
+				'#ifdef X\nblock b = ( q );\n#endif\n' +
+					'#ifdef [X Y]\nblock b = ( q );\n#endif\n',
+			),
+		).toBe(true);
+	});
+
+	test('#else of #ifdef [X Y] means neither X nor Y', () => {
+		expect(
+			hasDuplicate(
+				'#ifdef [X Y]\nblock b = ( q );\n#else\nblock b = ( q );\n#endif\n' +
+					'#ifdef X\nblock b = ( q );\n#endif\n',
+			),
+		).toBe(true); // 1st vs 3rd: [X∨Y] vs [X] – X lights both
+	});
 });

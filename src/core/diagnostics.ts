@@ -135,21 +135,39 @@ function checkDirectiveNesting(
 }
 
 /**
- * One `#ifdef` / `#ifndef` guard. `negated` is `true` for `#ifndef` (and for
- * the `#else` branch of an `#ifdef`), i.e. "this symbol is *not* defined".
+ * One `#ifdef` / `#ifndef` guard.
+ *
+ * - `#ifdef X`      → `{ syms: ['x'], negated: false }`  – X defined
+ * - `#ifdef [X Y]`  → `{ syms: ['x','y'], negated: false }` – X **or** Y defined
+ * - `#ifndef X`     → `{ syms: ['x'], negated: true }`   – X not defined
+ * - `#ifndef [X Y]` → `{ syms: ['x','y'], negated: true }` – neither X nor Y
+ *
+ * Stacked guards are AND-combined; `#else` flips `negated`.
  */
 interface Guard {
-	sym: string;
+	syms: string[];
 	negated: boolean;
 }
 
 const COND_RE =
-	/(?<!\w)#(ifdef|ifndef|else|endif)\b(?:\s+([A-Za-zÄÖÜäöüß_$][\w$]*))?/gi;
+	/(?<!\w)#(ifdef|ifndef|else|endif)\b(?:\s*(\[[^\]\n]*\]|[A-Za-zÄÖÜäöüß_$][\w$]*))?/gi;
+
+/** `X` / `[X Y]` / `[X, Y]` → lowercased symbol list. */
+function parseGuardSyms(arg: string | undefined): string[] {
+	if (!arg) {
+		return [];
+	}
+	const inner = arg.startsWith('[') ? arg.slice(1, -1) : arg;
+	return inner
+		.split(/[\s,]+/)
+		.map((s) => s.trim().toLowerCase())
+		.filter((s) => s.length > 0);
+}
 
 /**
  * The conditional-compilation guard stack in effect at the *start* of every
- * line (index = line number). `#else` flips the top guard rather than mutating
- * it in place, so earlier snapshots stay valid.
+ * line (index = line number). `#else` replaces the top guard with a flipped
+ * copy rather than mutating it, so earlier snapshots stay valid.
  */
 function guardStacksByLine(document: vscode.TextDocument): Guard[][] {
 	const perLine: Guard[][] = [];
@@ -167,14 +185,14 @@ function guardStacksByLine(document: vscode.TextDocument): Guard[][] {
 			const kw = m[1].toLowerCase();
 			if (kw === 'ifdef' || kw === 'ifndef') {
 				stack.push({
-					sym: (m[2] ?? '').toLowerCase(),
+					syms: parseGuardSyms(m[2]),
 					negated: kw === 'ifndef',
 				});
 			} else if (kw === 'else') {
 				const top = stack[stack.length - 1];
 				if (top) {
 					stack[stack.length - 1] = {
-						sym: top.sym,
+						syms: top.syms,
 						negated: !top.negated,
 					};
 				}
@@ -187,17 +205,67 @@ function guardStacksByLine(document: vscode.TextDocument): Guard[][] {
 }
 
 /**
- * Two definitions cannot both be compiled in when one is guarded by
- * `#ifdef X` and the other by `#ifndef X` (same symbol, opposite polarity) –
- * anywhere in their guard stacks. Any other combination *might* both be
- * active (the `#define`s can come from outside), so it is treated as a clash.
+ * Is the AND of `guards` unsatisfiable? Each guard is a CNF fragment: a
+ * positive guard `{[X Y], false}` is the clause `(X ∨ Y)` (a bare `#ifdef X`
+ * a unit `X`); a negated guard `{[X Y], true}` is the units `¬X`, `¬Y`. The
+ * only negative literals are units, so unit propagation is a *complete*
+ * UNSAT test for this class.
+ */
+function contradictory(guards: Guard[]): boolean {
+	const mustBeTrue = new Set<string>();
+	const mustBeFalse = new Set<string>();
+	let clauses: string[][] = [];
+
+	for (const g of guards) {
+		const syms = g.syms.filter((s) => s !== '');
+		if (g.negated) {
+			for (const s of syms) {
+				mustBeFalse.add(s);
+			}
+		} else if (syms.length === 1) {
+			mustBeTrue.add(syms[0]);
+		} else if (syms.length > 1) {
+			clauses.push(syms);
+		}
+	}
+
+	for (let changed = true; changed; ) {
+		changed = false;
+		for (const s of mustBeTrue) {
+			if (mustBeFalse.has(s)) {
+				return true;
+			}
+		}
+		const next: string[][] = [];
+		for (const c of clauses) {
+			const open = c.filter((s) => !mustBeFalse.has(s));
+			if (open.length === 0) {
+				return true; // every literal ruled out
+			}
+			if (open.some((s) => mustBeTrue.has(s))) {
+				changed = true; // clause satisfied, drop it
+				continue;
+			}
+			if (open.length === 1) {
+				mustBeTrue.add(open[0]);
+				changed = true;
+				continue;
+			}
+			next.push(open);
+		}
+		clauses = next;
+	}
+	return false;
+}
+
+/**
+ * Two definitions cannot both be compiled in when the AND of their `#ifdef` /
+ * `#ifndef` guards is unsatisfiable (e.g. `#ifdef X` vs `#ifndef X`). Anything
+ * that *might* both be active – the `#define`s can come from outside – counts
+ * as a clash.
  */
 function mutuallyExclusive(a: Guard[], b: Guard[]): boolean {
-	return a.some((ga) =>
-		b.some(
-			(gb) => ga.sym !== '' && ga.sym === gb.sym && ga.negated !== gb.negated,
-		),
-	);
+	return contradictory([...a, ...b]);
 }
 
 /**
