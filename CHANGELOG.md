@@ -33,6 +33,10 @@ Current version number is first:
   grammar; `onEnterRules` use the `indent` action key (the previous
   `indentAction` key was silently ignored, so auto-indent/outdent on Enter
   did nothing).
+- `#ifdef` / `#ifndef` / `#else` / `#endif` are the preprocessor's, so they
+  are now highlighted as directives even inside strings and inside embedded
+  html / javascript / css. Folding of `#ifdef … #endif` inside a string
+  already worked and is now covered by a test.
 
 ### 0.99.0 — 2026-08-29
 

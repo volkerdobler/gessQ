@@ -22,6 +22,9 @@
             },
             "patterns": [
                 {
+                    "include": "#preprocessorConditional"
+                },
+                {
                     "include": "source.js"
                 }
             ]
@@ -37,6 +40,9 @@
             },
             "patterns": [
                 {
+                    "include": "#preprocessorConditional"
+                },
+                {
                     "include": "source.css"
                 }
             ]
@@ -51,6 +57,9 @@
                 }
             },
             "patterns": [
+                {
+                    "include": "#preprocessorConditional"
+                },
                 {
                     "include": "text.html.basic"
                 }
@@ -111,6 +120,9 @@
             },
             "patterns": [
                 {
+                    "include": "#preprocessorConditional"
+                },
+                {
                     "match": "\\\\.",
                     "name": "constant.character.escape.gessQ"
                 }
@@ -132,6 +144,9 @@
             },
             "patterns": [
                 {
+                    "include": "#preprocessorConditional"
+                },
+                {
                     "match": "\\\\.",
                     "name": "constant.character.escape.gessQ"
                 }
@@ -141,5 +156,12 @@
             "match": "(?i:(?<![\\.\\d\\w])\\d+(\\.\\d+)?(e\\d+)?(?![\\.\\d\\w]))",
             "name": "constant.numeric.decimal"
         }
-    ]
+    ],
+    "repository": {
+        "preprocessorConditional": {
+            "comment": "#ifdef / #ifndef / #else / #endif are resolved by a preprocessor before parsing and take effect even inside strings, so they stay highlighted there (and inside embedded html/js/css).",
+            "match": "\\B(?i:(#ifn?def|#else|#endif))\\b",
+            "name": "entity.other.attribute-name.gessQ"
+        }
+    }
 }
