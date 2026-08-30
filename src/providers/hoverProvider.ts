@@ -6,6 +6,7 @@ import {
 	loadGlossary,
 	lookupEntry,
 	formatEntryMarkdown,
+	type Glossary,
 } from '../data/glossary';
 import { SymbolIndex, parseDocumentSymbols } from '../core/symbolIndex';
 import { hoverEnabled } from '../infra/config';
@@ -30,9 +31,13 @@ export function disambiguateKeyword(
 }
 
 /**
- * Hover for GESS Q.: a glossary description for language keywords, and – for
- * names defined in the workspace – the definition location plus a short code
- * preview.
+ * Hover for GESS Q.:
+ * - a bare language keyword → the full glossary entry (heading, syntax,
+ *   summary, handbook link);
+ * - a name defined in the workspace → what it is (`NAME — question
+ *   \`singleq\``), the definition location and a code preview, plus the
+ *   command's short description and handbook link. On the definition line
+ *   itself the locator and preview are dropped (the line is already visible).
  */
 export class GessQHoverProvider implements vscode.HoverProvider {
 	constructor(
@@ -57,19 +62,20 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		const md = new vscode.MarkdownString();
 		md.isTrusted = false;
 
-		const symbolPart = await this.symbolHover(document, position, word);
+		const glossary = await loadGlossary(this.extensionUri);
+		const symbolPart = await this.symbolHover(
+			document,
+			position,
+			word,
+			glossary,
+		);
 		if (token.isCancellationRequested) {
 			return null;
 		}
 
 		if (symbolPart) {
-			// A workspace symbol wins: showing the generic keyword glossary on
-			// top would just repeat the name/keyword (e.g. a question named
-			// `SingleQ`). The keyword doc is one hover away on the keyword
-			// itself.
 			md.appendMarkdown(symbolPart);
 		} else {
-			const glossary = await loadGlossary(this.extensionUri);
 			const lineText = document.lineAt(position.line).text;
 			const entry =
 				lookupEntry(
@@ -88,6 +94,7 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		document: vscode.TextDocument,
 		position: vscode.Position,
 		word: string,
+		glossary: Glossary,
 	): Promise<string | undefined> {
 		const lower = word.toLowerCase();
 		await this.index.ready;
@@ -96,13 +103,6 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		const local = parseDocumentSymbols(document).filter(
 			(s) => s.lower === lower,
 		);
-
-		// Standing anywhere on a line that defines this word – the definition
-		// is right there, so a "defined here" block plus a preview of the very
-		// line under the cursor only repeats what is already visible.
-		if (local.some((s) => s.lineRange.contains(position))) {
-			return undefined;
-		}
 
 		const defs = [
 			...local,
@@ -115,6 +115,25 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		}
 
 		const d = defs[0];
+
+		// A short description of the underlying command plus its handbook link,
+		// pulled from the glossary entry for the keyword (`d.detail`).
+		const kw = lookupEntry(glossary, d.detail);
+		const kwDoc = kw
+			? (kw.summary ? kw.summary + '\n\n' : '') + kw.detail
+			: '';
+
+		const head =
+			'**' + d.name + '** — ' + d.category + ' `' + d.detail + '`';
+
+		// Standing anywhere on a line that defines this word: the definition is
+		// right there, so skip the "defined at …:N" locator and the code
+		// preview (they only repeat the visible line) – keep the command
+		// description and link.
+		if (local.some((s) => s.lineRange.contains(position))) {
+			return kwDoc ? head + '\n\n' + kwDoc : undefined;
+		}
+
 		const where =
 			vscode.workspace.asRelativePath(d.uri) +
 			':' +
@@ -128,15 +147,11 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		}
 
 		return (
-			'**' +
-			d.name +
-			'** — ' +
-			d.category +
-			' `' +
-			d.detail +
-			'` · ' +
+			head +
+			' · ' +
 			where +
-			(preview ? '\n\n```gessq\n' + preview + '\n```' : '')
+			(preview ? '\n\n```gessq\n' + preview + '\n```' : '') +
+			(kwDoc ? '\n\n' + kwDoc : '')
 		);
 	}
 }
