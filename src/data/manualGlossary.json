@@ -620,7 +620,7 @@
 	"backactionblock": {
 		"short": "BackActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#backactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "backActionBlock = { … };",
 		"summary": "Wird beim Klick auf den Zurück-Button ausgeführt."
 	},
 	"backbutton": {
@@ -861,7 +861,7 @@
 	"changelanguageactionblock": {
 		"short": "ChangeLanguageActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#changelanguageactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "changeLanguageActionBlock = { … };",
 		"summary": "Wird beim Wechsel zwischen Sprachdateien ausgeführt (readTextRessource darin führt zur Endlosschleife)."
 	},
 	"changelogcondition": {
@@ -936,7 +936,7 @@
 	"cmplactionblock": {
 		"short": "CmplActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#cmplactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "cmplActionBlock = { … };",
 		"summary": "Wird ausgeführt, wenn ein Interview beendet wird – unabhängig vom Status."
 	},
 	"codieren": {
@@ -987,7 +987,7 @@
 	"continueactionblock": {
 		"short": "ContinueActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#continueactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "continueActionBlock = { … };",
 		"summary": "Wird nach erfolgreicher Validierung einer Frage (vor dem Weiterleiten) bzw. beim Verlassen eines Blocks ausgeführt."
 	},
 	"continuebutton": {
@@ -1726,13 +1726,13 @@
 	"globalbackactionblock": {
 		"short": "GlobalBackActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#globalbackactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "globalBackActionBlock = { … };",
 		"summary": "Wie BackActionBlock, aber einmal definiert und automatisch bei jeder Frage."
 	},
 	"globalcontinueactionblock": {
 		"short": "GlobalContinueActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#globalcontinueactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "globalContinueActionBlock = { … };",
 		"summary": "Wie ContinueActionBlock, aber einmal definiert und automatisch bei jeder Frage – vor den lokalen Action-Blöcken."
 	},
 	"globale-skriptparameter": {
@@ -1743,37 +1743,37 @@
 	"globalinitactionblock": {
 		"short": "GlobalInitActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#globalinitactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "globalInitActionBlock = { … };",
 		"summary": "Wie InitActionBlock, aber einmal definiert und automatisch vor jeder Frage – vor den lokalen Action-Blöcken."
 	},
 	"globalpreassertionactionblock": {
 		"short": "GlobalPreAssertionActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#globalpreassertionactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "globalPreAssertionActionBlock = { … };",
 		"summary": "Wie PreAssertionActionBlock, aber einmal definiert und automatisch bei jeder Frage."
 	},
 	"globalscreenbackactionblock": {
 		"short": "GlobalScreenBackActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#globalbackactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "globalScreenBackActionBlock = { … };",
 		"summary": "Wird bei Klick auf den Zurück-Button auf Screen-Ebene ausgeführt."
 	},
 	"globalscreencontinueactionblock": {
 		"short": "GlobalScreenContinueActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#globalscreencontinueactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "globalScreenContinueActionBlock = { … };",
 		"summary": "Wird nach erfolgreicher Validierung jedes Screens (vor dem Weiterleiten) ausgeführt."
 	},
 	"globalscreeninitactionblock": {
 		"short": "GlobalScreenInitActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#globalscreeninitactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "globalScreenInitActionBlock = { … };",
 		"summary": "Wird unmittelbar vor dem Anzeigen jedes Screens ausgeführt."
 	},
 	"globalscreenpreassertionactionblock": {
 		"short": "GlobalScreenPreAssertionActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#globalscreenpreassertionactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "globalScreenPreAssertionActionBlock = { … };",
 		"summary": "Wird nach Klick auf „weiter\", vor dem Prüfen der asserts, auf Screen-Ebene ausgeführt."
 	},
 	"gnumq": {
@@ -2108,7 +2108,7 @@
 	"initactionblock": {
 		"short": "InitActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#initactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "initActionBlock = { … };",
 		"summary": "Wird unmittelbar vor dem Anzeigen einer Frage bzw. beim Betreten eines Blocks ausgeführt."
 	},
 	"input-html-parameter": {
@@ -2888,7 +2888,7 @@
 	"preassertionactionblock": {
 		"short": "PreAssertionActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#preassertionactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "preAssertionActionBlock = { … };",
 		"summary": "Wird nach Klick auf „weiter\", aber vor dem Prüfen der asserts ausgeführt."
 	},
 	"preinterviewerhelptext": {
@@ -3156,7 +3156,7 @@
 	"resumeactionblock": {
 		"short": "ResumeActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#resumeactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "resumeActionBlock = { … };",
 		"summary": "Wird bei Wiederaufnahme eines nach Timeout unterbrochenen Interviews ausgeführt."
 	},
 	"robot": {
@@ -3525,7 +3525,7 @@
 	"startactionblock": {
 		"short": "StartActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#startactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "startActionBlock = { … };",
 		"summary": "Wird einmalig zu Beginn eines Interviews ausgeführt."
 	},
 	"startlinks": {
@@ -3701,7 +3701,7 @@
 	"timeoutactionblock": {
 		"short": "TimeoutActionBlock",
 		"detail": "https://help.gessgroup.de/q-help/13_00_action-befehle-und--bloecke.html#timeoutactionblock",
-		"syntax": "NAME = { … };",
+		"syntax": "timeoutActionBlock = { … };",
 		"summary": "Wird ausgeführt, bevor ein Interview wegen zu langer Inaktivität unterbrochen wird."
 	},
 	"timeoutcheckinterval": {

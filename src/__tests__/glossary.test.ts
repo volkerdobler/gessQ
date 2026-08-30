@@ -75,6 +75,16 @@ describe('manualGlossary.json coverage', () => {
 		expect(missing).toEqual([]);
 	});
 
+	test('*ActionBlock syntax hints use the keyword, not a "NAME" placeholder', () => {
+		const bad = Object.entries(glossary)
+			.filter(
+				([k]) => k.endsWith('actionblock') && k !== 'actionblock',
+			)
+			.filter(([, e]) => !e.syntax || /\bNAME\b/.test(e.syntax))
+			.map(([k]) => k);
+		expect(bad).toEqual([]);
+	});
+
 	test('every resolved entry has a summary', () => {
 		const noSummary = ALL_KEYWORDS.filter((kw) => {
 			const e = lookupEntry(glossary, kw);

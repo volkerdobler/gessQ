@@ -29,9 +29,10 @@ export interface GlossaryEntry {
 export function formatEntryMarkdown(
 	word: string,
 	entry: GlossaryEntry,
+	opts: { includeSyntax?: boolean } = {},
 ): string {
 	const parts = ['**' + word + '** — ' + entry.short];
-	if (entry.syntax) {
+	if (entry.syntax && opts.includeSyntax !== false) {
 		parts.push('```gessq\n' + entry.syntax + '\n```');
 	}
 	if (entry.summary) {
