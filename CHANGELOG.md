@@ -17,9 +17,10 @@ Current version number is first:
   `gessq.releaseNotes.showOnUpdate: false`). Re-open any time with the
   command **GESS Q.: Release Notes anzeigen** (`gessq.showReleaseNotes`);
   **GESS Q.: Release-Notes-Status zurücksetzen**
-  (`gessq.resetReleaseNotesState`) makes the auto-show fire again on the
-  next window reload. Add a `release-notes/<version>.md` per release – it
-  ships in the `.vsix`.
+  (`gessq.resetReleaseNotesState`, only registered / shown outside a
+  Production build) makes the auto-show fire again on the next window
+  reload. Add a `release-notes/<version>.md` per release – it ships in the
+  `.vsix`.
 
 - The symbol index is now the **project**, not "every `.q` file around":
   `script.q` (exactly that name) plus its transitive `#include` /

@@ -39,10 +39,18 @@
       },
       {
         "command": "gessq.resetReleaseNotesState",
-        "title": "Release-Notes-Status zurücksetzen",
+        "title": "Release-Notes-Status zurücksetzen (Entwicklung)",
         "category": "GESS Q."
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "gessq.resetReleaseNotesState",
+          "when": "gessq.devMode"
+        }
+      ]
+    },
     "languages": [
       {
         "id": "gessq",

@@ -64,6 +64,8 @@ async function openNotes(uri: vscode.Uri): Promise<void> {
  */
 export function activateReleaseNotes(context: vscode.ExtensionContext): void {
 	const version = String(context.extension.packageJSON.version ?? '');
+	const devMode =
+		context.extensionMode !== vscode.ExtensionMode.Production;
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
@@ -79,18 +81,26 @@ export function activateReleaseNotes(context: vscode.ExtensionContext): void {
 				}
 			},
 		),
-		vscode.commands.registerCommand(
-			RESET_RELEASE_NOTES_COMMAND,
-			async () => {
-				await context.globalState.update(SHOWN_KEY, undefined);
-				void vscode.window.showInformationMessage(
-					'GESS Q.: Release-Notes-Status zurückgesetzt – nach ' +
-						'„Developer: Reload Window" erscheinen die Release Notes ' +
-						'wieder automatisch.',
-				);
-			},
-		),
 	);
+
+	// Development / test only – gates the palette entry (see the
+	// `menus.commandPalette` "when" in package.json) and the handler itself.
+	void vscode.commands.executeCommand('setContext', 'gessq.devMode', devMode);
+	if (devMode) {
+		context.subscriptions.push(
+			vscode.commands.registerCommand(
+				RESET_RELEASE_NOTES_COMMAND,
+				async () => {
+					await context.globalState.update(SHOWN_KEY, undefined);
+					void vscode.window.showInformationMessage(
+						'GESS Q.: Release-Notes-Status zurückgesetzt – nach ' +
+							'„Developer: Reload Window" erscheinen die Release ' +
+							'Notes wieder automatisch.',
+					);
+				},
+			),
+		);
+	}
 
 	if (
 		!releaseNotesOnUpdate() ||

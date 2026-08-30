@@ -84,9 +84,9 @@ sie ersetzt die alte.
 - **„Was ist neu?"** – nach einer Installation oder einem Update öffnet sich
   einmalig die Release-Notes-Seite der neuen Version (falls vorhanden;
   abschaltbar über `gessq.releaseNotes.showOnUpdate`). Jederzeit erneut über
-  die Befehlspalette (`Strg+Shift+P`): **GESS Q.: Release Notes anzeigen**
-  – bzw. **… Release-Notes-Status zurücksetzen**, damit die einmalige
-  Anzeige beim nächsten Fensterneustart wieder erscheint.
+  die Befehlspalette (`Strg+Shift+P`): **GESS Q.: Release Notes anzeigen**.
+  (Der Entwicklungsbefehl **… Release-Notes-Status zurücksetzen** erscheint
+  nur in der Testumgebung, nicht in veröffentlichten Builds.)
 
 ## Einstellungen
 
