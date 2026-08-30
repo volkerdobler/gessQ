@@ -9,6 +9,7 @@ import {
 	refreshLogLevelFromConfig,
 	info,
 } from './infra/logger';
+import { activateReleaseNotes } from './infra/releaseNotes';
 import {
 	GessQCompletionProvider,
 	GessQHoverProvider,
@@ -49,6 +50,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(index);
 
 	registerRevealLocation(context);
+	activateReleaseNotes(context);
 
 	const { extensionUri } = context;
 	const formatter = new GessQFormattingProvider();

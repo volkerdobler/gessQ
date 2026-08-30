@@ -81,6 +81,11 @@ sie ersetzt die alte.
 - **Automatische Einrückung** – nur auf Befehl (**Dokument formatieren**),
   richtet die Einrückung nach der `{`/`(`-Verschachtelung aus. Experimentell.
 
+- **„Was ist neu?"** – nach einer Installation oder einem Update öffnet sich
+  einmalig die Release-Notes-Seite der neuen Version (falls vorhanden).
+  Jederzeit erneut über die Befehlspalette (`Strg+Shift+P`):
+  **GESS Q.: Release Notes anzeigen**.
+
 ## Einstellungen
 
 Über *Datei → Einstellungen → Einstellungen* nach „GESS Q.“ suchen, oder in der

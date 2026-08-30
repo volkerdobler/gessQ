@@ -31,6 +31,13 @@
   "main": "./out/extension.js",
   "icon": "images/gessQ_icon.png",
   "contributes": {
+    "commands": [
+      {
+        "command": "gessq.showReleaseNotes",
+        "title": "Release Notes anzeigen",
+        "category": "GESS Q."
+      }
+    ],
     "languages": [
       {
         "id": "gessq",

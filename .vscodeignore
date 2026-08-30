@@ -1,7 +1,7 @@
 # Files excluded from the packaged .vsix.
 # What ships: out/extension.js, out/manualGlossary.json, language/,
-# language-configuration.json, images/, README.md, CHANGELOG.md,
-# package.json, LICENSE.
+# language-configuration.json, images/, release-notes/, README.md,
+# CHANGELOG.md, package.json, LICENSE.
 
 .vscode/**
 .github/**
