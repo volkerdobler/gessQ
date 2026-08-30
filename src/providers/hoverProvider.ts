@@ -61,20 +61,24 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		if (token.isCancellationRequested) {
 			return null;
 		}
-		if (symbolPart) {
-			md.appendMarkdown(symbolPart);
-		}
 
-		const glossary = await loadGlossary(this.extensionUri);
-		const lineText = document.lineAt(position.line).text;
-		const entry =
-			lookupEntry(glossary, disambiguateKeyword(word, lineText) ?? word) ??
-			lookupEntry(glossary, word);
-		if (entry) {
-			if (symbolPart) {
-				md.appendMarkdown('\n\n---\n\n');
+		if (symbolPart) {
+			// A workspace symbol wins: showing the generic keyword glossary on
+			// top would just repeat the name/keyword (e.g. a question named
+			// `SingleQ`). The keyword doc is one hover away on the keyword
+			// itself.
+			md.appendMarkdown(symbolPart);
+		} else {
+			const glossary = await loadGlossary(this.extensionUri);
+			const lineText = document.lineAt(position.line).text;
+			const entry =
+				lookupEntry(
+					glossary,
+					disambiguateKeyword(word, lineText) ?? word,
+				) ?? lookupEntry(glossary, word);
+			if (entry) {
+				md.appendMarkdown(formatEntryMarkdown(word, entry));
 			}
-			md.appendMarkdown(formatEntryMarkdown(word, entry));
 		}
 
 		return md.value.length > 0 ? new vscode.Hover(md) : null;
@@ -93,9 +97,10 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 			(s) => s.lower === lower,
 		);
 
-		// Standing on the name in its own definition – the line itself is
-		// already visible, so a "defined here" hover adds nothing.
-		if (local.some((s) => s.nameRange.contains(position))) {
+		// Standing anywhere on a line that defines this word – the definition
+		// is right there, so a "defined here" block plus a preview of the very
+		// line under the cursor only repeats what is already visible.
+		if (local.some((s) => s.lineRange.contains(position))) {
 			return undefined;
 		}
 
