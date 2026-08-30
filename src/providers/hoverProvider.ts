@@ -25,15 +25,21 @@ import {
  * to the plain lowercase lookup.
  *
  * - `single = yes|no;` on its own is the Group attribute (single choice for a
- *   group); as a bare token after a label it is the exclusive-answer label
- *   attribute. The handbook only indexes the latter.
+ *   group); a bare token after a label is the exclusive-answer label
+ *   attribute (the plain `single` key).
+ * - `flt = ( … );` on its own is the question filter (plain `flt` key);
+ *   `… flt ( … )` after a label restricts that label (`flt-label`).
  */
 export function disambiguateKeyword(
 	word: string,
 	lineText: string,
 ): string | undefined {
-	if (word.toLowerCase() === 'single' && /^\s*single\s*=/i.test(lineText)) {
+	const w = word.toLowerCase();
+	if (w === 'single' && /^\s*single\s*=/i.test(lineText)) {
 		return 'single-group';
+	}
+	if (w === 'flt' && !/^\s*flt\s*=/i.test(lineText) && /\bflt\s*\(/i.test(lineText)) {
+		return 'flt-label';
 	}
 	return undefined;
 }

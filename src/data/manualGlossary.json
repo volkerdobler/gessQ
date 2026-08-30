@@ -1582,10 +1582,16 @@
 		"summary": "Labelattribut: die Position dieses Labels bleibt bei random unverändert."
 	},
 	"flt": {
-		"short": "flt",
+		"short": "flt (Frageattribut)",
+		"detail": "https://help.gessgroup.de/q-help/03_00_fragedefinitionenen.html",
+		"syntax": "flt = ( BEDINGUNG );",
+		"summary": "Frageattribut: die Frage wird nur gestellt, wenn BEDINGUNG wahr ist. Nicht zu verwechseln mit dem Label-Filter `1 \"…\" flt ( … )`."
+	},
+	"flt-label": {
+		"short": "flt (Label-Filter)",
 		"detail": "https://help.gessgroup.de/q-help/03_02_antwortlabels.html#flt",
-		"syntax": "flt=( BEDINGUNG );        1 \"…\" flt=( … )",
-		"summary": "Filterbedingung. Als Frageattribut (flt=(…);) entscheidet sie, ob die Frage gestellt wird; am Label schränkt sie ein, ob dieses Label angezeigt wird."
+		"syntax": "1 \"…\" flt ( BEDINGUNG )",
+		"summary": "An ein Antwortlabel angehängt: das Label wird nur angezeigt, wenn BEDINGUNG wahr ist. Nicht zu verwechseln mit dem Frageattribut `flt = ( … );`."
 	},
 	"followup": {
 		"short": "followup",

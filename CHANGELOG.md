@@ -37,6 +37,10 @@ Current version number is first:
   entry at all, `javascript` showed the unrelated `@javascript` template
   placeholder. Both now describe embedding extra CSS / Javascript for the
   current question and link to the question-definitions handbook page.
+- Hover on `flt` is now split: `flt = ( … );` on its own is the question
+  filter (whether the question is asked) and `… flt ( … )` after a label
+  is the label filter (whether that label is shown). Separate summaries and
+  handbook links (`03_00_fragedefinitionen` vs `03_02_antwortlabels`).
 - Hover on a fixed action-block attribute (`continueActionBlock`,
   `initActionBlock`, `globalContinueActionBlock`, …) shows just the summary
   and handbook link – the misleading `NAME = { … };` syntax line is

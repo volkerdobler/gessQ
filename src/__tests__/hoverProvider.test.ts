@@ -27,6 +27,23 @@ describe('disambiguateKeyword', () => {
 	test('unrelated words are never overridden', () => {
 		expect(disambiguateKeyword('export', 'export = yes;')).toBeUndefined();
 	});
+
+	test('flt: label filter vs. question filter', () => {
+		// label filter → flt-label
+		expect(disambiguateKeyword('flt', '1 "ja" flt ( a eq 1 )')).toBe(
+			'flt-label',
+		);
+		expect(disambiguateKeyword('flt', '\t2 "x" flt(cond) random')).toBe(
+			'flt-label',
+		);
+		// question attribute → plain lookup
+		expect(disambiguateKeyword('flt', 'flt = ( a eq 1 );')).toBeUndefined();
+		expect(disambiguateKeyword('flt', '  flt=(cond);')).toBeUndefined();
+		// no `flt(` and not `flt =` → don't guess "label"
+		expect(
+			disambiguateKeyword('flt', 'compute x = flt + 1;'),
+		).toBeUndefined();
+	});
 });
 
 describe('definitionExcerpt', () => {
