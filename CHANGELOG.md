@@ -5,6 +5,15 @@ Current version number is first:
 
 ### Unreleased
 
+- The symbol index is now the **project**, not "every `.q` file around":
+  `script.q` (exactly that name) plus its transitive `#include` /
+  `#includeifexists` closure. With a folder open, every `script.q` in it
+  anchors a project; without a folder, a `script.q` next to the active
+  file does; failing that, only the active document and its own includes
+  are used. Stale copies such as `script_v1.q` no longer contribute
+  definitions or references. The index follows document saves and (with no
+  folder open) the active editor.
+
 - Symbol name grammar is now context-sensitive: definition sites require a
   letter-initial name, reference sites also accept a leading `_` so the
   built-in system variables (`_finished`, `_caseid`, …) stay navigable

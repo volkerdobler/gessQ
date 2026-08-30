@@ -3,6 +3,8 @@
 import * as vscode from 'vscode';
 import * as parser from './parser';
 import { getCachedScope } from './scope';
+import { parseIncludes, type IncludeDirective } from './includes';
+import { includeClosure, isRootScript, ROOT_SCRIPT } from './projectFiles';
 import { debug } from '../infra/logger';
 import { filesExcludeGlob } from '../infra/config';
 
@@ -126,44 +128,89 @@ interface FileEntry {
 	symbols: IndexedSymbol[];
 }
 
+const REFRESH_DEBOUNCE_MS = 200;
+
 /**
- * Workspace-wide index of GESS Q. symbol definitions. Built once from
- * `workspace.findFiles` and kept current with a `FileSystemWatcher`, so the
- * navigation providers no longer rescan every `.q` file on each request.
+ * Index of GESS Q. symbol definitions for the current *project*.
+ *
+ * The project is not "every `.q` file around" – it is `script.q` plus its
+ * transitive `#include` / `#includeifexists` closure (see
+ * {@link ./projectFiles}). Concretely:
+ *
+ * - **workspace open** – every `script.q` in the workspace and everything it
+ *   includes;
+ * - **no workspace, `script.q` next to the active `.q` file** – that
+ *   `script.q` and its closure;
+ * - **otherwise** – just the active `.q` document and its own includes.
+ *
+ * Kept current with a `**\/*.q` file-system watcher, document saves and (when
+ * there is no workspace) the active editor.
  */
 export class SymbolIndex {
 	private readonly byFile = new Map<string, FileEntry>();
 	private watcher: vscode.FileSystemWatcher | undefined;
+	private readonly subs: vscode.Disposable[] = [];
 	private refreshing: Promise<void> | undefined;
+	private refreshTimer: ReturnType<typeof setTimeout> | undefined;
+	private cachedRoots: vscode.Uri[] | undefined;
+	private activeQDoc: vscode.Uri | undefined;
 
-	/** Resolves once the initial scan has finished. */
+	/** Resolves once the current (re)scan has finished. */
 	public get ready(): Promise<void> {
 		return this.refreshing ?? Promise.resolve();
 	}
 
 	/** Start the initial scan and begin watching for changes. */
 	public start(): void {
-		this.refreshing = this.refresh();
+		this.captureActiveDoc();
+		this.refreshing = this.refresh(true);
 
 		const watcher = vscode.workspace.createFileSystemWatcher('**/*.q');
-		watcher.onDidCreate((uri) => void this.reindex(uri));
-		watcher.onDidChange((uri) => void this.reindex(uri));
-		watcher.onDidDelete((uri) => this.byFile.delete(uri.toString()));
+		// A new / deleted file may add or remove a `script.q` or an include
+		// target, so the root set has to be rediscovered.
+		watcher.onDidCreate(() => this.scheduleRefresh(true));
+		watcher.onDidDelete(() => this.scheduleRefresh(true));
+		// A content change can only alter include lists – reuse the roots.
+		watcher.onDidChange(() => this.scheduleRefresh(false));
 		this.watcher = watcher;
+
+		this.subs.push(
+			vscode.window.onDidChangeActiveTextEditor(() => {
+				// Without a workspace the project is anchored to the active
+				// document's folder, so a switch may change everything.
+				if (this.captureActiveDoc() && !this.hasWorkspace()) {
+					this.scheduleRefresh(true);
+				}
+			}),
+			vscode.workspace.onDidSaveTextDocument((d) => {
+				if (d.languageId === 'gessq') {
+					this.scheduleRefresh(false);
+				}
+			}),
+		);
 	}
 
 	public dispose(): void {
+		if (this.refreshTimer) {
+			clearTimeout(this.refreshTimer);
+			this.refreshTimer = undefined;
+		}
 		this.watcher?.dispose();
 		this.watcher = undefined;
+		for (const s of this.subs) {
+			s.dispose();
+		}
+		this.subs.length = 0;
+		this.cachedRoots = undefined;
 		this.byFile.clear();
 	}
 
 	/** Re-run the full scan (e.g. after `gessq.files.exclude` changed). */
 	public rebuild(): void {
-		this.refreshing = this.refresh();
+		this.refreshing = this.refresh(true);
 	}
 
-	/** All indexed `.q` file URIs. */
+	/** All indexed `.q` file URIs (the project files). */
 	public files(): vscode.Uri[] {
 		return [...this.byFile.values()].map((e) => e.uri);
 	}
@@ -189,26 +236,119 @@ export class SymbolIndex {
 		return [...this.byFile.values()].flatMap((e) => e.symbols);
 	}
 
-	private async refresh(): Promise<void> {
-		this.byFile.clear();
-		const extra = filesExcludeGlob();
-		const exclude = extra
-			? '{**/node_modules/**,' + extra + '}'
-			: '**/node_modules/**';
-		let uris: vscode.Uri[];
-		try {
-			uris = await vscode.workspace.findFiles('**/*.q', exclude);
-		} catch {
-			return;
+	private hasWorkspace(): boolean {
+		return (vscode.workspace.workspaceFolders?.length ?? 0) > 0;
+	}
+
+	/**
+	 * Remember the active `.q` document (used to anchor the project when there
+	 * is no workspace). Returns `true` when it changed.
+	 */
+	private captureActiveDoc(): boolean {
+		const ed = vscode.window.activeTextEditor;
+		const uri =
+			ed?.document.languageId === 'gessq' ? ed.document.uri : undefined;
+		if (!uri) {
+			return false;
 		}
-		await Promise.all(uris.map((uri) => this.reindex(uri)));
+		const changed = this.activeQDoc?.toString() !== uri.toString();
+		this.activeQDoc = uri;
+		return changed;
+	}
+
+	private scheduleRefresh(rediscoverRoots: boolean): void {
+		if (this.refreshTimer) {
+			clearTimeout(this.refreshTimer);
+		}
+		this.refreshTimer = setTimeout(() => {
+			this.refreshTimer = undefined;
+			this.refreshing = this.refresh(rediscoverRoots);
+		}, REFRESH_DEBOUNCE_MS);
+	}
+
+	private async refresh(rediscoverRoots: boolean): Promise<void> {
+		let files: vscode.Uri[] = [];
+		try {
+			files = await this.resolveProjectFiles(rediscoverRoots);
+		} catch {
+			/* leave `files` empty */
+		}
+
+		this.byFile.clear();
+		await Promise.all(files.map((uri) => this.reindex(uri)));
 		debug(
 			'symbolIndex: ' +
 				this.all().length +
 				' symbols in ' +
 				this.byFile.size +
-				' files',
+				' project files',
 		);
+	}
+
+	private async resolveProjectFiles(
+		rediscoverRoots: boolean,
+	): Promise<vscode.Uri[]> {
+		const read = (uri: vscode.Uri) => this.readIncludes(uri);
+
+		if (rediscoverRoots || this.cachedRoots === undefined) {
+			this.cachedRoots = await this.findRootScripts();
+		}
+
+		if (this.cachedRoots.length > 0) {
+			return includeClosure(this.cachedRoots, read);
+		}
+		// No `script.q` reachable – index just the active document's closure.
+		return this.activeQDoc
+			? includeClosure([this.activeQDoc], read)
+			: [];
+	}
+
+	/** Every `script.q` that anchors the project, or `[]` when there is none. */
+	private async findRootScripts(): Promise<vscode.Uri[]> {
+		if (this.hasWorkspace()) {
+			try {
+				const hits = await vscode.workspace.findFiles(
+					'**/' + ROOT_SCRIPT,
+					this.excludeGlob(),
+				);
+				return hits.filter(isRootScript);
+			} catch {
+				return [];
+			}
+		}
+		// No workspace: a `script.q` sitting next to the active `.q` file.
+		if (!this.activeQDoc) {
+			return [];
+		}
+		const candidate = vscode.Uri.joinPath(
+			this.activeQDoc,
+			'..',
+			ROOT_SCRIPT,
+		);
+		try {
+			await vscode.workspace.fs.stat(candidate);
+			return [candidate];
+		} catch {
+			return [];
+		}
+	}
+
+	private excludeGlob(): string {
+		const extra = filesExcludeGlob();
+		return extra
+			? '{**/node_modules/**,' + extra + '}'
+			: '**/node_modules/**';
+	}
+
+	private async readIncludes(
+		uri: vscode.Uri,
+	): Promise<IncludeDirective[] | undefined> {
+		try {
+			const doc = await vscode.workspace.openTextDocument(uri);
+			return parseIncludes(doc);
+		} catch {
+			return undefined;
+		}
 	}
 
 	private async reindex(uri: vscode.Uri): Promise<void> {

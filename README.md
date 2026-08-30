@@ -41,9 +41,16 @@ sie ersetzt die alte.
   definiert ist – mit Vorschau.
 
 - **Navigation im Skript** (auch über `#include` hinweg):
+  - Als „Projekt“ zählt `script.q` (genau dieser Name) plus alles, was von
+    dort über `#include` / `#includeifexists` erreichbar ist – ältere Kopien
+    wie `script_v1.q` liefern also keine veralteten Treffer mehr. Ist ein
+    Ordner geöffnet, wird darin nach `script.q` gesucht; sonst neben der
+    geöffneten Datei. Findet sich keine, gilt nur die geöffnete Datei samt
+    ihren `#include`s.
   - Datei-Gliederung (`Strg+Shift+O`) und projektweite Suche nach
     Definitionen (`Strg+T`) – Fragen, `opennumformat`, Blöcke/Screens,
-    Makros, ActionBlock-Ziele, `array` / `vararray` / `quotavar`.
+    Makros, ActionBlock-Ziele, `array` / `vararray` / `quotavar` /
+    `quotagroup`.
   - **Zur Definition springen** (`F12`), **Alle Verweise** (`Shift+F12`) und
     **Umbenennen** (`F2`) – projektweit, inklusive `&name;`- und
     `#domacro`-Aufrufen bei Makros.
