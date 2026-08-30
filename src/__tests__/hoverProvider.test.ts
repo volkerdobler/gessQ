@@ -119,11 +119,32 @@ describe('definitionExcerpt', () => {
 		expect(ex).not.toContain('set(v[i] = 9999999);');
 		expect(ex).not.toContain('exit(3)');
 		expect(ex).not.toContain('s9');
+
+		// keepAll = the "full" level: the actionblock stays, s9 still doesn't
+		const full = definitionExcerpt(lines, 0, { keepAll: true });
+		expect(full).toMatch(/continueActionBlock/i);
+		expect(full).toContain('set(v[i] = 9999999);');
+		expect(full).toContain('exit(3)');
+		expect(full).not.toContain('s9');
+	});
+
+	test('a single blank line is tolerated, two end the excerpt', () => {
+		const lines = [
+			'compute c = 1;',
+			'',
+			'export;',
+			'',
+			'',
+			'compute d = 2;',
+		];
+		const ex = definitionExcerpt(lines, 0);
+		expect(ex).toContain('export;');
+		expect(ex).not.toContain('compute d = 2;');
 	});
 
 	test('truncates with an ellipsis past maxLines', () => {
 		const many = ['compute c = 1;', ...Array(50).fill('add = 1;')];
-		const ex = definitionExcerpt(many, 0, 5);
+		const ex = definitionExcerpt(many, 0, { maxLines: 5 });
 		expect(ex.split('\n')).toHaveLength(6); // 5 lines + "…"
 		expect(ex.endsWith('…')).toBe(true);
 	});

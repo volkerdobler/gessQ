@@ -81,6 +81,7 @@ sie ersetzt die alte.
 | ------------------------------------------ | --------- | --------- | --------------------------------------------------------------------------- |
 | `gessq.diagnostics.enable`                 | `boolean` | `true`    | Fehlerhinweise (siehe oben) an- oder ausschalten.                          |
 | `gessq.hover.enable`                       | `boolean` | `true`    | Erklärung beim Zeigen mit der Maus an- oder ausschalten.                   |
+| `gessq.hover.referenceDetail`              | `string`  | `"summary"` | Wie viel der Hover über einer Fragen-/Variablen-*Referenz* zeigt: `off`, `summary` (Name, Art, Ort, Kurzbeschreibung, Link), `definition` (zusätzlich ein Auszug der Definition ohne actionblock/js/css) oder `full` (komplette Definition). |
 | `gessq.codeLens.enable`                    | `boolean` | `true`    | Die „N Verweise“-Zeile über jeder Definition an- oder ausschalten.         |
 | `gessq.completion.includeWorkspaceSymbols` | `boolean` | `true`    | Auch Namen aus dem Projekt (Fragen, Blöcke, Makros …) vorschlagen.         |
 | `gessq.files.exclude`                      | `string`  | `""`      | Zusätzliches Ordnermuster, das beim projektweiten Scan übersprungen wird (z. B. `**/backup/**`). |

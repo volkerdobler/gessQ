@@ -12,6 +12,20 @@ export const diagnosticsEnabled = (): boolean =>
 export const hoverEnabled = (): boolean =>
 	section().get<boolean>('hover.enable', true);
 
+/** How much a hover shows when pointing at a reference to a workspace name. */
+export type HoverReferenceDetail = 'off' | 'summary' | 'definition' | 'full';
+
+/**
+ * `gessq.hover.referenceDetail` – `off` (no reference hover), `summary`
+ * (name / kind / location + description + link), `definition` (adds a cleaned
+ * excerpt of the definition) or `full` (the whole definition, incl.
+ * actionblock / javascript / css).
+ */
+export const hoverReferenceDetail = (): HoverReferenceDetail => {
+	const v = section().get<string>('hover.referenceDetail', 'summary');
+	return v === 'off' || v === 'definition' || v === 'full' ? v : 'summary';
+};
+
 /**
  * `gessq.codeLens.enable` – show the "N references" lens above every
  * definition.

@@ -13,7 +13,11 @@ import {
 	parseDocumentSymbols,
 	type IndexedSymbol,
 } from '../core/symbolIndex';
-import { hoverEnabled } from '../infra/config';
+import {
+	hoverEnabled,
+	hoverReferenceDetail,
+	type HoverReferenceDetail,
+} from '../infra/config';
 
 /**
  * Some keywords mean different things in different positions and need a
@@ -50,11 +54,12 @@ const EXCERPT_SCAN_LIMIT = 600;
 
 /**
  * Build a readable excerpt of a definition for a hover: the definition line
- * plus its attribute statements, up to the next top-level definition, a blank
- * line or `maxLines`. `actionblock` / `javascript` / `css` attributes are left
- * out whole – including brace-delimited action blocks that span dozens of
- * lines. Strings (`"…"` / `'…'`) and comments (`//`, `/* … *\/`) are tracked so
- * their content is never mistaken for a boundary or a brace.
+ * plus its attribute statements, up to the next top-level definition, a
+ * paragraph break (two blank lines) or `maxLines`. Unless `keepAll` is set,
+ * `actionblock` / `javascript` / `css` attributes are left out whole –
+ * including brace-delimited action blocks that span dozens of lines. Strings
+ * (`"…"` / `'…'`) and comments (`//`, `/* … *\/`) are tracked so their content
+ * is never mistaken for a boundary or a brace.
  *
  * @param lines full text of the file, split into lines
  * @param start 0-based index of the definition line
@@ -62,13 +67,17 @@ const EXCERPT_SCAN_LIMIT = 600;
 export function definitionExcerpt(
 	lines: string[],
 	start: number,
-	maxLines = 40,
+	opts: { maxLines?: number; keepAll?: boolean } = {},
 ): string {
+	const maxLines = opts.maxLines ?? 40;
+	const keepAll = opts.keepAll ?? false;
+
 	const out: string[] = [];
 	let inString: '"' | "'" | '' = '';
 	let inBlockComment = false;
 	let omitting = false;
 	let omitBrace = 0;
+	let blankRun = 0;
 	let truncated = false;
 
 	const end = Math.min(lines.length, start + EXCERPT_SCAN_LIMIT);
@@ -78,14 +87,22 @@ export function definitionExcerpt(
 
 		// Boundaries are only meaningful on a "clear" line outside an omitted
 		// attribute – a blank line or a stray `singleq` inside an action block
-		// or a multi-line string must not end the excerpt.
+		// or a multi-line string must not end the excerpt. A single blank line
+		// is tolerated (attributes are sometimes grouped); two end it.
 		if (!omitting && clearAtLineStart && i > start) {
-			if (raw.trim() === '' || DEF_BOUNDARY.test(raw)) {
-				break;
-			}
-			if (EXCERPT_OMIT.test(raw)) {
-				omitting = true;
-				omitBrace = 0;
+			if (raw.trim() === '') {
+				if (++blankRun >= 2) {
+					break;
+				}
+			} else {
+				blankRun = 0;
+				if (DEF_BOUNDARY.test(raw)) {
+					break;
+				}
+				if (!keepAll && EXCERPT_OMIT.test(raw)) {
+					omitting = true;
+					omitBrace = 0;
+				}
 			}
 		}
 
@@ -173,10 +190,9 @@ export function definitionExcerpt(
  *   its documentation instead);
  * - a language keyword → the full glossary entry (heading, syntax, summary,
  *   handbook link);
- * - a reference to a workspace symbol → what it is (`NAME — question
- *   \`singleq\``), where it is defined, an excerpt of the definition (without
- *   actionblock / javascript / css attributes), and the command's short
- *   description + handbook link.
+ * - a reference to a workspace symbol → governed by `gessq.hover.referenceDetail`:
+ *   `off` (no hover), `summary` (name / kind / location + description + link),
+ *   `definition` (adds a cleaned excerpt) or `full` (the whole definition).
  */
 export class GessQHoverProvider implements vscode.HoverProvider {
 	constructor(
@@ -229,7 +245,13 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 				];
 
 		if (defs.length > 0) {
-			md.appendMarkdown(await this.symbolExcerpt(defs[0], glossary));
+			const detail = hoverReferenceDetail();
+			if (detail === 'off') {
+				return null;
+			}
+			md.appendMarkdown(
+				await this.symbolExcerpt(defs[0], glossary, detail),
+			);
 		} else {
 			const lineText = document.lineAt(position.line).text;
 			const entry =
@@ -248,10 +270,11 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		return md.value.length > 0 ? new vscode.Hover(md) : null;
 	}
 
-	/** Heading + definition excerpt + command description for a symbol hover. */
+	/** Heading + (optional) definition excerpt + command description. */
 	private async symbolExcerpt(
 		d: IndexedSymbol,
 		glossary: Glossary,
+		detail: Exclude<HoverReferenceDetail, 'off'>,
 	): Promise<string> {
 		const where =
 			vscode.workspace.asRelativePath(d.uri) +
@@ -261,14 +284,19 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 			'**' + d.name + '** — ' + d.category + ' `' + d.detail + '` · ' + where;
 
 		let excerpt = '';
-		try {
-			const doc = await vscode.workspace.openTextDocument(d.uri);
-			excerpt = definitionExcerpt(
-				doc.getText().split(/\r?\n/),
-				d.nameRange.start.line,
-			);
-		} catch {
-			/* ignore */
+		if (detail !== 'summary') {
+			try {
+				const doc = await vscode.workspace.openTextDocument(d.uri);
+				excerpt = definitionExcerpt(
+					doc.getText().split(/\r?\n/),
+					d.nameRange.start.line,
+					detail === 'full'
+						? { maxLines: EXCERPT_SCAN_LIMIT, keepAll: true }
+						: undefined,
+				);
+			} catch {
+				/* ignore */
+			}
 		}
 
 		const kw = lookupEntry(glossary, d.detail);

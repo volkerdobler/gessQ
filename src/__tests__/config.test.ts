@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import {
 	hoverEnabled,
+	hoverReferenceDetail,
 	codeLensEnabled,
 	diagnosticsEnabled,
 } from '../infra/config';
@@ -33,5 +34,16 @@ describe('config toggles', () => {
 		stubConfig({ 'hover.enable': false, 'codeLens.enable': false });
 		expect(hoverEnabled()).toBe(false);
 		expect(codeLensEnabled()).toBe(false);
+	});
+
+	test('hover.referenceDetail: default "summary", known values pass, junk falls back', () => {
+		stubConfig({});
+		expect(hoverReferenceDetail()).toBe('summary');
+		for (const v of ['off', 'summary', 'definition', 'full'] as const) {
+			stubConfig({ 'hover.referenceDetail': v });
+			expect(hoverReferenceDetail()).toBe(v);
+		}
+		stubConfig({ 'hover.referenceDetail': 'nonsense' });
+		expect(hoverReferenceDetail()).toBe('summary');
 	});
 });

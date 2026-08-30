@@ -90,6 +90,18 @@
           "default": true,
           "description": "Show the GESS Q. hover (glossary description for keywords, and the definition location plus code preview for workspace names). Turn off to suppress the GESS Q. hover entirely."
         },
+        "gessq.hover.referenceDetail": {
+          "type": "string",
+          "enum": ["off", "summary", "definition", "full"],
+          "enumDescriptions": [
+            "No hover when pointing at a reference to a workspace name (keyword hovers still work).",
+            "Name, kind, definition location and the command's one-line description plus handbook link. No code.",
+            "Also an excerpt of the definition: the question line plus text / title / labels / flt / assert …, without actionblock / javascript / css attributes.",
+            "The complete definition verbatim, including actionblock / javascript / css."
+          ],
+          "default": "summary",
+          "description": "How much a hover shows when pointing at a reference to a question or variable defined in the workspace. Requires 'gessq.hover.enable'."
+        },
         "gessq.codeLens.enable": {
           "type": "boolean",
           "default": true,
