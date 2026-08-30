@@ -80,7 +80,7 @@ interface Directive {
 const DIRECTIVES: Directive[] = [
 	{
 		open: /(?<!\w)#macro\b/i,
-		close: /(?<!\w)#(endmacro|macroend)\b/i,
+		close: /(?<!\w)#endmacro\b/i,
 		openLabel: '#macro',
 		closeLabel: '#endmacro',
 	},

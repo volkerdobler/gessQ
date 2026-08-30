@@ -12,7 +12,11 @@
         ["(", ")"]
     ],
     "autoCloseBefore": ";:.,=}])> \n\t",
-    "wordPattern": "(-?\\d*\\.\\d\\w*)|([A-Za-zÄÖÜäöüß_$][A-Za-zÄÖÜäöüß0-9_$]*)",
+    // Identifier rule kept in sync with the parser grammar (src/core/parser.ts:
+    // constTokenVarNameStart/Rest): a letter or `_`, then letters/digits/
+    // underscore. The leading `_` covers the built-in system variables
+    // (`_finished`, `_caseid`, …). No umlauts, no `$`, no leading digit.
+    "wordPattern": "(-?\\d*\\.\\d\\w*)|([A-Za-z_][A-Za-z0-9_]*)",
     // symbols that are auto closed when typing
     "autoClosingPairs": [
         { "open": "{", "close": "}" },
@@ -37,11 +41,11 @@
     "onEnterRules": [
         {
             "beforeText": "^.*\\{\\s*$",
-            "action": { "indentAction": "indent" }
+            "action": { "indent": "indent" }
         },
         {
             "beforeText": "^\\s*\\}\\s*;?\\s*$",
-            "action": { "indentAction": "outdent" }
+            "action": { "indent": "outdent" }
         }
     ]
 }

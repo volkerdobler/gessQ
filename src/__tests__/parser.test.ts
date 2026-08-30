@@ -3,11 +3,13 @@ import {
 	definitionDefRe,
 	blockDefRe,
 	blockRe,
+	checkRe,
 	macroDefRe,
 	actionBlockDefRe,
 	arrayDefRe,
 	quotavarDefRe,
 	getWordDefinition,
+	getWordDefinitionStrict,
 } from '../core/parser';
 
 describe('questionDefRe', () => {
@@ -180,5 +182,73 @@ describe('getWordDefinition', () => {
 		expect(re.test('"foo"')).toBe(true);
 		expect(re.test("'foo'")).toBe(true);
 		expect(re.test('foobar')).toBe(false);
+	});
+
+	test('treats regex metacharacters in a valid-looking name literally', () => {
+		// not a valid name -> never matches, and never throws
+		expect(() => new RegExp(getWordDefinition('on.f'))).not.toThrow();
+		expect(new RegExp(getWordDefinition('on.f')).test('onXf')).toBe(false);
+	});
+
+	test('accepts a leading underscore (built-in system variables)', () => {
+		const re = new RegExp(getWordDefinition('_finished'));
+		expect(re.test('_finished')).toBe(true);
+		expect(re.test('"_finished"')).toBe(true);
+		expect(re.test('_finishdate')).toBe(false);
+	});
+
+	test('rejects names outside the grammar (umlaut, $, leading digit, dot, space)', () => {
+		for (const bad of [
+			'Fräge',
+			'$foo',
+			'1foo',
+			'a.b',
+			'a b',
+			'',
+			'a+b',
+			'a)b',
+		]) {
+			const re = new RegExp(getWordDefinition(bad));
+			expect(re.test(bad)).toBe(false);
+			expect(re.test(`"${bad}"`)).toBe(false);
+		}
+	});
+
+	test('an invalid name makes a wrapping factory never match', () => {
+		expect('singleq Fräge'.match(questionDefRe('Fräge'))).toBeNull();
+		expect('block Fräge ='.match(blockDefRe('Fräge'))).toBeNull();
+	});
+});
+
+describe('getWordDefinitionStrict', () => {
+	test('rejects a leading underscore (built-in vars cannot be defined)', () => {
+		const re = new RegExp(getWordDefinitionStrict('_finished'));
+		expect(re.test('_finished')).toBe(false);
+		expect(re.test('"_finished"')).toBe(false);
+	});
+
+	test('still matches an ordinary name', () => {
+		const re = new RegExp(getWordDefinitionStrict('Frage1'));
+		expect(re.test('Frage1')).toBe(true);
+		expect(re.test('"Frage1"')).toBe(true);
+	});
+});
+
+describe('definition vs. reference: leading underscore', () => {
+	test('definition factories do not accept a "_name" as a definition', () => {
+		expect('singleq _finished;'.match(questionDefRe('_finished'))).toBeNull();
+		expect('singleq _finished;'.match(questionDefRe(''))).toBeNull();
+		expect('array _x [3];'.match(arrayDefRe('_x'))).toBeNull();
+		expect('quotavar _q = (1);'.match(quotavarDefRe('_q'))).toBeNull();
+		expect('block _b ='.match(blockDefRe('_b'))).toBeNull();
+		expect('#macro _m'.match(macroDefRe('_m'))).toBeNull();
+		expect('set( _t = 1 )'.match(actionBlockDefRe('_t'))).toBeNull();
+	});
+
+	test('reference factories still match a "_name" usage', () => {
+		expect('if ( _finished eq 1 )'.match(checkRe('_finished'))).not.toBeNull();
+		expect(
+			'x = _finished + 1'.match(new RegExp(getWordDefinition('_finished'))),
+		).not.toBeNull();
 	});
 });

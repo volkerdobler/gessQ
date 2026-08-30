@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as parser from './parser';
 import { isNotInCommentAt } from './scope';
 
-const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRe = parser.escapeRe;
 
 /**
  * Regex factories that identify a *line* as referencing a symbol. A line

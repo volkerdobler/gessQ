@@ -70,6 +70,12 @@ test('ignores definitions inside comments', () => {
 });
 
 test('strips quotes from quoted names', () => {
-	const [sym] = parseDocumentSymbols(makeDoc(['singleq "Frage 1";']));
-	expect(sym.name).toBe('Frage 1');
+	const [sym] = parseDocumentSymbols(makeDoc(['singleq "Frage1";']));
+	expect(sym.name).toBe('Frage1');
+});
+
+test('a quoted name with an illegal character is not a definition', () => {
+	// space / umlaut inside the quotes -> not a valid identifier
+	expect(parseDocumentSymbols(makeDoc(['singleq "Frage 1";']))).toEqual([]);
+	expect(parseDocumentSymbols(makeDoc(['singleq "Fräge";']))).toEqual([]);
 });

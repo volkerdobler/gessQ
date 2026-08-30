@@ -4,8 +4,7 @@ import * as vscode from 'vscode';
 import { getWordAtPosition } from '../infra/vscodeUtils';
 import { isNotInCommentAt } from '../core/scope';
 import { parseDocumentSymbols } from '../core/symbolIndex';
-
-const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+import { escapeRe } from '../core/parser';
 
 /**
  * Highlights every whole-word, non-comment occurrence of the identifier under

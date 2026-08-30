@@ -37,6 +37,15 @@ describe('language-configuration.json', () => {
 			expect(() => new RegExp(rule.beforeText)).not.toThrow();
 		}
 	});
+
+	test('onEnterRules use the "indent" action key (not the legacy "indentAction")', () => {
+		for (const rule of cfg.onEnterRules ?? []) {
+			expect(Object.keys(rule.action)).toContain('indent');
+			expect(['none', 'indent', 'indentOutdent', 'outdent']).toContain(
+				rule.action.indent,
+			);
+		}
+	});
 });
 
 describe('language/snippets.json', () => {
