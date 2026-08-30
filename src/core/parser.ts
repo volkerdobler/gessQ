@@ -293,4 +293,16 @@ export const intRandomDefRe = memoizeEmpty(
 		),
 );
 
+/**
+ * `databaseConnection NAME = ( "DB", "TABLE", ( … ) );` definitions
+ * (g1 keyword, g2 name).
+ */
+export const databaseConnectionDefRe = memoizeEmpty(
+	(word) =>
+		new RegExp(
+			'\\b(databaseconnection)\\b\\s+(' + defNameFrag(word) + ')\\s*=',
+			'i',
+		),
+);
+
 export { constTokenVarNameRestExport as constTokenVarNameRest };

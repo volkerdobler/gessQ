@@ -26,6 +26,7 @@ function referencePatterns(word: string): RegExp[] {
 		parser.textArrayDefRe(word),
 		parser.textElementDefRe(word),
 		parser.intRandomDefRe(word),
+		parser.databaseConnectionDefRe(word),
 		parser.actionBlockDefRe(word),
 		parser.macroDefRe(word),
 		// macro instantiation: `&name;` and `#domacro name`

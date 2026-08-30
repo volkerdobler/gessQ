@@ -73,6 +73,7 @@ const FACTORIES: Factory[] = [
 	{ re: () => parser.textArrayDefRe(), category: 'array' },
 	{ re: () => parser.textElementDefRe(), category: 'definition' },
 	{ re: () => parser.intRandomDefRe(), category: 'definition' },
+	{ re: () => parser.databaseConnectionDefRe(), category: 'definition' },
 ];
 
 /**

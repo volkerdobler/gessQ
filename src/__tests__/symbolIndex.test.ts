@@ -47,13 +47,14 @@ test('extracts array / vararray definitions', () => {
 	expect(byName['members'].detail).toBe('vararray');
 });
 
-test('extracts compute / textarray / textelement / intrandom definitions', () => {
+test('extracts compute / textarray / textelement / intrandom / databaseConnection definitions', () => {
 	const syms = parseDocumentSymbols(
 		makeDoc([
 			'compute alter = 2026 - gebjahr;',
 			'textarray tx = { "a" "b" };',
 			'textelement te = "hi";',
 			'IntRandom rnd = 1 6;',
+			'databaseConnection dbMail = ( "m", "t", ( a ) );',
 		]),
 	);
 	const byName = Object.fromEntries(syms.map((s) => [s.name, s]));
@@ -65,6 +66,8 @@ test('extracts compute / textarray / textelement / intrandom definitions', () =>
 	expect(byName['te'].detail).toBe('textelement');
 	expect(byName['rnd'].category).toBe('definition');
 	expect(byName['rnd'].detail).toBe('intrandom');
+	expect(byName['dbMail'].category).toBe('definition');
+	expect(byName['dbMail'].detail).toBe('databaseconnection');
 });
 
 test('extracts quotavar definitions', () => {

@@ -40,7 +40,7 @@ export function disambiguateKeyword(
 
 /** Keywords that open a new top-level definition (and so end the previous one). */
 const DEF_BOUNDARY =
-	/^\s*(?:singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group|sliderq|compute|array|vararray|textelement|textarray|intrandom|opennumformat|quotavar|block|screen|page|chapter|endchapter|filter|endfilter|#\w+)\b/i;
+	/^\s*(?:singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group|sliderq|compute|array|vararray|textelement|textarray|intrandom|databaseconnection|opennumformat|quotavar|block|screen|page|chapter|endchapter|filter|endfilter|#\w+)\b/i;
 
 /**
  * Attribute statements dropped from a definition excerpt (long / noisy).

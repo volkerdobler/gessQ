@@ -12,6 +12,7 @@ import {
 	textArrayDefRe,
 	textElementDefRe,
 	intRandomDefRe,
+	databaseConnectionDefRe,
 	getWordDefinition,
 	getWordDefinitionStrict,
 } from '../core/parser';
@@ -210,6 +211,16 @@ describe('computeDefRe / textArrayDefRe / textElementDefRe / intRandomDefRe', ()
 		const m = 'IntRandom r = 1 6;'.match(intRandomDefRe(''));
 		expect(m).not.toBeNull();
 		expect(m![2]).toBe('r');
+	});
+
+	test('databaseConnectionDefRe captures keyword + name', () => {
+		const m = 'databaseConnection dbMail = ( "m", "t", ( a b ) );'.match(
+			databaseConnectionDefRe(''),
+		);
+		expect(m).not.toBeNull();
+		expect(m![1].toLowerCase()).toBe('databaseconnection');
+		expect(m![2]).toBe('dbMail');
+		expect('databaseConnection other = (1)'.match(databaseConnectionDefRe('dbMail'))).toBeNull();
 	});
 
 	test('named variants are specific', () => {
