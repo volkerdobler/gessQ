@@ -160,6 +160,23 @@ export const quotavarDefRe = memoizeEmpty((word) => {
 	);
 });
 
+/**
+ * `quotagroup NAME begin;` … `quotagroup end;` group definitions and the
+ * inline `quotagroup NAME = ( qv1 qv2 );` form (g1 keyword, g2 name).
+ *
+ * A quota group bundles several `quotavar`s and can itself be used in a
+ * condition / assert, so NAME is a "Go to Definition" / "Find All References"
+ * target – on par with a `quotavar`. `quotagroup end;` is not a definition.
+ */
+export const quotagroupDefRe = memoizeEmpty((word) => {
+	return new RegExp(
+		'\\b(quotagroup)\\b\\s+(' +
+			defNameFrag(word) +
+			')\\s*(?:\\bbegin\\b|=)',
+		'i',
+	);
+});
+
 /** `block NAME =` / `screen NAME =` definitions (g1 keyword, g2 name). */
 export const blockDefRe = memoizeEmpty((word) => {
 	return new RegExp(

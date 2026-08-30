@@ -13,6 +13,7 @@ import {
 	textElementDefRe,
 	intRandomDefRe,
 	databaseConnectionDefRe,
+	quotagroupDefRe,
 	getWordDefinition,
 	getWordDefinitionStrict,
 } from '../core/parser';
@@ -177,6 +178,30 @@ describe('quotavarDefRe', () => {
 
 	test('does not match the "prequotavar" parameter', () => {
 		expect('prequotavar foo = (1);'.match(quotavarDefRe(''))).toBeNull();
+	});
+});
+
+describe('quotagroupDefRe', () => {
+	test('matches the "NAME begin;" block form', () => {
+		const m = 'quotagroup qgRegion begin;'.match(quotagroupDefRe(''));
+		expect(m).not.toBeNull();
+		expect(m![1].toLowerCase()).toBe('quotagroup');
+		expect(m![2]).toBe('qgRegion');
+	});
+
+	test('matches the inline "NAME = ( … )" form', () => {
+		expect(
+			'QuotaGroup qgAge = ( qv1 qv2 );'.match(quotagroupDefRe(''))![2],
+		).toBe('qgAge');
+	});
+
+	test('"quotagroup end;" is not a definition', () => {
+		expect('quotagroup end;'.match(quotagroupDefRe(''))).toBeNull();
+	});
+
+	test('named variant is specific', () => {
+		expect('quotagroup g1 begin;'.match(quotagroupDefRe('g1'))).not.toBeNull();
+		expect('quotagroup g2 begin;'.match(quotagroupDefRe('g1'))).toBeNull();
 	});
 });
 

@@ -69,6 +69,7 @@ const FACTORIES: Factory[] = [
 	{ re: () => parser.actionDefRe(), category: 'action' },
 	{ re: () => parser.arrayDefRe(), category: 'array' },
 	{ re: () => parser.quotavarDefRe(), category: 'quota' },
+	{ re: () => parser.quotagroupDefRe(), category: 'quota' },
 	{ re: () => parser.computeDefRe(), category: 'definition' },
 	{ re: () => parser.textArrayDefRe(), category: 'array' },
 	{ re: () => parser.textElementDefRe(), category: 'definition' },

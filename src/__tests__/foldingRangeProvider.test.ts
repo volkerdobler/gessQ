@@ -41,6 +41,24 @@ describe('GessQFoldingRangeProvider', () => {
 		expect(r).toContainEqual({ start: 2, end: 3, kind: Region });
 	});
 
+	test('folds quotagroup NAME begin; … quotagroup end;', async () => {
+		const r = await fold([
+			'quotagroup qgRegion begin;',
+			'quotavar qNord = ( 1 );',
+			'quotavar qSued = ( 2 );',
+			'quotagroup end;',
+		]);
+		expect(r).toContainEqual({ start: 0, end: 2, kind: Region });
+	});
+
+	test('the inline quotagroup NAME = ( … ) form does not fold', async () => {
+		const r = await fold([
+			'quotagroup qgAge = ( qv1 qv2 );',
+			'singleq q1;',
+		]);
+		expect(r).toEqual([]);
+	});
+
 	test('a balanced brace inside a string does not shift the fold', async () => {
 		const r = await fold([
 			'text = "',

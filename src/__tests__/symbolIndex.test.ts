@@ -79,6 +79,22 @@ test('extracts quotavar definitions', () => {
 	expect(sym.detail).toBe('quotavar');
 });
 
+test('extracts quotagroup definitions (begin form and inline form)', () => {
+	const syms = parseDocumentSymbols(
+		makeDoc([
+			'quotagroup qgRegion begin;',
+			'quotavar qNord = ( 1 );',
+			'quotagroup end;',
+			'quotagroup qgAge = ( qNord );',
+		]),
+	);
+	const byName = Object.fromEntries(syms.map((s) => [s.name, s]));
+	expect(byName['qgRegion'].category).toBe('quota');
+	expect(byName['qgRegion'].detail).toBe('quotagroup');
+	expect(byName['qgAge'].detail).toBe('quotagroup');
+	expect(byName['end']).toBeUndefined();
+});
+
 test('name range points at the name token, not the keyword', () => {
 	const [sym] = parseDocumentSymbols(makeDoc(['singleq   Frage1;']));
 	expect(sym.nameRange.start.character).toBe('singleq   '.length);

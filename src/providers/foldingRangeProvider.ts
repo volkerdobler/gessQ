@@ -3,7 +3,8 @@
 import * as vscode from 'vscode';
 
 /**
- * Folding for `#macro`/`#endmacro`, `#ifdef`/`#endif`, `{ … }` blocks and
+ * Folding for `#macro`/`#endmacro`, `#ifdef`/`#endif`,
+ * `quotagroup NAME begin;`/`quotagroup end;`, `{ … }` blocks and
  * `/* … *\/` block comments.
  */
 export class GessQFoldingRangeProvider implements vscode.FoldingRangeProvider {
@@ -139,6 +140,29 @@ export class GessQFoldingRangeProvider implements vscode.FoldingRangeProvider {
 					}
 				}
 			}
+			// `quotagroup NAME begin;` … `quotagroup end;` – a plain line-based
+			// pass, independent of the shared region stack above.
+			const qgStack: number[] = [];
+			for (let l = 0; l < document.lineCount; l++) {
+				let t = document.lineAt(l).text;
+				const c = t.search(/\/\//);
+				if (c > -1) {
+					t = t.slice(0, c);
+				}
+				if (/\bquotagroup\s+end\b/i.test(t)) {
+					const s = qgStack.pop();
+					if (s !== undefined) {
+						foldingCollection.push({
+							start: s,
+							end: l > s + 1 ? l - 1 : l,
+							kind: vscode.FoldingRangeKind.Region,
+						});
+					}
+				} else if (/\bquotagroup\b.*\bbegin\b/i.test(t)) {
+					qgStack.push(l);
+				}
+			}
+
 			resolve(foldingCollection);
 		});
 	}

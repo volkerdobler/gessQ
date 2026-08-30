@@ -18,6 +18,10 @@ Current version number is first:
   the others alongside opennumformats).
 - Find All References for an `opennumformat` now also finds its uses in
   NumQ / GNumQ / SliderQ labels (`… format NAME`).
+- `quotagroup NAME begin;` … `quotagroup end;` (and the inline
+  `quotagroup NAME = ( … )` form) is indexed as a quota definition –
+  navigation, hover and the CodeLens treat it like a `quotavar`; the
+  `begin` … `end` block folds.
 - Hover on `single` in `single = yes|no;` now shows the Group single-choice
   attribute instead of the (unrelated) exclusive-answer label attribute.
 - Hover rework:
