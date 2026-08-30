@@ -6,6 +6,9 @@ import { releaseNotesOnUpdate } from './config';
 /** Command that (re)opens the release notes for the installed version. */
 export const SHOW_RELEASE_NOTES_COMMAND = 'gessq.showReleaseNotes';
 
+/** Command that forgets which version's notes were shown (for testing / support). */
+export const RESET_RELEASE_NOTES_COMMAND = 'gessq.resetReleaseNotesState';
+
 /** `globalState` key holding the version whose notes were last shown. */
 const SHOWN_KEY = 'gessq.releaseNotesShownFor';
 
@@ -55,7 +58,7 @@ async function openNotes(uri: vscode.Uri): Promise<void> {
 }
 
 /**
- * Register {@link SHOW_RELEASE_NOTES_COMMAND} and, once per version (unless
+ * Register the release-notes commands and, once per version (unless
  * `gessq.releaseNotes.showOnUpdate` is off), open the notes for the freshly
  * installed / updated version (`release-notes/<v>.md`, if that file exists).
  */
@@ -74,6 +77,17 @@ export function activateReleaseNotes(context: vscode.ExtensionContext): void {
 						`GESS Q.: keine Release Notes für Version ${version}.`,
 					);
 				}
+			},
+		),
+		vscode.commands.registerCommand(
+			RESET_RELEASE_NOTES_COMMAND,
+			async () => {
+				await context.globalState.update(SHOWN_KEY, undefined);
+				void vscode.window.showInformationMessage(
+					'GESS Q.: Release-Notes-Status zurückgesetzt – nach ' +
+						'„Developer: Reload Window" erscheinen die Release Notes ' +
+						'wieder automatisch.',
+				);
 			},
 		),
 	);

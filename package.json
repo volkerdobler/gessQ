@@ -36,6 +36,11 @@
         "command": "gessq.showReleaseNotes",
         "title": "Release Notes anzeigen",
         "category": "GESS Q."
+      },
+      {
+        "command": "gessq.resetReleaseNotesState",
+        "title": "Release-Notes-Status zurücksetzen",
+        "category": "GESS Q."
       }
     ],
     "languages": [
