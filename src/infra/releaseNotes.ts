@@ -1,6 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
+import { releaseNotesOnUpdate } from './config';
 
 /** Command that (re)opens the release notes for the installed version. */
 export const SHOW_RELEASE_NOTES_COMMAND = 'gessq.showReleaseNotes';
@@ -54,9 +55,9 @@ async function openNotes(uri: vscode.Uri): Promise<void> {
 }
 
 /**
- * Register {@link SHOW_RELEASE_NOTES_COMMAND} and, once per version, open the
- * notes for the freshly installed / updated version (`release-notes/<v>.md`,
- * if that file exists).
+ * Register {@link SHOW_RELEASE_NOTES_COMMAND} and, once per version (unless
+ * `gessq.releaseNotes.showOnUpdate` is off), open the notes for the freshly
+ * installed / updated version (`release-notes/<v>.md`, if that file exists).
  */
 export function activateReleaseNotes(context: vscode.ExtensionContext): void {
 	const version = String(context.extension.packageJSON.version ?? '');
@@ -75,6 +76,7 @@ export function activateReleaseNotes(context: vscode.ExtensionContext): void {
 	);
 
 	if (
+		!releaseNotesOnUpdate() ||
 		!shouldShowReleaseNotes(
 			context.globalState.get<string>(SHOWN_KEY),
 			version,

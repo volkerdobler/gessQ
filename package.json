@@ -130,6 +130,11 @@
           "type": "string",
           "default": "",
           "description": "Additional glob pattern excluded from the workspace symbol scan, e.g. \"**/backup/**\"."
+        },
+        "gessq.releaseNotes.showOnUpdate": {
+          "type": "boolean",
+          "default": true,
+          "description": "Open the release notes once after installing or updating the extension. The command \"GESS Q.: Release Notes anzeigen\" stays available when this is off."
         }
       }
     }

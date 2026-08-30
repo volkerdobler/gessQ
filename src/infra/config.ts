@@ -45,6 +45,13 @@ export const completionIncludesWorkspaceSymbols = (): boolean =>
 	section().get<boolean>('completion.includeWorkspaceSymbols', true);
 
 /**
+ * `gessq.releaseNotes.showOnUpdate` – open this version's release notes once
+ * after an install / update. The command stays available either way.
+ */
+export const releaseNotesOnUpdate = (): boolean =>
+	section().get<boolean>('releaseNotes.showOnUpdate', true);
+
+/**
  * `gessq.files.exclude` – additional glob excluded from the workspace scan.
  * Empty string means "no extra exclude".
  */

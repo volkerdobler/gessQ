@@ -82,9 +82,9 @@ sie ersetzt die alte.
   richtet die Einrückung nach der `{`/`(`-Verschachtelung aus. Experimentell.
 
 - **„Was ist neu?"** – nach einer Installation oder einem Update öffnet sich
-  einmalig die Release-Notes-Seite der neuen Version (falls vorhanden).
-  Jederzeit erneut über die Befehlspalette (`Strg+Shift+P`):
-  **GESS Q.: Release Notes anzeigen**.
+  einmalig die Release-Notes-Seite der neuen Version (falls vorhanden;
+  abschaltbar über `gessq.releaseNotes.showOnUpdate`). Jederzeit erneut über
+  die Befehlspalette (`Strg+Shift+P`): **GESS Q.: Release Notes anzeigen**.
 
 ## Einstellungen
 
@@ -99,6 +99,7 @@ sie ersetzt die alte.
 | `gessq.codeLens.definitions`               | `string`  | `"reusable"` | Über welchen Definitionen die „N Verweise“-Zeile erscheint: `off`, `questions` (nur Fragen), `reusable` (Fragen + opennumformat/block/screen/#macro/quotavar) oder `all` (auch compute/array/textelement/…). `set`/`load`-Ziele nie. |
 | `gessq.completion.includeWorkspaceSymbols` | `boolean` | `true`    | Auch Namen aus dem Projekt (Fragen, Blöcke, Makros …) vorschlagen.         |
 | `gessq.files.exclude`                      | `string`  | `""`      | Zusätzliches Ordnermuster, das beim projektweiten Scan übersprungen wird (z. B. `**/backup/**`). |
+| `gessq.releaseNotes.showOnUpdate`          | `boolean` | `true`    | Release Notes nach Installation/Update einmalig anzeigen. Der Befehl bleibt in jedem Fall verfügbar. |
 | `gessq.logLevel`                           | `string`  | `"error"` | Umfang der Meldungen im Ausgabe-Kanal „GESS Q.“ (`off` … `debug`).         |
 
 ## Bekannte Einschränkungen (Testversion)

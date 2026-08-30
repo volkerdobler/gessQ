@@ -4,6 +4,7 @@ import {
 	hoverReferenceDetail,
 	codeLensDefinitions,
 	diagnosticsEnabled,
+	releaseNotesOnUpdate,
 } from '../infra/config';
 
 const realGetConfiguration = vscode.workspace.getConfiguration;
@@ -27,11 +28,16 @@ describe('config toggles', () => {
 		stubConfig({});
 		expect(hoverEnabled()).toBe(true);
 		expect(diagnosticsEnabled()).toBe(true);
+		expect(releaseNotesOnUpdate()).toBe(true);
 	});
 
 	test('honour an explicit false', () => {
-		stubConfig({ 'hover.enable': false });
+		stubConfig({
+			'hover.enable': false,
+			'releaseNotes.showOnUpdate': false,
+		});
 		expect(hoverEnabled()).toBe(false);
+		expect(releaseNotesOnUpdate()).toBe(false);
 	});
 
 	test('codeLens.definitions: default "reusable", known values pass, junk falls back', () => {
