@@ -95,7 +95,7 @@
           "enum": ["off", "summary", "definition", "full"],
           "enumDescriptions": [
             "No hover when pointing at a reference to a workspace name (keyword hovers still work).",
-            "Name, kind, definition location and the command's one-line description plus handbook link. No code.",
+            "Name, kind and where it is defined. No code, no description, no handbook link (hover the keyword for those).",
             "Also an excerpt of the definition: the question line plus text / title / labels / flt / assert …, without actionblock / javascript / css attributes.",
             "The complete definition verbatim, including actionblock / javascript / css."
           ],

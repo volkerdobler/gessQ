@@ -6,7 +6,6 @@ import {
 	loadGlossary,
 	lookupEntry,
 	formatEntryMarkdown,
-	type Glossary,
 } from '../data/glossary';
 import {
 	SymbolIndex,
@@ -191,8 +190,9 @@ export function definitionExcerpt(
  * - a language keyword → the full glossary entry (heading, syntax, summary,
  *   handbook link);
  * - a reference to a workspace symbol → governed by `gessq.hover.referenceDetail`:
- *   `off` (no hover), `summary` (name / kind / location + description + link),
+ *   `off` (no hover), `summary` (name / kind / definition location),
  *   `definition` (adds a cleaned excerpt) or `full` (the whole definition).
+ *   No command description / handbook link – hover the keyword for those.
  */
 export class GessQHoverProvider implements vscode.HoverProvider {
 	constructor(
@@ -249,9 +249,7 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 			if (detail === 'off') {
 				return null;
 			}
-			md.appendMarkdown(
-				await this.symbolExcerpt(defs[0], glossary, detail),
-			);
+			md.appendMarkdown(await this.symbolExcerpt(defs[0], detail));
 		} else {
 			const lineText = document.lineAt(position.line).text;
 			const entry =
@@ -270,10 +268,13 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		return md.value.length > 0 ? new vscode.Hover(md) : null;
 	}
 
-	/** Heading + (optional) definition excerpt + command description. */
+	/**
+	 * A reference hover: `**NAME** — question \`singleq\` · file:line` and,
+	 * from `definition` up, an excerpt of the definition. No command
+	 * description and no handbook link – for that, hover the keyword.
+	 */
 	private async symbolExcerpt(
 		d: IndexedSymbol,
-		glossary: Glossary,
 		detail: Exclude<HoverReferenceDetail, 'off'>,
 	): Promise<string> {
 		const where =
@@ -283,31 +284,24 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		const head =
 			'**' + d.name + '** — ' + d.category + ' `' + d.detail + '` · ' + where;
 
-		let excerpt = '';
-		if (detail !== 'summary') {
-			try {
-				const doc = await vscode.workspace.openTextDocument(d.uri);
-				excerpt = definitionExcerpt(
-					doc.getText().split(/\r?\n/),
-					d.nameRange.start.line,
-					detail === 'full'
-						? { maxLines: EXCERPT_SCAN_LIMIT, keepAll: true }
-						: undefined,
-				);
-			} catch {
-				/* ignore */
-			}
+		if (detail === 'summary') {
+			return head;
 		}
 
-		const kw = lookupEntry(glossary, d.detail);
-		const kwDoc = kw
-			? (kw.summary ? kw.summary + '\n\n' : '') + kw.detail
-			: '';
+		let excerpt = '';
+		try {
+			const doc = await vscode.workspace.openTextDocument(d.uri);
+			excerpt = definitionExcerpt(
+				doc.getText().split(/\r?\n/),
+				d.nameRange.start.line,
+				detail === 'full'
+					? { maxLines: EXCERPT_SCAN_LIMIT, keepAll: true }
+					: undefined,
+			);
+		} catch {
+			/* ignore */
+		}
 
-		return (
-			head +
-			(excerpt ? '\n\n```gessq\n' + excerpt + '\n```' : '') +
-			(kwDoc ? '\n\n' + kwDoc : '')
-		);
+		return head + (excerpt ? '\n\n```gessq\n' + excerpt + '\n```' : '');
 	}
 }

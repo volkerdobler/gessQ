@@ -37,15 +37,15 @@ Current version number is first:
   - on the name in its own definition: nothing (hover the command keyword,
     e.g. `singleq`, for its documentation);
   - on a language keyword: the glossary entry as before;
-  - on a reference to a question / variable: name, kind, definition
-    location, and the command's short description + handbook link. New
-    setting **`gessq.hover.referenceDetail`** (`off` / `summary` /
-    `definition` / `full`, default `summary`) adds, from `definition` up, an
-    **excerpt of the definition** – the `singleq` line plus `text` / `title`
-    / `labels` / `flt` / `assert` …, up to the next definition. `definition`
-    leaves out `actionblock` (incl. multi-line brace blocks), `javascript`
-    and `css`; `full` keeps everything. The excerpt now tolerates a single
-    blank line between attribute groups (two end it).
+  - on a reference to a question / variable: name, kind and where it is
+    defined – no command description or handbook link (hover the keyword for
+    those). New setting **`gessq.hover.referenceDetail`** (`off` / `summary`
+    / `definition` / `full`, default `summary`) adds, from `definition` up,
+    an **excerpt of the definition** – the `singleq` line plus `text` /
+    `title` / `labels` / `flt` / `assert` …, up to the next definition.
+    `definition` leaves out `actionblock` (incl. multi-line brace blocks),
+    `javascript` and `css`; `full` keeps everything. The excerpt tolerates a
+    single blank line between attribute groups (two end it).
 - `language-configuration.json`: `wordPattern` aligned with the parser
   grammar; `onEnterRules` use the `indent` action key (the previous
   `indentAction` key was silently ignored, so auto-indent/outdent on Enter
