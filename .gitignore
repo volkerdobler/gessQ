@@ -180,3 +180,4 @@ LAST_WORK.md
 dokumentation/**
 
 *.pdf
+.ps_history
