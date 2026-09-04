@@ -73,3 +73,21 @@ node tools/testHover.js
 ## pdf2glossary.js — one-off PDF → glossary extraction (historical)
 
 Superseded by `sync-glossary.js`; kept for reference.
+
+## html2md.js — `dokumentation/online-manual/*.html` → `dokumentation/online-manual/md/*.md`
+
+One-off conversion of the browser-saved handbook pages into readable
+Markdown, for grepping / feeding to an LLM without the "Help & Manual"
+chrome. Filenames follow the handbook's own URL basenames (e.g.
+`13_01_actionbefehle.md`), so they sort in reading order and cross-page
+links resolve to local files; images stay linked back into the sibling
+`dokumentation/online-manual/*_files/` folders rather than being copied.
+`md/README.md` is a generated index of every page.
+
+```bash
+node tools/html2md.js
+```
+
+Re-run it whenever the saved handbook pages change. It only understands the
+specific `p`/`span` class vocabulary Help & Manual emits (see the comment at
+the top of the script) - not a general HTML-to-Markdown converter.

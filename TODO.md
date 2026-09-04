@@ -5,6 +5,38 @@ Entscheidungslog stehen in [HISTORY.md](HISTORY.md).
 
 ---
 
+## Bugs
+
+### Hover auf Fragereferenz in `flt(...)`-Ausdruck funktioniert nicht
+
+Bei einer Label-Zeile mit Filter, der auf eine andere Frage verweist (z. B.
+`single flt ([2:4] in s7)`), reagiert Hover über `s7` nicht.
+
+Repro:
+
+```
+multiq f16;
+text="
+Jetzt geht es um Kinder und Familie:
+Welche Rolle spielt Fruchtsaft / Fruchtnektar für Kinder in deinem Haushalt
+oder in deiner Vorstellung von Familie?
+Du kannst maximal 3 Antworten auswählen.
+";
+labels=
+1	"Gehört zur Ernährung für Kinder dazu" random
+2	"Ist eher etwas für besondere Anlässe" random
+3	"Ist wegen Zucker eher kritisch" random
+4	"Ist in kleinen Packungen praktisch" random
+5	"Kann Teil eines gesunden Frühstücks sein" random
+6	"Ist eine gute Belohnung für zwischendurch" random
+7	"Ist eine gute Möglichkeit, mein Kind zum mehr Trinken zu animieren" random
+8	"Würde ich meinen Kindern eher nicht geben" single flt ([2:4] in s7)
+9	"Ich habe dazu keine Meinung" single
+;
+```
+
+---
+
 ## Features
 
 ### 5.13 Echte Sprachfeatures in eingebetteten JS-/CSS-Blöcken
