@@ -5,6 +5,25 @@ Current version number is first:
 
 ### Unreleased
 
+- Completion is smarter about answer codes and label lists: after `FRAGE.` or
+  `FRAGE eq` / `ne` / … the answer codes of that question are offered (with the
+  label text shown next to each), and inside a `labels=` / `gridlabels=` list
+  the suggestions are the label attributes (`random`, `single`, `fixed`, `flt`,
+  `open`, `format`, …) and structuring keywords (`group`, `splitcolumn`,
+  `text`) instead of the full language keyword set. Answer codes are read from
+  each question's `labels=` block (one level of `labels copy X` is followed).
+- Real language features inside embedded `javascript = "…"` / `jsHandler = "…"`
+  and `css = "…"` blocks: hover, completion and signature help are forwarded to
+  the built-in JavaScript/TypeScript and CSS language services through a virtual
+  document (the `.q` text with everything outside the block blanked, so
+  positions map 1:1). `@insert(…)` / `@insert[…]` / `@insert{…}` and `&macro;`
+  are hidden from that view. A bundled `gessq-globals.d.ts` teaches the JS view
+  about `QDot` (`onSubmit`, `JsonData`, `logger`, …), `$` / `jQuery`, `Android`
+  and the GESS Q. Android bridge functions (`startBackgroundAudioRecording`,
+  `openCamera`, `openBarcodeScanner`, `hideq`, `insertLayer`, `addImage`, …).
+  Diagnostics are **not** forwarded. Turn the whole thing off with
+  `gessq.embeddedLanguages.enable: false`. The GESS Q. keyword hover / completion
+  now stands aside inside those blocks.
 - The "Duplicate <kind> …" diagnostic now understands `#ifdef` / `#ifndef`,
   including nesting (`#ifdef X` + `#ifdef Y` = X **and** Y), the OR form
   (`#ifdef [X Y]` = X **or** Y) and `#else`. Two definitions are only left

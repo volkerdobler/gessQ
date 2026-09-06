@@ -177,6 +177,9 @@ previousVersion/**
 manual/**
 LAST_WORK.md
 
+# compiled extension-host integration tests (tsconfig.test.json)
+out-test/
+
 dokumentation/**
 
 *.pdf

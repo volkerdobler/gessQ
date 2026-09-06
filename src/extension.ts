@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 
 import { clearScopeCache } from './core/scope';
-import { SymbolIndex } from './core/symbolIndex';
+import { SymbolIndex, clearParsedSymbolsCache } from './core/symbolIndex';
 import {
 	setOutputChannel,
 	refreshLogLevelFromConfig,
@@ -26,6 +26,7 @@ import {
 	GessQFormattingProvider,
 	DiagnosticsManager,
 	registerRevealLocation,
+	registerEmbeddedLanguageSupport,
 } from './providers';
 
 const FILE = { language: 'gessq', scheme: 'file' } as const;
@@ -50,6 +51,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(index);
 
 	registerRevealLocation(context);
+	registerEmbeddedLanguageSupport(context);
 	activateReleaseNotes(context);
 
 	const { extensionUri } = context;
@@ -138,18 +140,21 @@ export function activate(context: vscode.ExtensionContext): void {
 
 	new DiagnosticsManager(index).activate(context);
 
-	// Keep the scope cache in sync with the editor.
+	// Keep the parse caches in sync with the editor.
+	const forget = (doc: vscode.TextDocument): void => {
+		clearScopeCache(doc);
+		clearParsedSymbolsCache(doc);
+	};
 	context.subscriptions.push(
-		vscode.workspace.onDidChangeTextDocument((e) =>
-			clearScopeCache(e.document),
-		),
-		vscode.workspace.onDidSaveTextDocument((doc) => clearScopeCache(doc)),
-		vscode.workspace.onDidCloseTextDocument((doc) => clearScopeCache(doc)),
+		vscode.workspace.onDidChangeTextDocument((e) => forget(e.document)),
+		vscode.workspace.onDidSaveTextDocument(forget),
+		vscode.workspace.onDidCloseTextDocument(forget),
 	);
 }
 
 export function deactivate(): void {
 	clearScopeCache();
+	clearParsedSymbolsCache();
 	symbolIndex?.dispose();
 	symbolIndex = undefined;
 }

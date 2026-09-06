@@ -27,6 +27,8 @@ export enum CompletionItemKind {
 	Module = 8,
 	Constant = 20,
 	Variable = 5,
+	EnumMember = 19,
+	Value = 11,
 }
 
 export enum DiagnosticSeverity {
@@ -141,7 +143,11 @@ function normalize(p: string): string {
 }
 
 export class Uri {
-	private constructor(public readonly path: string) {}
+	private constructor(
+		public readonly path: string,
+		public readonly scheme: string = 'file',
+		public readonly authority: string = '',
+	) {}
 	static file(p: string): Uri {
 		return new Uri(normalize(p.replace(/\\/g, '/')));
 	}
@@ -151,11 +157,16 @@ export class Uri {
 	static joinPath(base: Uri, ...segments: string[]): Uri {
 		return new Uri(normalize(base.path + '/' + segments.join('/')));
 	}
+	static from(c: { scheme: string; path?: string; authority?: string }): Uri {
+		return new Uri(c.path ?? '', c.scheme, c.authority ?? '');
+	}
 	get fsPath(): string {
 		return this.path;
 	}
 	toString(): string {
-		return 'file://' + this.path;
+		return this.scheme === 'file'
+			? 'file://' + this.path
+			: this.scheme + '://' + this.authority + this.path;
 	}
 }
 
@@ -175,8 +186,56 @@ export class EventEmitter<T> {
 	}
 }
 
+export class Hover {
+	constructor(
+		public contents: unknown,
+		public range?: Range,
+	) {}
+}
+
+export class MarkdownString {
+	value = '';
+	isTrusted: boolean | { enabledCommands: string[] } = false;
+	constructor(value = '') {
+		this.value = value;
+	}
+	appendMarkdown(v: string): this {
+		this.value += v;
+		return this;
+	}
+}
+
+export class CompletionItem {
+	detail?: string;
+	documentation?: unknown;
+	sortText?: string;
+	filterText?: string;
+	insertText?: unknown;
+	range?: unknown;
+	command?: unknown;
+	additionalTextEdits?: unknown;
+	constructor(
+		public label: string | { label: string },
+		public kind?: CompletionItemKind,
+	) {}
+}
+
+export class CompletionList {
+	constructor(
+		public items: unknown[] = [],
+		public isIncomplete = false,
+	) {}
+}
+
+export class SignatureHelp {
+	signatures: unknown[] = [];
+	activeSignature = 0;
+	activeParameter = 0;
+}
+
 /** Overridable in tests via `jest.spyOn` / direct assignment. */
 export const workspace = {
+	textDocuments: [] as unknown[],
 	getConfiguration(): {
 		get<T>(key: string, defaultValue?: T): T | undefined;
 	} {
@@ -189,6 +248,31 @@ export const workspace = {
 	asRelativePath(uri: Uri | string): string {
 		return typeof uri === 'string' ? uri : uri.path;
 	},
+	registerTextDocumentContentProvider(): { dispose(): void } {
+		return { dispose: () => void 0 };
+	},
+	openTextDocument(): Promise<unknown> {
+		return Promise.reject(new Error('not implemented in mock'));
+	},
+	onDidOpenTextDocument(): { dispose(): void } {
+		return { dispose: () => void 0 };
+	},
+	onDidChangeTextDocument(): { dispose(): void } {
+		return { dispose: () => void 0 };
+	},
+	onDidCloseTextDocument(): { dispose(): void } {
+		return { dispose: () => void 0 };
+	},
+};
+
+export const commands = {
+	executeCommand: async (..._args: unknown[]): Promise<unknown> => undefined,
+};
+
+export const languages = {
+	registerHoverProvider: () => ({ dispose: () => void 0 }),
+	registerCompletionItemProvider: () => ({ dispose: () => void 0 }),
+	registerSignatureHelpProvider: () => ({ dispose: () => void 0 }),
 };
 
 export const window = {

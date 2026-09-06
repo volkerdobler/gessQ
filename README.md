@@ -32,7 +32,12 @@ sie ersetzt die alte.
     irgendwo im geöffneten Projekt vorkommen,
   - nur passende Vorschläge je nach Stelle: Direktiven nach `#` bzw. `@`,
     Makronamen nach `&` und `#domacro `, `html` / `thymeleaf` nach
-    `rendering =`.
+    `rendering =`,
+  - die **Antwortcodes einer Frage** nach `FRAGE.` oder `FRAGE eq` / `ne` / …
+    (mit dem jeweiligen Labeltext),
+  - innerhalb einer `labels=`-Liste die **Label-Attribute** (`random`,
+    `single`, `fixed`, `flt`, `open`, `format`, …) und `group` / `splitcolumn`
+    / `text`.
 
 - **Erklärung beim Zeigen mit der Maus (Hover)**: zu praktisch jedem
   Schlüsselwort ein kurzer Syntaxhinweis, ein bis drei erklärende Sätze und
@@ -75,6 +80,16 @@ sie ersetzt die alte.
 
 - **Parameterhinweise** bei Makro- und Funktionsaufrufen.
 
+- **Echtes JavaScript / CSS** in `javascript = "…"`, `jsHandler = "…"` und
+  `css = "…"`: Hover, Autovervollständigung und Parameterhinweise kommen aus
+  dem eingebauten JS/TS- bzw. CSS-Sprachdienst (über ein internes
+  Hilfsdokument). Die JS-Sicht kennt die GESS-Q.-Globals – `QDot`
+  (`onSubmit`, `JsonData`, `logger`, …), `$` / `jQuery`, `Android` und die
+  Android-Funktionen (`startBackgroundAudioRecording`, `openCamera`,
+  `openBarcodeScanner`, `hideq`, `insertLayer`, `addImage`, …).
+  `@insert(…)` und `&makro;` werden dabei ausgeblendet. Fehlerprüfung im Block
+  gibt es (noch) nicht; abschaltbar über `gessq.embeddedLanguages.enable`.
+
 - **Snippets** (Textbausteine) für Fragetypen, ActionBlöcke, Filter, Grids,
   Server-Einstellungen u. v. m.
 
@@ -100,15 +115,17 @@ sie ersetzt die alte.
 | `gessq.hover.referenceDetail`              | `string`  | `"summary"` | Wie viel der Hover über einer Fragen-/Variablen-*Referenz* zeigt: `off`, `summary` (Name, Art, Fundort der Definition – ohne Beschreibung/Link), `definition` (zusätzlich ein Auszug der Definition ohne actionblock/js/css) oder `full` (komplette Definition). |
 | `gessq.codeLens.definitions`               | `string`  | `"reusable"` | Über welchen Definitionen die „N Verweise“-Zeile erscheint: `off`, `questions` (nur Fragen), `reusable` (Fragen + opennumformat/block/screen/#macro/quotavar) oder `all` (auch compute/array/textelement/…). `set`/`load`-Ziele nie. |
 | `gessq.completion.includeWorkspaceSymbols` | `boolean` | `true`    | Auch Namen aus dem Projekt (Fragen, Blöcke, Makros …) vorschlagen.         |
+| `gessq.embeddedLanguages.enable`           | `boolean` | `true`    | Echte JS/TS- und CSS-Hilfe (Hover, Vervollständigung, Parameterhinweise) in `javascript=` / `jsHandler=` / `css=`-Blöcken. |
 | `gessq.files.exclude`                      | `string`  | `""`      | Zusätzliches Ordnermuster, das beim projektweiten Scan übersprungen wird (z. B. `**/backup/**`). |
 | `gessq.releaseNotes.showOnUpdate`          | `boolean` | `true`    | Release Notes nach Installation/Update einmalig anzeigen. Der Befehl bleibt in jedem Fall verfügbar. |
 | `gessq.logLevel`                           | `string`  | `"error"` | Umfang der Meldungen im Ausgabe-Kanal „GESS Q.“ (`off` … `debug`).         |
 
 ## Bekannte Einschränkungen (Testversion)
 
-- Innerhalb von `javascript=` / `jsHandler=` / `css=` gibt es nur die Farbe –
-  keine echte JavaScript-/CSS-Hilfe (Autovervollständigung, Fehlerprüfung).
-  Das ist für eine spätere Version geplant.
+- Innerhalb von `javascript=` / `jsHandler=` / `css=` gibt es Hover,
+  Vervollständigung und Parameterhinweise, aber **keine Fehlerprüfung**
+  (Diagnostics werden nicht weitergereicht). Die erste Hilfe je Datei kann
+  einen Moment brauchen, bis der Sprachdienst geladen ist.
 - **Dokument formatieren** ändert nur die Einrückung, sonst nichts.
 - Die Handbuch-Links im Hover sind ein Schnappschuss; wenn GESS eine
   Handbuch-Seite verschiebt, kann ein Link ins Leere zeigen.

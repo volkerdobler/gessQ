@@ -8,10 +8,13 @@ module.exports = tseslint.config(
 	{
 		ignores: [
 			'out/**',
+			'out-test/**',
+			'.vscode-test/**',
 			'node_modules/**',
 			'esbuild.js',
 			'eslint.config.js',
 			'.eslintrc.js',
+			'.vscode-test.mjs',
 			'tools/**',
 			'**/*.d.ts',
 		],

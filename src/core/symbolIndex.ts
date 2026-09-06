@@ -17,6 +17,14 @@ export type SymbolCategory =
 	| 'array'
 	| 'quota';
 
+/** One answer code of a question, from its `labels=` / `gridlabels=` block. */
+export interface LabelInfo {
+	/** The label code as written (a natural number, up to 10 digits). */
+	code: string;
+	/** The label text, quotes stripped. */
+	text: string;
+}
+
 export interface IndexedSymbol {
 	/** Name as written, with surrounding quotes stripped. */
 	name: string;
@@ -30,6 +38,12 @@ export interface IndexedSymbol {
 	nameRange: vscode.Range;
 	/** Whole definition line (used for peek). */
 	lineRange: vscode.Range;
+	/**
+	 * Answer codes of a question (`labels=` / `gridlabels=` block, or the one it
+	 * `copy`s from in the same file). Only set for `question` symbols that have
+	 * a resolvable label list.
+	 */
+	labels?: LabelInfo[];
 }
 
 /** Map an index category to a VS Code {@link vscode.SymbolKind}. */
@@ -79,13 +93,108 @@ const FACTORIES: Factory[] = [
 	{ re: () => parser.databaseConnectionDefRe(), category: 'definition' },
 ];
 
+/** Keywords that open a new top-level definition – a label scan stops here. */
+const NEXT_DEF =
+	/^\s*(?:singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group|sliderq|compute|array|vararray|textelement|textarray|intrandom|databaseconnection|opennumformat|quotavar|quotagroup|block|screen|#\w+)\b/i;
+
+/**
+ * `labels=` / `gridlabels=` – the start of a selectable-code list. `griditems=`
+ * is deliberately excluded: those codes are the grid's rows, not answers.
+ */
+const LABEL_LIST_START = /\b(labels|gridlabels)\b\s*=/i;
+/** `labels copy X` / `gridlabels copy X`. */
+const LABEL_LIST_COPY = /\b(?:labels|gridlabels)\b\s+copy\s+([A-Za-z]\w*)/i;
+/** `CODE "TEXT"` – an answer label (not a `text "…"` structuring label). */
+const LABEL_CODE = /(?<![.\w])(\d{1,10})\s+"((?:[^"\\\r\n]|\\.)*)"/g;
+
+/**
+ * Collect the answer codes of the question whose definition is on `defLine`,
+ * scanning its `labels=` / `gridlabels=` block up to the terminating `;` (or the
+ * next definition). Returns the codes, or – when the question uses
+ * `labels copy X` – the name to copy from, for the caller to resolve.
+ */
+function scanLabelList(
+	document: vscode.TextDocument,
+	defLine: number,
+): { labels?: LabelInfo[]; copyOf?: string } {
+	const scope = getCachedScope(document);
+	const end = Math.min(document.lineCount, defLine + 300);
+	const labels: LabelInfo[] = [];
+	let collecting = false;
+	let depth = 0;
+
+	for (let i = defLine; i < end; i++) {
+		const text = document.lineAt(i).text;
+
+		if (i > defLine && NEXT_DEF.test(text) && scope.isNotInComment(i, 0)) {
+			break;
+		}
+
+		if (!collecting) {
+			const copy = LABEL_LIST_COPY.exec(text);
+			if (copy && scope.isNotInComment(i, copy.index)) {
+				return { copyOf: copy[1].toLowerCase() };
+			}
+			const startAt = text.search(LABEL_LIST_START);
+			if (startAt < 0 || !scope.isNotInComment(i, startAt)) {
+				continue;
+			}
+			collecting = true;
+		}
+
+		// Extract codes on the collectible part of the line (skip comments).
+		LABEL_CODE.lastIndex = 0;
+		let m: RegExpExecArray | null;
+		while ((m = LABEL_CODE.exec(text))) {
+			if (scope.isNotInComment(i, m.index)) {
+				labels.push({ code: m[1], text: unquote('"' + m[2] + '"') });
+			}
+		}
+
+		// A `;` at bracket depth 0 (outside strings/comments) closes the list.
+		let closed = false;
+		for (let c = 0; c < text.length; c++) {
+			if (!scope.isNotInComment(i, c) || scope.isString(i, c)) {
+				continue;
+			}
+			const ch = text[c];
+			if (ch === '(') {
+				depth++;
+			} else if (ch === ')') {
+				depth = Math.max(0, depth - 1);
+			} else if (ch === ';' && depth === 0) {
+				closed = true;
+				break;
+			}
+		}
+		if (closed) {
+			break;
+		}
+	}
+
+	return labels.length > 0 ? { labels } : {};
+}
+
+const symbolsCache = new Map<
+	string,
+	{ version: number; symbols: IndexedSymbol[] }
+>();
+
 /**
  * Parse a single document into the symbols it *defines* (questions,
- * opennumformats, blocks/screens, macros). Comment-only matches are skipped.
+ * opennumformats, blocks/screens, macros), each `question` carrying its answer
+ * codes (`labels=` / `gridlabels=`). Comment-only matches are skipped. Memoised
+ * per document version – cleared by {@link clearParsedSymbolsCache}.
  */
 export function parseDocumentSymbols(
 	document: vscode.TextDocument,
 ): IndexedSymbol[] {
+	const key = document.uri.toString();
+	const hit = symbolsCache.get(key);
+	if (hit && hit.version === document.version) {
+		return hit.symbols;
+	}
+
 	const out: IndexedSymbol[] = [];
 
 	for (let i = 0; i < document.lineCount; i++) {
@@ -120,7 +229,44 @@ export function parseDocumentSymbols(
 		}
 	}
 
+	// Attach answer codes to every question, resolving one level of
+	// same-file `labels copy X`.
+	const pending: { sym: IndexedSymbol; copyOf: string }[] = [];
+	for (const sym of out) {
+		if (sym.category !== 'question') {
+			continue;
+		}
+		const { labels, copyOf } = scanLabelList(
+			document,
+			sym.nameRange.start.line,
+		);
+		if (labels) {
+			sym.labels = labels;
+		} else if (copyOf) {
+			pending.push({ sym, copyOf });
+		}
+	}
+	if (pending.length > 0) {
+		const byLower = new Map(out.map((s) => [s.lower, s]));
+		for (const { sym, copyOf } of pending) {
+			const src = byLower.get(copyOf);
+			if (src?.labels) {
+				sym.labels = src.labels;
+			}
+		}
+	}
+
+	symbolsCache.set(key, { version: document.version, symbols: out });
 	return out;
+}
+
+/** Drop the parsed-symbol cache for `document`, or the whole cache. */
+export function clearParsedSymbolsCache(document?: vscode.TextDocument): void {
+	if (document) {
+		symbolsCache.delete(document.uri.toString());
+	} else {
+		symbolsCache.clear();
+	}
 }
 
 interface FileEntry {

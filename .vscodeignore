@@ -1,12 +1,15 @@
 # Files excluded from the packaged .vsix.
-# What ships: out/extension.js, out/manualGlossary.json, language/,
-# language-configuration.json, images/, release-notes/, README.md,
+# What ships: out/extension.js, out/manualGlossary.json, out/gessq-globals.d.ts,
+# language/, language-configuration.json, images/, release-notes/, README.md,
 # CHANGELOG.md, package.json, LICENSE.
 
 .vscode/**
+.vscode-test/**
 .github/**
 src/**
+assets/**
 tools/**
+out-test/**
 dokumentation/**
 manual/**
 previousVersions/**
@@ -14,6 +17,11 @@ previousVersions/**
 **/*.ts
 **/*.map
 **/tsconfig.json
+tsconfig.test.json
+.vscode-test.mjs
+
+# …but the embedded-JS ambient globals are a runtime asset (see esbuild.js).
+!out/gessq-globals.d.ts
 
 eslint.config.js
 esbuild.js
@@ -25,4 +33,5 @@ package-lock.json
 TODO.md
 HISTORY.md
 LAST_WORK.md
+.ps_history
 *.vsix

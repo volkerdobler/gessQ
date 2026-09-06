@@ -118,3 +118,91 @@ test('a quoted name with an illegal character is not a definition', () => {
 	expect(parseDocumentSymbols(makeDoc(['singleq "Frage 1";']))).toEqual([]);
 	expect(parseDocumentSymbols(makeDoc(['singleq "Fräge";']))).toEqual([]);
 });
+
+describe('answer-code (labels=) extraction', () => {
+	test('attaches codes + texts to a question, ignoring text-labels', () => {
+		const [q] = parseDocumentSymbols(
+			makeDoc([
+				'singleq s7;',
+				'text = "Welche Marke?";',
+				'labels =',
+				'text "Deutsche"',
+				'1 "Audi" random',
+				'2 "BMW" random',
+				'99 "keine" single',
+				';',
+				'',
+				'singleq next;',
+			]),
+		);
+		expect(q.name).toBe('s7');
+		expect(q.labels).toEqual([
+			{ code: '1', text: 'Audi' },
+			{ code: '2', text: 'BMW' },
+			{ code: '99', text: 'keine' },
+		]);
+	});
+
+	test('stops at the terminating `;` – later numbers are not codes', () => {
+		const [q] = parseDocumentSymbols(
+			makeDoc([
+				'singleq s1;',
+				'labels = 1 "a" 2 "b";',
+				'assert ( count(s1) eq 1 ) "3 pick one" exit 2;',
+			]),
+		);
+		expect(q.labels).toEqual([
+			{ code: '1', text: 'a' },
+			{ code: '2', text: 'b' },
+		]);
+	});
+
+	test('gridlabels are indexed too; restrict() codes are not', () => {
+		const [q] = parseDocumentSymbols(
+			makeDoc([
+				'singlegridq g;',
+				'gridlabels=',
+				'1 "(1) top" restrict([1:3])',
+				'2 "(2)"',
+				';',
+			]),
+		);
+		expect(q.labels).toEqual([
+			{ code: '1', text: '(1) top' },
+			{ code: '2', text: '(2)' },
+		]);
+	});
+
+	test('`labels copy X` inherits X’s codes (same file)', () => {
+		const syms = parseDocumentSymbols(
+			makeDoc([
+				'multiq bekannt;',
+				'labels = 1 "P1" 2 "P2" 3 "P3";',
+				'multiq gekauft;',
+				'labels copy bekannt;',
+				'restrict = bekannt;',
+			]),
+		);
+		const byName = Object.fromEntries(syms.map((s) => [s.name, s]));
+		expect(byName['gekauft'].labels).toEqual(byName['bekannt'].labels);
+		expect(byName['gekauft'].labels).toHaveLength(3);
+	});
+
+	test('a question without a labels list has no `labels`', () => {
+		const [q] = parseDocumentSymbols(
+			makeDoc(['openq o1;', 'text = "frei";']),
+		);
+		expect(q.labels).toBeUndefined();
+	});
+
+	test('a label list inside a comment is ignored', () => {
+		const [q] = parseDocumentSymbols(
+			makeDoc([
+				'singleq s1;',
+				'// labels = 1 "ghost";',
+				'labels = 5 "real";',
+			]),
+		);
+		expect(q.labels).toEqual([{ code: '5', text: 'real' }]);
+	});
+});

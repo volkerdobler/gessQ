@@ -1,12 +1,14 @@
 {
+	// Compiles the extension-host integration tests (src/test/**) to out-test/.
+	// Separate from the main build (esbuild) and the jest unit tests (ts-jest).
 	"compilerOptions": {
 		"module": "Node16",
 		"moduleResolution": "Node16",
 		"target": "ES2021",
 		"lib": ["ES2021"],
-		"outDir": "out",
-		"rootDir": "src",
-		"types": ["node", "jest"],
+		"outDir": "out-test",
+		"rootDir": "src/test",
+		"types": ["node", "mocha"],
 		"sourceMap": true,
 		"strict": true,
 		"esModuleInterop": true,
@@ -15,13 +17,5 @@
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true
 	},
-	"include": ["src/**/*.ts"],
-	"exclude": [
-		"node_modules",
-		".vscode-test",
-		"out",
-		"out-test",
-		"src/__tests__",
-		"src/test"
-	]
+	"include": ["src/test/**/*.ts"]
 }

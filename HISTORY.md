@@ -694,11 +694,76 @@ Migration in kleinen Schritten:
         vage – kein Beleg gefunden.
       Die Template-Seite (`.html`, Thymeleaf/JEXL) erzeugt der Q.-Server
       (Java) – kein `.q`, damit **nichts für die Extension**.
-- [ ] 5.13 Echte Sprachfeatures in eingebetteten JS-/CSS-Blöcken → **offen,
-      siehe [TODO.md](TODO.md)**.
+- [x] 5.13 Echte Sprachfeatures in eingebetteten `javascript = "…"` /
+      `jsHandler = "…"` / `css = "…"`-Blöcken: Request-Forwarding über ein
+      virtuelles Dokument, wie VS Code bei `<script>`/`<style>` in HTML.
+      - `src/core/embeddedRegions.ts` – reiner Scanner (String rein, Offsets
+        raus; kommentar-/string-aware, `\"`-Escapes, mehrere Regionen,
+        unterminierte Blöcke) plus `buildVirtualContent`: `.q`-Text, alles
+        außer den Regionen der Zielsprache durch Leerzeichen ersetzt
+        (Zeilenumbrüche erhalten → Offsets **und** Zeilennummern 1:1),
+        `@insert(…)` / `@insert[…]` / `@insert{…}` / `&macro;` innerhalb der
+        Region gleich lang durch `_i_…` ausgeblendet.
+      - `src/providers/embeddedLanguage.ts` – `TextDocumentContentProvider`
+        für die Schemata `gessq-embedded-js:` (virtueller Pfad `.ts`, damit
+        die ambient-`declare`s greifen) und `gessq-embedded-css:` (`.css`).
+        Hover-/Completion-/Signature-Provider leiten bei Cursor in einer
+        Region an `vscode.executeHoverProvider` / `…CompletionItemProvider` /
+        `…SignatureHelpProvider` gegen die virtuelle URI weiter. Auto-Import-
+        `additionalTextEdits` und deren Command werden verworfen. Diagnostics
+        werden **nicht** weitergereicht. Cold-Start-Warm-up beim Öffnen.
+      - `assets/gessq-globals.d.ts` (ins VSIX gebündelt, siehe `esbuild.js` +
+        `.vscodeignore`-Negation) – ambient-Decls für `QDot` (`onSubmit`,
+        `JsonData`, `logger`, `keyboard`, `clickranking`, `heatplotter`,
+        `starRating`, `audioplayer`, `videoplayer`), `Android`, `$`/`jQuery`,
+        `startBackgroundAudioRecording` / `stopAudioRecording` /
+        `showAudiorecorder` / `openCamera` / `openBarcodeScanner` /
+        `playVideo` / `startNetBlockService` / `stopNetBlockService` /
+        `hideq` / `insertLayer` / `addImage` und den `_i_`-Platzhalter.
+        Quelle: Handbuch-Kapitel 17 / 26.6 / 16.06–16.13. Wird an den JS-
+        Virtual-Doc **angehängt** (eigene Zeilen am Ende, verschiebt nichts).
+      - `contributes.grammars[].embeddedLanguages` gesetzt
+        (`meta.embedded.block.javascript|css|html` → `javascript`/`css`/`html`)
+        für Klammer-/Kommentar-/Einrücklogik im Block.
+      - Basis-Provider (Hover/Completion/Signature) treten in einer Region
+        zurück (`suppressForEmbedded`), Setting `gessq.embeddedLanguages.enable`
+        (Default an).
+      - Unit-Tests: `embeddedRegions.test.ts`, `embeddedLanguage.test.ts`;
+        Extension-Host-Tests in `src/test/suite/embedded.test.ts` (siehe 5.11).
+- [x] 5.2-Reste Completion:
+      - `symbolIndex` hängt jedem `question`-Symbol seine Antwortcodes an
+        (`labels=` / `gridlabels=`-Block scope-aware bis zum `;`, `text "…"`-
+        Strukturlabels und `restrict(…)`-Codes ausgenommen; eine Ebene
+        `labels copy X` im selben File aufgelöst). `parseDocumentSymbols` ist
+        jetzt pro Dokumentversion memoisiert (`clearParsedSymbolsCache`,
+        analog zum Scope-Cache) – die Codeextraktion kostet damit nichts extra.
+      - `completionProvider`: neuer Kontext `labelRef` – nach `FRAGE.` bzw.
+        `FRAGE eq|ne|le|ge|lt|gt` werden die Antwortcodes der Frage
+        vorgeschlagen (Kind `EnumMember`, Text als `detail`, numerisch
+        sortiert); `isInLabelList` erkennt per Rückwärts-Scan die
+        `labels=`-Liste und bietet dort Label-Attribute
+        (`random`/`single`/`fixed`/`flt`/`open`/`format`/…) + Struktur
+        (`group`/`splitcolumn`/`text`) + Fragennamen statt der vollen
+        Keyword-Liste. Unit-Tests in `completion.test.ts` / `symbolIndex.test.ts`,
+        Host-Tests in `src/test/suite/completion.test.ts`.
+- [x] 5.11-Reste Tests:
+      - **Extension-Host-Integrationstests** via `@vscode/test-cli` +
+        `@vscode/test-electron` (Mocha, `tsconfig.test.json` → `out-test/`,
+        Config `.vscode-test.mjs`, Fixture-Workspace `src/test/fixtures/`).
+        `src/test/suite/`: `navigation.test.ts` (DocumentSymbol, Definition
+        über `#include`, Reference, Hover Keyword+Symbol, WorkspaceSymbol),
+        `completion.test.ts` (Default-Keywords, `#`-Direktiven, 5.2 labelRef +
+        labelList), `embedded.test.ts` (5.13: JS/CSS-Hover/Completion/Signature
+        inkl. gebündelter Globals, Suppression). `npm run test:integration`.
+      - **Grammar-Snapshot-Tests** via `vscode-tmgrammar-test`
+        (`src/test/grammar/*.q`, `npm run test:grammar`): Fragetyp-Keywords,
+        `support.class`, Strings, Kommentare, `#`-Direktiven,
+        `meta.embedded.block.{javascript,css,html}`-Grenzen.
+      - CI: neuer Job `integration` (`xvfb-run -a npm run test:integration`),
+        `test:grammar` im `build`-Job, `publish` hängt an beiden. `npm run
+        check` type-checkt jetzt auch `tsconfig.test.json`.
 
-Offene Reste (→ [TODO.md](TODO.md)): 5.2 (Label-IDs / `labels=`-Kontext),
-5.11 (Integrations-/Grammar-Snapshot-Tests).
+Offene Reste (→ [TODO.md](TODO.md)): –
 
 ---
 

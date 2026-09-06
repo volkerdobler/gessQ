@@ -14,3 +14,4 @@ export { GessQCodeLensProvider } from './codeLensProvider';
 export { GessQFormattingProvider } from './formattingProvider';
 export { DiagnosticsManager } from './diagnostics';
 export { registerRevealLocation } from './revealLocation';
+export { registerEmbeddedLanguageSupport } from './embeddedLanguage';

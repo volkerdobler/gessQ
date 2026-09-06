@@ -13,6 +13,7 @@ import {
 	type IndexedSymbol,
 } from '../core/symbolIndex';
 import { REVEAL_COMMAND, revealLink } from './revealLocation';
+import { suppressForEmbedded } from './embeddedLanguage';
 import {
 	hoverEnabled,
 	hoverReferenceDetail,
@@ -224,6 +225,12 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 		token: vscode.CancellationToken,
 	): Promise<vscode.Hover | null> {
 		if (!hoverEnabled()) {
+			return null;
+		}
+
+		// Inside a `javascript = "…"` / `css = "…"` block the embedded-language
+		// provider forwards to the JS/TS / CSS service instead.
+		if (suppressForEmbedded(document, position)) {
 			return null;
 		}
 

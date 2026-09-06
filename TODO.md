@@ -1,94 +1,7 @@
 # TODO – GESS Q. VS Code Extension
 
-Nur offene Punkte. Abgeschlossene Arbeit, die Ausgangs-Analyse und der
-Entscheidungslog stehen in [HISTORY.md](HISTORY.md).
-
----
-
-## Bugs
-
-### Hover auf Fragereferenz in `flt(...)`-Ausdruck funktioniert nicht
-
-Bei einer Label-Zeile mit Filter, der auf eine andere Frage verweist (z. B.
-`single flt ([2:4] in s7)`), reagiert Hover über `s7` nicht.
-
-Repro:
-
-```
-multiq f16;
-text="
-Jetzt geht es um Kinder und Familie:
-Welche Rolle spielt Fruchtsaft / Fruchtnektar für Kinder in deinem Haushalt
-oder in deiner Vorstellung von Familie?
-Du kannst maximal 3 Antworten auswählen.
-";
-labels=
-1	"Gehört zur Ernährung für Kinder dazu" random
-2	"Ist eher etwas für besondere Anlässe" random
-3	"Ist wegen Zucker eher kritisch" random
-4	"Ist in kleinen Packungen praktisch" random
-5	"Kann Teil eines gesunden Frühstücks sein" random
-6	"Ist eine gute Belohnung für zwischendurch" random
-7	"Ist eine gute Möglichkeit, mein Kind zum mehr Trinken zu animieren" random
-8	"Würde ich meinen Kindern eher nicht geben" single flt ([2:4] in s7)
-9	"Ich habe dazu keine Meinung" single
-;
-```
-
----
-
-## Features
-
-### 5.13 Echte Sprachfeatures in eingebetteten JS-/CSS-Blöcken
-
-Hover, Completion und Signaturhilfe für `javascript="…";` / `jsHandler="…";`
-**und** `css="…";`. Die TextMate-Einbettung (`meta.embedded.block.javascript`
-/ `.css`, `include: source.js|source.css`) macht nur die Färbung – der JS/TS-
-bzw. CSS-Sprachdienst läuft in Fremdsprach-Bereichen nicht.
-
-Lösung: **Request-Forwarding über ein virtuelles Dokument** (wie VS Code bei
-`<script>`/`<style>` in HTML):
-
-- `TextDocumentContentProvider` mit eigenem Schema (`gessq-embedded-js:` /
-  `gessq-embedded-css:`); Inhalt = `.q`-Text, alles außer den JS- bzw.
-  CSS-Regionen durch Whitespace ersetzt (gleiche Länge → Positionen bleiben
-  1:1); virtueller Pfad `.js`/`.css`.
-- **`@insert(...)` (auch `@insert[...]` / `@insert{...}`) sowie `&macroname;`
-  innerhalb der Region im virtuellen Doc ausblenden** – durch gleich lange
-  Platzhalter (Leerzeichen bzw. eine neutrale Kennung wie `_i_`, damit der
-  JS-Parser einen Identifier sieht statt eines Syntaxfehlers). Zeilenumbrüche
-  erhalten.
-- Region-Scanner (`src/core/embeddedRegions.ts`), erkennt
-  `javascript=`/`jsHandler=` bzw. `css=` … `";` (kann `getCachedScope`
-  mitnutzen); mehrere Regionen pro Datei möglich.
-- Eigener Hover-/Completion-/Signature-Provider: liegt die Position in einer
-  Region → `vscode.commands.executeCommand('vscode.executeHoverProvider' |
-'…CompletionItemProvider' | '…SignatureHelpProvider', virtualUri, position)`
-  und Ergebnis durchreichen. Diagnostics vorerst nicht weiterreichen.
-- **`globals.d.ts` mitliefern** (im VSIX gebündelt) mit ambient-Decls für die
-  im GESS Q.-Kontext verfügbaren Globals: `QDot` (inkl. `QDot.onSubmit`,
-  `QDot.logger`, `QDot.clickranking`, `QDot.heatplotter`, `QDot.keyboard`),
-  `$`/`jQuery`, `Android`, `startBackgroundAudioRecording`,
-  `stopAudioRecording`, `openBarcodeScanner`, `hideq`, `insertLayer`,
-  `addImage` … – per `/// <reference>` bzw.
-  `jsconfig`/`typeAcquisition`-Mechanik an die virtuellen Docs hängen. Datei
-  pflegbar halten (Kommentar: Quelle = Handbuch-Kapitel 17/26/16).
-- Optional `contributes.grammars[].embeddedLanguages` setzen (bessere
-  Klammer-/Kommentar-/Einrücklogik im Block – ersetzt die Weiterleitung aber
-  nicht).
-- Aufwand ~200–300 Zeilen + `globals.d.ts`; Extension-Host-Tests
-  (`@vscode/test-electron`) nötig, da Jest das nicht abdeckt.
-
-### 5.2-Reste – Completion
-
-- Label-IDs (Antwortcodes einer Frage) als Vorschläge.
-- `labels=`-Kontext: innerhalb der Labelliste andere Vorschläge.
-
-### 5.11-Reste – Tests
-
-- Provider-/Integrationstests via `@vscode/test-electron` (echte
-  Extension-Host-Tests) für Definition/Reference/Symbols/Hover.
-- Grammar-Snapshot-Tests mit `vscode-tmgrammar-test`.
+Keine offenen Feature-/Bug-Punkte. Abgeschlossene Arbeit, die Ausgangs-Analyse
+und der Entscheidungslog stehen in [HISTORY.md](HISTORY.md).
 
 ---
 
@@ -96,12 +9,11 @@ Lösung: **Request-Forwarding über ein virtuelles Dokument** (wie VS Code bei
 
 ### B2 – `language.json` als Single Source
 
-Eine gepflegte Datendatei generiert Grammar-Keyword-Listen + Completion-Items
-
-- Hover-Texte + Signaturhilfe-Parameter aus einer Quelle (statt Grammar
-  handgepflegt und Glossar separat). Großer Umbau, aktuell rein kosmetisch – alles
-  funktioniert. Zurückgestellt; Alternativen B1 (umgesetzt) / B3 siehe
-  [HISTORY.md](HISTORY.md) §9.8.
+Eine gepflegte Datendatei generiert Grammar-Keyword-Listen, Completion-Items,
+Hover-Texte und Signaturhilfe-Parameter aus **einer** Quelle (statt Grammar
+handgepflegt und Glossar separat). Großer Umbau, aktuell rein kosmetisch – alles
+funktioniert. Zurückgestellt; Alternativen B1 (umgesetzt) / B3 siehe
+[HISTORY.md](HISTORY.md) §9.8.
 
 ---
 
@@ -116,11 +28,19 @@ Eine gepflegte Datendatei generiert Grammar-Keyword-Listen + Completion-Items
 
 ## Wiederkehrende Wartung
 
-- **Glossar-Abgleich (~alle 1–2 Jahre)** – Details in
-  [tools/README.md](tools/README.md): 1. `tools/index.html` neu aus dem Schlüsselwort-Index speichern (curl mit
-  Browser-User-Agent). 2. `node tools/sync-glossary.js` (dry run) → `--write`. 3. `syntax` / `summary` der neuen Einträge von Hand nachtragen
-  (bestehende Einträge nicht anfassen, `detail` nur bei Seitenumzug). 4. `node tools/gen-keyword-ignore.js` (dry run) → `--write`; neue
-  „code-förmige“ Labels prüfen: Grammar oder Ignore-Liste? 5. `npx prettier --write src/data/manualGlossary.json
-src/__tests__/fixtures/keywordIndexIgnore.ts` → `npm test`.
-- **Nach Grammar-Änderungen** `npm run gen:language` (CI prüft den Sync von
+- **Glossar-Abgleich (~alle 1–2 Jahre)** – vollständige Schritt-für-Schritt-
+  Anleitung in [tools/README.md](tools/README.md):
+  1. `tools/index.html` neu aus dem Schlüsselwort-Index speichern (curl mit
+     Browser-User-Agent).
+  2. `node tools/sync-glossary.js` (dry run) → `--write`.
+  3. `syntax` / `summary` der neuen Einträge von Hand nachtragen (bestehende
+     Einträge nicht anfassen, `detail` nur bei Seitenumzug).
+  4. `node tools/gen-keyword-ignore.js` (dry run) → `--write`; neue
+     „code-förmige" Labels prüfen: Grammar oder Ignore-Liste?
+  5. `assets/gessq-globals.d.ts` (ambient-Decls für die Embedded-JS-Hilfe)
+     gegen Handbuch-Kapitel 17 / 26.6 / 16.06–16.13 gegenprüfen – neue
+     `QDot.*`- oder Android-JS-Funktionen ergänzen.
+  6. `npx prettier --write src/data/manualGlossary.json
+     src/__tests__/fixtures/keywordIndexIgnore.ts` → `npm test`.
+- **Nach Grammar-Änderungen**: `npm run gen:language` (CI prüft den Sync von
   `src/data/language.ts`).

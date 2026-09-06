@@ -45,6 +45,14 @@ export const completionIncludesWorkspaceSymbols = (): boolean =>
 	section().get<boolean>('completion.includeWorkspaceSymbols', true);
 
 /**
+ * `gessq.embeddedLanguages.enable` – forward hover / completion / signature
+ * help inside `javascript = "…"` / `jsHandler = "…"` / `css = "…"` blocks to
+ * the built-in JS/TS and CSS language services (via a virtual document).
+ */
+export const embeddedLanguagesEnabled = (): boolean =>
+	section().get<boolean>('embeddedLanguages.enable', true);
+
+/**
  * `gessq.releaseNotes.showOnUpdate` – open this version's release notes once
  * after an install / update. The command stays available either way.
  */

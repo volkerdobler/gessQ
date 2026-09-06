@@ -2,6 +2,7 @@
 
 import * as vscode from 'vscode';
 import { loadGlossary, type Glossary } from '../data/glossary';
+import { suppressForEmbedded } from './embeddedLanguage';
 
 /**
  * Signature Help provider for the GESS Q. language.
@@ -21,6 +22,12 @@ export class GessQSignatureProvider implements vscode.SignatureHelpProvider {
 		_token: vscode.CancellationToken,
 		_context: vscode.SignatureHelpContext,
 	): Promise<vscode.SignatureHelp | null> {
+		// Inside a `javascript = "…"` / `css = "…"` block the embedded-language
+		// provider forwards to the JS/TS / CSS service instead.
+		if (suppressForEmbedded(document, position)) {
+			return null;
+		}
+
 		const line = document.lineAt(position.line).text;
 
 		// find the opening paren for the call
