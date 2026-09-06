@@ -2,7 +2,7 @@
   "name": "gessq",
   "displayName": "GESS Q.",
   "description": "GESS Q. Support",
-  "version": "0.99.0",
+  "version": "0.99.1",
   "publisher": "volkerdobler",
   "engines": {
     "vscode": "^1.85.0"
@@ -117,7 +117,12 @@
         },
         "gessq.hover.referenceDetail": {
           "type": "string",
-          "enum": ["off", "summary", "definition", "full"],
+          "enum": [
+            "off",
+            "summary",
+            "definition",
+            "full"
+          ],
           "enumDescriptions": [
             "No hover when pointing at a reference to a workspace name (keyword hovers still work).",
             "Name, kind and where it is defined. No code, no description, no handbook link (hover the keyword for those).",
@@ -129,7 +134,12 @@
         },
         "gessq.codeLens.definitions": {
           "type": "string",
-          "enum": ["off", "questions", "reusable", "all"],
+          "enum": [
+            "off",
+            "questions",
+            "reusable",
+            "all"
+          ],
           "enumDescriptions": [
             "No \"N references\" CodeLens.",
             "Only above question definitions (singleq, multiq, singlegridq, …, group).",
