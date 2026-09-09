@@ -44,6 +44,24 @@ describe('disambiguateKeyword', () => {
 			disambiguateKeyword('flt', 'compute x = flt + 1;'),
 		).toBeUndefined();
 	});
+
+	test('target: quota-counter function vs. @target label directive', () => {
+		// target(QUOTAVAR) → the quota target-counter function
+		expect(disambiguateKeyword('target', 'compute s = target(qv_total);')).toBe(
+			'target-quotavar',
+		);
+		expect(disambiguateKeyword('target', '  if target(q1) gt 0 then')).toBe(
+			'target-quotavar',
+		);
+		// @target(<file>) in a PackagingQ label → plain lookup
+		expect(
+			disambiguateKeyword('target', 'labels = 1 "@target(bild.png)";'),
+		).toBeUndefined();
+		// bare word, no call → don't guess
+		expect(
+			disambiguateKeyword('target', '1 "x" target'),
+		).toBeUndefined();
+	});
 });
 
 describe('definitionExcerpt', () => {

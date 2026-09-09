@@ -31,6 +31,8 @@ import {
  *   attribute (the plain `single` key).
  * - `flt = ( … );` on its own is the question filter (plain `flt` key);
  *   `… flt ( … )` after a label restricts that label (`flt-label`).
+ * - `target(QUOTAVAR)` is the quota target-counter function (`target-quotavar`);
+ *   `@target(<file>)` in a PackagingQ label text is the plain `target` key.
  */
 export function disambiguateKeyword(
 	word: string,
@@ -42,6 +44,9 @@ export function disambiguateKeyword(
 	}
 	if (w === 'flt' && !/^\s*flt\s*=/i.test(lineText) && /\bflt\s*\(/i.test(lineText)) {
 		return 'flt-label';
+	}
+	if (w === 'target' && /(?:^|[^@\w])target\s*\(/i.test(lineText)) {
+		return 'target-quotavar';
 	}
 	return undefined;
 }
