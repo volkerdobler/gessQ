@@ -151,7 +151,7 @@
             "Above questions plus the reusable building blocks: opennumformat, block / screen, #macro, quotavar.",
             "Also above plain variables (compute, array / vararray / textarray, textelement, intrandom, databaseConnection). Never above set()/load() assignment targets."
           ],
-          "default": "reusable",
+          "default": "questions",
           "description": "Which definitions carry a \"N references\" CodeLens."
         },
         "gessq.completion.includeWorkspaceSymbols": {

@@ -765,6 +765,65 @@ Migration in kleinen Schritten:
 
 Offene Reste (→ [TODO.md](TODO.md)): –
 
+### Phase 6 – Settings-Feinschliff & Vergleich mit gesstabs (2026-09-09)
+
+Auslöser: Verdacht, gessq reagiere nicht zuverlässig auf Settings-Änderungen
+zur Laufzeit (ohne Extension-Reload), im Vergleich zur Schwester-Extension
+`gesstabs` (separates Repo, Tabellierungssprache). Zwei Recherche-Durchgänge
+über beide Codebasen, daraus mit dem Nutzer abgestimmte Umsetzungen:
+
+- [x] Settings-Reaktivität geprüft: **Fehlalarm** – alle `gessq.*`-Settings
+      wurden schon vorher live gelesen (`src/infra/config.ts` cacht nichts).
+      Einzige strukturelle Abweichung von gesstabs: dort ein zentraler
+      `onDidChangeConfiguration`-Dispatcher, hier zwei unabhängige Listener.
+      Angeglichen: `DiagnosticsManager` registriert keinen eigenen Listener
+      mehr, sondern stellt ein öffentliches `refreshOpen()` bereit, das der
+      eine Dispatcher in `extension.ts` bei `gessq.diagnostics`-Änderungen
+      aufruft (neben Log/Index/CodeLens).
+- [x] Granularere Hover-Settings (angelehnt an gesstabs'
+      `hover.macros`/`hover.keywords`/…): neues `gessq.hover.keywords`
+      (Default `true`) schaltet den Glossar-Hover für Sprach-Keywords separat
+      vom Referenz-Hover ab (`hoverKeywordsEnabled()` in `src/infra/config.ts`,
+      Guard in `hoverProvider.ts`). `hover.referenceDetail` blieb unverändert
+      (deckt die Referenz-Hover-Kategorie bereits vierstufig ab).
+- [x] Auto-Vervollständigung nur bei explizitem Ctrl+Space statt bei jedem
+      Tastendruck: `contributes.configurationDefaults["[gessq]"]` setzt
+      `editor.quickSuggestions: false` als Sprach-Default; neues
+      `gessq.completion.autoTrigger` (dreistufiges Enum `off`/`trigger`/`full`,
+      Default `off`) steuert zusätzlich die `#`/`@`/`&`/Leerzeichen-Kontext-
+      Trigger – `off` unterdrückt alle, `trigger` erlaubt `#`/`@`/`&` (kein
+      Leerzeichen), `full` erlaubt auch Leerzeichen. Ctrl+Space funktioniert
+      immer, unabhängig vom Setting. Reine Entscheidungsfunktion
+      `autoTriggerAllows(context)` (exportiert aus `completionProvider.ts`),
+      geprüft gegen `completionAutoTrigger()`.
+- [x] Formatter-Fix: `GessQFormattingProvider` rückte bisher jeden
+      Klammerblock generisch nach `{`/`(`-Tiefe ein, was `group( … )`-
+      Labellisten (`labels=`/`gridlabels=`/`griditems=`) plattwalzte, da
+      diese Konstrukte in GESS Q. rein klammerbasiert sind und kein eigenes
+      Schließ-Keyword haben. Fix: Zeilen innerhalb einer solchen Liste
+      (erkannt über `LIST_START`, jetzt aus `completionProvider.ts`
+      exportiert) werden von der Einrückung ausgenommen (nur
+      Trailing-Whitespace wird dort noch getrimmt); die `labels=`-Zeile
+      selbst und alles außerhalb bleibt unverändert nach der bisherigen
+      `{`/`(`-Logik eingerückt (bewusst **nicht** auf gesstabs' Keyword-
+      basierte Tiefe umgestellt, da `{` in GESS Q. echte Actionblock-/JS-/
+      CSS-Codeblöcke markiert, deren Einrückung sonst verloren ginge). Kein
+      neuer Config-Schalter für die Einrückung selbst – „Format Document"
+      ist schon ein expliziter Aufruf, das genügt als Opt-in. Bisher
+      ungetestet; neu: `src/__tests__/formattingProvider.test.ts` (7 Fälle)
+      und ein `TextEdit`/`CompletionTriggerKind`-Mock in
+      `src/__tests__/__mocks__/vscode.ts`.
+- [x] Aus dem gesstabs-Vergleich als aktuell nicht nötig eingestuft (gessq
+      bereits gleichwertig oder besser): der `SymbolIndex` (gessq hat einen
+      `FileSystemWatcher`, gesstabs' gleichnamiges Modul nicht) und das
+      Include-Handling (`src/core/includes.ts`/`projectFiles.ts` deckt das
+      gessq-`#include`-Modell inkl. Zyklenerkennung bereits ab).
+
+Offene Reste (→ [TODO.md](TODO.md)): vorgemerkte, aktuell nicht benötigte
+Utility-Muster aus gesstabs (`glob.ts`, `lru.ts`,
+`externalNamesProvider`-Cache-Architektur); `language.json` als Single Source
+(B2, zurückgestellt); Open-VSX-Freischaltung (einmalig, manuell).
+
 ---
 
 ## 9. Entscheidungen
