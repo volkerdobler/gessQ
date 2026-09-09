@@ -16,6 +16,7 @@ import { REVEAL_COMMAND, revealLink } from './revealLocation';
 import { suppressForEmbedded } from './embeddedLanguage';
 import {
 	hoverEnabled,
+	hoverKeywordsEnabled,
 	hoverReferenceDetail,
 	type HoverReferenceDetail,
 } from '../infra/config';
@@ -207,7 +208,7 @@ export function isActionBlockKeyword(word: string): boolean {
  * - the name in its own definition → nothing (hover the command keyword for
  *   its documentation instead);
  * - a language keyword → the full glossary entry (heading, syntax, summary,
- *   handbook link);
+ *   handbook link), governed by `gessq.hover.keywords`;
  * - a reference to a workspace symbol → governed by `gessq.hover.referenceDetail`:
  *   `off` (no hover), `summary` (name / kind / definition location),
  *   `definition` (adds a cleaned excerpt) or `full` (the whole definition).
@@ -276,7 +277,7 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 				return null;
 			}
 			md.appendMarkdown(await this.symbolExcerpt(defs[0], detail));
-		} else {
+		} else if (hoverKeywordsEnabled()) {
 			const lineText = document.lineAt(position.line).text;
 			const entry =
 				lookupEntry(

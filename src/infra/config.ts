@@ -12,6 +12,10 @@ export const diagnosticsEnabled = (): boolean =>
 export const hoverEnabled = (): boolean =>
 	section().get<boolean>('hover.enable', true);
 
+/** `gessq.hover.keywords` – glossary hover for language keywords. */
+export const hoverKeywordsEnabled = (): boolean =>
+	section().get<boolean>('hover.keywords', true);
+
 /** How much a hover shows when pointing at a reference to a workspace name. */
 export type HoverReferenceDetail = 'off' | 'summary' | 'definition' | 'full';
 
@@ -43,6 +47,20 @@ export const codeLensDefinitions = (): CodeLensDefinitions => {
 /** `gessq.completion.includeWorkspaceSymbols`. */
 export const completionIncludesWorkspaceSymbols = (): boolean =>
 	section().get<boolean>('completion.includeWorkspaceSymbols', true);
+
+/** How readily completions pop up on their own vs. only on explicit invoke. */
+export type CompletionAutoTrigger = 'off' | 'trigger' | 'full';
+
+/**
+ * `gessq.completion.autoTrigger` – `off` (default): only an explicit invoke
+ * (Ctrl+Space) returns completions. `trigger`: also right after `#`/`@`/`&`
+ * (not a space). `full`: also right after a space. An explicit invoke always
+ * works, regardless of this setting.
+ */
+export const completionAutoTrigger = (): CompletionAutoTrigger => {
+	const v = section().get<string>('completion.autoTrigger', 'off');
+	return v === 'trigger' || v === 'full' ? v : 'off';
+};
 
 /**
  * `gessq.embeddedLanguages.enable` – forward hover / completion / signature

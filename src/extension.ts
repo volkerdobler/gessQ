@@ -58,7 +58,12 @@ export function activate(context: vscode.ExtensionContext): void {
 	const formatter = new GessQFormattingProvider();
 	const codeLens = new GessQCodeLensProvider(index);
 	context.subscriptions.push(codeLens);
+	const diagnostics = new DiagnosticsManager(index);
 
+	// Central `onDidChangeConfiguration` dispatcher: every gessq.* setting
+	// that needs more than a fresh read on next use (a cached index, an
+	// already-computed diagnostic/CodeLens set, …) is invalidated/refreshed
+	// here in one place, rather than each owner registering its own listener.
 	context.subscriptions.push(
 		vscode.workspace.onDidChangeConfiguration((e) => {
 			if (e.affectsConfiguration('gessq')) {
@@ -69,6 +74,9 @@ export function activate(context: vscode.ExtensionContext): void {
 			}
 			if (e.affectsConfiguration('gessq.codeLens')) {
 				codeLens.refresh();
+			}
+			if (e.affectsConfiguration('gessq.diagnostics')) {
+				diagnostics.refreshOpen();
 			}
 		}),
 		vscode.workspace.onDidChangeWorkspaceFolders(() => {
@@ -138,7 +146,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		),
 	);
 
-	new DiagnosticsManager(index).activate(context);
+	diagnostics.activate(context);
 
 	// Keep the parse caches in sync with the editor.
 	const forget = (doc: vscode.TextDocument): void => {

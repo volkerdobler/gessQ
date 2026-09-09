@@ -113,7 +113,12 @@
         "gessq.hover.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Show the GESS Q. hover (glossary description for keywords, and the definition location plus code preview for workspace names). Turn off to suppress the GESS Q. hover entirely."
+          "description": "Master switch for the GESS Q. hover. Turn off to suppress it entirely, regardless of 'gessq.hover.keywords' / 'gessq.hover.referenceDetail'."
+        },
+        "gessq.hover.keywords": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the glossary hover (syntax, description, handbook link) when pointing at a GESS Q. keyword. Requires 'gessq.hover.enable'."
         },
         "gessq.hover.referenceDetail": {
           "type": "string",
@@ -129,7 +134,7 @@
             "Also an excerpt of the definition: the question line plus text / title / labels / flt / assert …, without actionblock / javascript / css attributes.",
             "The complete definition verbatim, including actionblock / javascript / css."
           ],
-          "default": "summary",
+          "default": "definition",
           "description": "How much a hover shows when pointing at a reference to a question or variable defined in the workspace. Requires 'gessq.hover.enable'."
         },
         "gessq.codeLens.definitions": {
@@ -154,6 +159,21 @@
           "default": true,
           "description": "Offer names defined elsewhere in the workspace (questions, blocks, macros, …) as completions."
         },
+        "gessq.completion.autoTrigger": {
+          "type": "string",
+          "enum": [
+            "off",
+            "trigger",
+            "full"
+          ],
+          "enumDescriptions": [
+            "Completions only appear when explicitly invoked (Ctrl+Space) – typing '#', '@', '&' or a space never pops them up on its own.",
+            "Also pop up right after '#', '@' or '&' (directives, macro references, #domacro). A space does not trigger them.",
+            "Also pop up right after a space, e.g. inside a labels= list."
+          ],
+          "default": "off",
+          "description": "When completions pop up automatically vs. only on explicit invoke (Ctrl+Space, which always works regardless of this setting). GESS Q. also ships 'editor.quickSuggestions: false' as its own default (see 'configurationDefaults' below) so plain typing doesn't pop up completions either; override that separately in your own settings if you want it back."
+        },
         "gessq.embeddedLanguages.enable": {
           "type": "boolean",
           "default": true,
@@ -169,6 +189,11 @@
           "default": true,
           "description": "Open the release notes once after installing or updating the extension. The command \"GESS Q.: Release Notes anzeigen\" stays available when this is off."
         }
+      }
+    },
+    "configurationDefaults": {
+      "[gessq]": {
+        "editor.quickSuggestions": false
       }
     }
   },

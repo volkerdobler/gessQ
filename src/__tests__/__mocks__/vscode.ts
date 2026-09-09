@@ -20,6 +20,12 @@ export enum SymbolKind {
 	Array = 17,
 }
 
+export enum CompletionTriggerKind {
+	Invoke = 0,
+	TriggerCharacter = 1,
+	TriggerForIncompleteCompletions = 2,
+}
+
 export enum CompletionItemKind {
 	Keyword = 13,
 	Function = 2,
@@ -90,6 +96,22 @@ export class Location {
 		public readonly uri: unknown,
 		public readonly range: Range,
 	) {}
+}
+
+export class TextEdit {
+	constructor(
+		public range: Range,
+		public newText: string,
+	) {}
+	static replace(range: Range, newText: string): TextEdit {
+		return new TextEdit(range, newText);
+	}
+	static insert(position: Position, newText: string): TextEdit {
+		return new TextEdit(new Range(position, position), newText);
+	}
+	static delete(range: Range): TextEdit {
+		return new TextEdit(range, '');
+	}
 }
 
 export class Diagnostic {

@@ -11,6 +11,10 @@ const DEBOUNCE_MS = 400;
 /**
  * Owns the GESS Q. `DiagnosticCollection` and (re)lints documents on open,
  * edit (debounced) and save. Honours `gessq.diagnostics.enable`.
+ *
+ * Does not listen for `gessq.diagnostics` config changes itself – the
+ * central `onDidChangeConfiguration` dispatcher in `extension.ts` calls
+ * {@link refreshOpen} when that setting changes.
  */
 export class DiagnosticsManager {
 	private readonly collection =
@@ -38,17 +42,13 @@ export class DiagnosticsManager {
 			vscode.workspace.onDidCloseTextDocument((d) =>
 				this.collection.delete(d.uri),
 			),
-			vscode.workspace.onDidChangeConfiguration((e) => {
-				if (e.affectsConfiguration('gessq.diagnostics')) {
-					this.refreshOpen();
-				}
-			}),
 		);
 
 		this.refreshOpen();
 	}
 
-	private refreshOpen(): void {
+	/** Re-lint every open document, e.g. after `gessq.diagnostics.*` changed. */
+	public refreshOpen(): void {
 		for (const doc of vscode.workspace.textDocuments) {
 			this.schedule(doc, 0);
 		}

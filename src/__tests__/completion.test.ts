@@ -3,6 +3,7 @@ import {
 	detectContext,
 	labelReferenceQuestion,
 	isInLabelList,
+	autoTriggerAllows,
 	GessQCompletionProvider,
 } from '../providers/completionProvider';
 import type { SymbolIndex } from '../core/symbolIndex';
@@ -187,5 +188,128 @@ describe('GessQCompletionProvider – label features', () => {
 			expect.arrayContaining(['random', 'single', 'flt']),
 		);
 		expect(labels).not.toContain('singleq');
+	});
+});
+
+describe('autoTriggerAllows', () => {
+	const realGetConfiguration = vscode.workspace.getConfiguration;
+
+	afterEach(() => {
+		(vscode.workspace as { getConfiguration: unknown }).getConfiguration =
+			realGetConfiguration;
+	});
+
+	function stubAutoTrigger(value: string): void {
+		(vscode.workspace as { getConfiguration: unknown }).getConfiguration =
+			() => ({
+				get<T>(key: string, defaultValue?: T): T | undefined {
+					return key === 'completion.autoTrigger'
+						? ((value as unknown) as T)
+						: defaultValue;
+				},
+			});
+	}
+
+	const invoke: vscode.CompletionContext = {
+		triggerKind: vscode.CompletionTriggerKind.Invoke,
+		triggerCharacter: undefined,
+	};
+	const incomplete: vscode.CompletionContext = {
+		triggerKind: vscode.CompletionTriggerKind.TriggerForIncompleteCompletions,
+		triggerCharacter: undefined,
+	};
+	const hash: vscode.CompletionContext = {
+		triggerKind: vscode.CompletionTriggerKind.TriggerCharacter,
+		triggerCharacter: '#',
+	};
+	const space: vscode.CompletionContext = {
+		triggerKind: vscode.CompletionTriggerKind.TriggerCharacter,
+		triggerCharacter: ' ',
+	};
+
+	test('Invoke and TriggerForIncompleteCompletions always allowed, regardless of mode', () => {
+		for (const mode of ['off', 'trigger', 'full']) {
+			stubAutoTrigger(mode);
+			expect(autoTriggerAllows(invoke)).toBe(true);
+			expect(autoTriggerAllows(incomplete)).toBe(true);
+		}
+	});
+
+	test('off: no trigger character auto-pops, not even #/@/&', () => {
+		stubAutoTrigger('off');
+		expect(autoTriggerAllows(hash)).toBe(false);
+		expect(autoTriggerAllows(space)).toBe(false);
+	});
+
+	test('trigger: #/@/& auto-pop, a space does not', () => {
+		stubAutoTrigger('trigger');
+		expect(autoTriggerAllows(hash)).toBe(true);
+		expect(autoTriggerAllows(space)).toBe(false);
+	});
+
+	test('full: a space also auto-pops', () => {
+		stubAutoTrigger('full');
+		expect(autoTriggerAllows(hash)).toBe(true);
+		expect(autoTriggerAllows(space)).toBe(true);
+	});
+
+	test('junk setting value falls back to "off"', () => {
+		stubAutoTrigger('nonsense');
+		expect(autoTriggerAllows(hash)).toBe(false);
+	});
+});
+
+describe('GessQCompletionProvider – autoTrigger wiring', () => {
+	const realGetConfiguration = vscode.workspace.getConfiguration;
+
+	afterEach(() => {
+		(vscode.workspace as { getConfiguration: unknown }).getConfiguration =
+			realGetConfiguration;
+	});
+
+	function stubAutoTrigger(value: string): void {
+		(vscode.workspace as { getConfiguration: unknown }).getConfiguration =
+			() => ({
+				get<T>(key: string, defaultValue?: T): T | undefined {
+					return key === 'completion.autoTrigger'
+						? ((value as unknown) as T)
+						: defaultValue;
+				},
+			});
+	}
+
+	const doc = makeDoc(['singleq q1;', 'si']);
+	const pos = new vscode.Position(1, 2);
+
+	test('default ("off"): a trigger character returns nothing, Invoke still works', () => {
+		stubAutoTrigger('off');
+		const provider = new GessQCompletionProvider(fakeIndex({}), extUri);
+		expect(
+			provider.provideCompletionItems(doc, pos, undefined, {
+				triggerKind: vscode.CompletionTriggerKind.TriggerCharacter,
+				triggerCharacter: '#',
+			}),
+		).toEqual([]);
+		expect(
+			provider.provideCompletionItems(doc, pos, undefined, {
+				triggerKind: vscode.CompletionTriggerKind.Invoke,
+				triggerCharacter: undefined,
+			}).length,
+		).toBeGreaterThan(0);
+		// No context at all (e.g. an older/simplified caller): treated as Invoke.
+		expect(provider.provideCompletionItems(doc, pos).length).toBeGreaterThan(
+			0,
+		);
+	});
+
+	test('"full": a space trigger character also returns items', () => {
+		stubAutoTrigger('full');
+		const provider = new GessQCompletionProvider(fakeIndex({}), extUri);
+		expect(
+			provider.provideCompletionItems(doc, pos, undefined, {
+				triggerKind: vscode.CompletionTriggerKind.TriggerCharacter,
+				triggerCharacter: ' ',
+			}).length,
+		).toBeGreaterThan(0);
 	});
 });

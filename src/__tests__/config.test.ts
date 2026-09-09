@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import {
 	hoverEnabled,
+	hoverKeywordsEnabled,
 	hoverReferenceDetail,
 	codeLensDefinitions,
 	diagnosticsEnabled,
@@ -27,6 +28,7 @@ describe('config toggles', () => {
 	test('default to true when unset', () => {
 		stubConfig({});
 		expect(hoverEnabled()).toBe(true);
+		expect(hoverKeywordsEnabled()).toBe(true);
 		expect(diagnosticsEnabled()).toBe(true);
 		expect(releaseNotesOnUpdate()).toBe(true);
 	});
@@ -34,9 +36,11 @@ describe('config toggles', () => {
 	test('honour an explicit false', () => {
 		stubConfig({
 			'hover.enable': false,
+			'hover.keywords': false,
 			'releaseNotes.showOnUpdate': false,
 		});
 		expect(hoverEnabled()).toBe(false);
+		expect(hoverKeywordsEnabled()).toBe(false);
 		expect(releaseNotesOnUpdate()).toBe(false);
 	});
 

@@ -12,7 +12,10 @@ import {
 	lookupEntry,
 	formatEntryMarkdown,
 } from '../data/glossary';
-import { completionIncludesWorkspaceSymbols } from '../infra/config';
+import {
+	completionAutoTrigger,
+	completionIncludesWorkspaceSymbols,
+} from '../infra/config';
 import { suppressForEmbedded } from './embeddedLanguage';
 import {
 	ALL_KEYWORDS,
@@ -129,7 +132,8 @@ export function labelReferenceQuestion(linePrefix: string): string | undefined {
 	return cmp ? cmp[1] : undefined;
 }
 
-const LIST_START = /\b(?:labels|gridlabels|griditems)\b\s*=/i;
+/** Also used by `formattingProvider.ts` to exempt list content from reindent. */
+export const LIST_START = /\b(?:labels|gridlabels|griditems)\b\s*=/i;
 const LIST_COPY = /\b(?:labels|gridlabels|griditems)\b\s+copy\b/i;
 const NEXT_DEF =
 	/^\s*(?:singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group|sliderq|compute|array|vararray|textelement|textarray|intrandom|databaseconnection|opennumformat|quotavar|quotagroup|block|screen|#\w+)\b/i;
@@ -188,6 +192,27 @@ export function isInLabelList(
 }
 
 /**
+ * Whether `gessq.completion.autoTrigger` allows completions for this
+ * request: an explicit invoke (Ctrl+Space) or a re-query for an incomplete
+ * list always does; a `#`/`@`/`&`/space trigger character only does at
+ * `trigger` (non-space) or `full` (anything, incl. space); `off` suppresses
+ * every non-invoke trigger.
+ */
+export function autoTriggerAllows(context: vscode.CompletionContext): boolean {
+	if (context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter) {
+		return true;
+	}
+	const mode = completionAutoTrigger();
+	if (mode === 'full') {
+		return true;
+	}
+	if (mode === 'trigger') {
+		return context.triggerCharacter !== ' ';
+	}
+	return false;
+}
+
+/**
  * Completion for GESS Q.
  *
  * - suppressed inside comments and strings;
@@ -195,6 +220,10 @@ export function isInLabelList(
  *   only macro names;
  * - otherwise language keywords (from `src/data/language.ts`) plus the symbol
  *   names known to the {@link SymbolIndex}.
+ * - how readily this pops up on its own (vs. only on an explicit Ctrl+Space
+ *   invoke, which always works) is governed by `gessq.completion.autoTrigger`
+ *   – see {@link autoTriggerAllows}; plain typing is additionally governed by
+ *   the `[gessq]` `editor.quickSuggestions: false` default.
  *
  * `resolveCompletionItem` lazily attaches glossary documentation.
  */
@@ -207,7 +236,16 @@ export class GessQCompletionProvider implements vscode.CompletionItemProvider {
 	public provideCompletionItems(
 		document: vscode.TextDocument,
 		position: vscode.Position,
+		_token?: vscode.CancellationToken,
+		context: vscode.CompletionContext = {
+			triggerKind: vscode.CompletionTriggerKind.Invoke,
+			triggerCharacter: undefined,
+		},
 	): vscode.CompletionItem[] {
+		if (!autoTriggerAllows(context)) {
+			return [];
+		}
+
 		// Inside a `javascript = "…"` / `css = "…"` block the embedded-language
 		// provider forwards to the JS/TS / CSS service instead.
 		if (suppressForEmbedded(document, position)) {
