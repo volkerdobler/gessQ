@@ -52,6 +52,39 @@ test('balanced #ifdef/#else/#endif is fine', () => {
 	expect(messages('#ifdef A\nx\n#else\ny\n#endif\n')).toEqual([]);
 });
 
+describe('preprocessor directives must start in column 1', () => {
+	const colMsg = (src: string) =>
+		messages(src).filter((m) => m.includes('must start in column 1'));
+
+	test('inline #ifdef / #endif in a labels list is flagged', () => {
+		const msgs = colMsg(
+			'labels = 1 "text" #ifdef client #endif 2 "text";\n',
+		);
+		expect(msgs).toHaveLength(2);
+		expect(msgs[0]).toContain('"#ifdef"');
+	});
+
+	test('directive at the start of the line is fine', () => {
+		expect(
+			colMsg('labels =\n1 "text"\n#ifdef client\n2 "text"\n#endif\n;'),
+		).toEqual([]);
+	});
+
+	test('leading whitespace before a directive is still fine', () => {
+		expect(colMsg('\t#ifdef client\nx\n#endif\n')).toEqual([]);
+	});
+
+	test('a directive inside a comment or string is ignored', () => {
+		expect(colMsg('x // see #ifdef client\ntext = "a #endif b";\n')).toEqual(
+			[],
+		);
+	});
+
+	test('@insert mid-line is flagged too', () => {
+		expect(colMsg('foo @insert bar\n')).toHaveLength(1);
+	});
+});
+
 test('flags a duplicate question definition', () => {
 	const msgs = messages('singleq q1;\nmultiq q1;\n');
 	expect(msgs.some((m) => m.includes('Duplicate'))).toBe(true);

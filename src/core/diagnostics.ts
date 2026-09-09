@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { getCachedScope, ScopeEnum, isNotInCommentAt } from './scope';
 import { parseDocumentSymbols, type IndexedSymbol } from './symbolIndex';
 import { parseIncludes } from './includes';
+import { DIRECTIVES as DIRECTIVE_KEYWORDS } from '../data/language';
 
 const SRC = 'GESS Q.';
 
@@ -126,6 +127,56 @@ function checkDirectiveNesting(
 				diag(
 					range,
 					`${d.openLabel} without a matching ${d.closeLabel}`,
+					vscode.DiagnosticSeverity.Error,
+				),
+			);
+		}
+	}
+	return out;
+}
+
+/**
+ * Preprocessor directives (`#define`, `#ifdef`, `#endif`, `#macro`, `@insert`,
+ * …) are line-based: the whole line is consumed before the script is parsed,
+ * so a directive only counts when it is the first thing on its line. An inline
+ * `labels = 1 "a" #ifdef x #endif 2 "b";` is silently ignored by Q. – flag it.
+ */
+const DIRECTIVE_TOKEN_RE = new RegExp(
+	'(?<!\\w)(' +
+		[...DIRECTIVE_KEYWORDS]
+			.sort((a, b) => b.length - a.length)
+			.map((d) => d.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+			.join('|') +
+		')\\b',
+	'gi',
+);
+
+/** Every `#`/`@` directive must be the first non-blank token on its line. */
+function checkDirectiveColumn(
+	document: vscode.TextDocument,
+): vscode.Diagnostic[] {
+	const scope = getCachedScope(document);
+	const out: vscode.Diagnostic[] = [];
+
+	for (let line = 0; line < document.lineCount; line++) {
+		const text = document.lineAt(line).text;
+		DIRECTIVE_TOKEN_RE.lastIndex = 0;
+		let m: RegExpExecArray | null;
+		while ((m = DIRECTIVE_TOKEN_RE.exec(text))) {
+			const at = m.index;
+			if (scope.getScope(line, at) !== ScopeEnum.normal) {
+				continue;
+			}
+			if (!/\S/.test(text.slice(0, at))) {
+				continue; // already at the start of the line
+			}
+			out.push(
+				diag(
+					new vscode.Range(line, at, line, at + m[1].length),
+					`"${m[1]}" must start in column 1 – preprocessor ` +
+						'directives are line-based and are ignored inline. ' +
+						'Put the directive, its condition and the matching ' +
+						`"#endif" on their own lines.`,
 					vscode.DiagnosticSeverity.Error,
 				),
 			);
@@ -365,6 +416,7 @@ export function lintDocument(
 	return [
 		...checkBrackets(document),
 		...checkDirectiveNesting(document),
+		...checkDirectiveColumn(document),
 		...checkDuplicates(document),
 		...checkRendering(document),
 	];

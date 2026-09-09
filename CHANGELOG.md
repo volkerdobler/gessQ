@@ -5,6 +5,13 @@ Current version number is first:
 
 ### Unreleased
 
+- New diagnostic: preprocessor directives (`#define`, `#ifdef`, `#ifndef`,
+  `#else`, `#endif`, `#macro`, `#endmacro`, `#domacro`, `#include`,
+  `#includeifexists`, `@insert`) must be the first non-blank token on their
+  line. Q. evaluates these lines before parsing the script, so an inline
+  `labels = 1 "a" #ifdef client #endif 2 "b";` is silently ignored – it is now
+  flagged as an error. Leading whitespace is allowed; directives inside
+  comments or strings are not touched.
 - Completion is smarter about answer codes and label lists: after `FRAGE.` or
   `FRAGE eq` / `ne` / … the answer codes of that question are offered (with the
   label text shown next to each), and inside a `labels=` / `gridlabels=` list
