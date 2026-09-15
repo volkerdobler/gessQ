@@ -11,19 +11,20 @@ describe('releaseNotesPath', () => {
 });
 
 describe('shouldShowReleaseNotes', () => {
-	test('fresh install (nothing stored)', () => {
-		expect(shouldShowReleaseNotes(undefined, '1.0.0')).toBe(true);
+	test('setting on, never suppressed (fresh install / update) → yes', () => {
+		expect(shouldShowReleaseNotes(true, undefined)).toBe(true);
 	});
 
-	test('update from an older version', () => {
-		expect(shouldShowReleaseNotes('0.99.0', '1.0.0')).toBe(true);
+	test('setting on, checkbox left unchecked last time → yes', () => {
+		expect(shouldShowReleaseNotes(true, false)).toBe(true);
 	});
 
-	test('same version already shown → no', () => {
-		expect(shouldShowReleaseNotes('1.0.0', '1.0.0')).toBe(false);
+	test('setting on, checkbox checked for this version → no', () => {
+		expect(shouldShowReleaseNotes(true, true)).toBe(false);
 	});
 
-	test('missing version string → no', () => {
-		expect(shouldShowReleaseNotes(undefined, '')).toBe(false);
+	test('setting off, regardless of checkbox state → no', () => {
+		expect(shouldShowReleaseNotes(false, undefined)).toBe(false);
+		expect(shouldShowReleaseNotes(false, true)).toBe(false);
 	});
 });
