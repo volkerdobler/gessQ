@@ -40,15 +40,6 @@ funktioniert. Zurückgestellt; Alternativen B1 (umgesetzt) / B3 siehe
 
 ---
 
-## Einmalig / manuell
-
-- **Open VSX freischalten** (der CI-Schritt existiert bereits, siehe
-  [HISTORY.md](HISTORY.md) §9.9): eclipse.org-Account anlegen, Namespace
-  beanspruchen (`npx ovsx create-namespace volkerdobler -p <token>`), Token
-  als Repo-Secret `OVSX_PAT` hinterlegen.
-
----
-
 ## Wiederkehrende Wartung
 
 - **Glossar-Abgleich (~alle 1–2 Jahre)** – vollständige Schritt-für-Schritt-

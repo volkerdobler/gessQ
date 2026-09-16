@@ -96,12 +96,3 @@ jobs:
               run: npx vsce publish --pat "$VSCE_PAT" --packagePath gessq.vsix
               env:
                   VSCE_PAT: ${{ secrets.VSCE_PAT }}
-
-            # Open VSX (VSCodium, Cursor, Windsurf, Gitpod, code-server).
-            # One-time setup: create an eclipse.org account, claim the
-            # "volkerdobler" namespace (`npx ovsx create-namespace volkerdobler
-            # -p <token>`), then add the token as the OVSX_PAT repo secret.
-            - name: Publish to Open VSX
-              run: npx ovsx publish gessq.vsix --pat "$OVSX_PAT"
-              env:
-                  OVSX_PAT: ${{ secrets.OVSX_PAT }}
