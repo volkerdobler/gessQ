@@ -6,19 +6,18 @@ Online-Befragungen von [GESS](https://www.gessgroup.de). Sobald du eine
 Fragebogenskripts: farbige Syntax, Vorschläge beim Tippen, Erklärungen zu jedem
 Befehl, Sprung zur Definition einer Frage, Hinweise auf typische Fehler.
 
-> **Testversion 0.99.0** – interner Testbuild, wird nur als `.vsix` verteilt
-> (nicht über den Marketplace). Rückmeldungen bitte an Volker Dobler.
-
 ## Installation
 
-1. In VS Code die Ansicht **Erweiterungen** öffnen (`Strg+Shift+X`).
-2. Oben im „…“-Menü **Aus VSIX installieren…** wählen und die `.vsix`-Datei
-   angeben. (Alternativ die `.vsix` einfach ins VS-Code-Fenster ziehen.)
-3. VS Code neu laden, wenn danach gefragt wird.
+**Aus dem Marketplace** (empfohlen):
 
-`.q`-Dateien werden ab jetzt als „GESS Q.“ erkannt (unten rechts in der
-Statusleiste sichtbar). Eine neuere Testversion installierst du genauso –
-sie ersetzt die alte.
+1. In VS Code die Ansicht **Erweiterungen** öffnen (`Strg+Shift+X`).
+2. Nach **„GESS Q.“** suchen und installieren – oder direkt über den
+   [Eintrag im Marketplace](https://marketplace.visualstudio.com/items?itemName=volkerdobler.gessq).
+
+Updates installiert VS Code künftig automatisch.
+
+`.q`-Dateien werden als „GESS Q.“ erkannt (unten rechts in der Statusleiste
+sichtbar).
 
 ## Was die Erweiterung kann
 
@@ -112,15 +111,15 @@ sie ersetzt die alte.
 | ------------------------------------------ | --------- | --------- | --------------------------------------------------------------------------- |
 | `gessq.diagnostics.enable`                 | `boolean` | `true`    | Fehlerhinweise (siehe oben) an- oder ausschalten.                          |
 | `gessq.hover.enable`                       | `boolean` | `true`    | Erklärung beim Zeigen mit der Maus an- oder ausschalten.                   |
-| `gessq.hover.referenceDetail`              | `string`  | `"summary"` | Wie viel der Hover über einer Fragen-/Variablen-*Referenz* zeigt: `off`, `summary` (Name, Art, Fundort der Definition – ohne Beschreibung/Link), `definition` (zusätzlich ein Auszug der Definition ohne actionblock/js/css) oder `full` (komplette Definition). |
-| `gessq.codeLens.definitions`               | `string`  | `"reusable"` | Über welchen Definitionen die „N Verweise“-Zeile erscheint: `off`, `questions` (nur Fragen), `reusable` (Fragen + opennumformat/block/screen/#macro/quotavar) oder `all` (auch compute/array/textelement/…). `set`/`load`-Ziele nie. |
+| `gessq.hover.referenceDetail`              | `string`  | `"definition"` | Wie viel der Hover über einer Fragen-/Variablen-*Referenz* zeigt: `off`, `summary` (Name, Art, Fundort der Definition – ohne Beschreibung/Link), `definition` (zusätzlich ein Auszug der Definition ohne actionblock/js/css) oder `full` (komplette Definition). |
+| `gessq.codeLens.definitions`               | `string`  | `"questions"` | Über welchen Definitionen die „N Verweise“-Zeile erscheint: `off`, `questions` (nur Fragen), `reusable` (Fragen + opennumformat/block/screen/#macro/quotavar) oder `all` (auch compute/array/textelement/…). `set`/`load`-Ziele nie. |
 | `gessq.completion.includeWorkspaceSymbols` | `boolean` | `true`    | Auch Namen aus dem Projekt (Fragen, Blöcke, Makros …) vorschlagen.         |
 | `gessq.embeddedLanguages.enable`           | `boolean` | `true`    | Echte JS/TS- und CSS-Hilfe (Hover, Vervollständigung, Parameterhinweise) in `javascript=` / `jsHandler=` / `css=`-Blöcken. |
 | `gessq.files.exclude`                      | `string`  | `""`      | Zusätzliches Ordnermuster, das beim projektweiten Scan übersprungen wird (z. B. `**/backup/**`). |
 | `gessq.releaseNotes.showOnUpdate`          | `boolean` | `true`    | Release Notes nach Installation/Update einmalig anzeigen. Der Befehl bleibt in jedem Fall verfügbar. |
 | `gessq.logLevel`                           | `string`  | `"error"` | Umfang der Meldungen im Ausgabe-Kanal „GESS Q.“ (`off` … `debug`).         |
 
-## Bekannte Einschränkungen (Testversion)
+## Bekannte Einschränkungen
 
 - Innerhalb von `javascript=` / `jsHandler=` / `css=` gibt es Hover,
   Vervollständigung und Parameterhinweise, aber **keine Fehlerprüfung**

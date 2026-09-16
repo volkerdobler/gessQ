@@ -44,25 +44,25 @@ describe('config toggles', () => {
 		expect(releaseNotesOnUpdate()).toBe(false);
 	});
 
-	test('codeLens.definitions: default "reusable", known values pass, junk falls back', () => {
+	test('codeLens.definitions: default "questions", known values pass, junk falls back', () => {
 		stubConfig({});
-		expect(codeLensDefinitions()).toBe('reusable');
+		expect(codeLensDefinitions()).toBe('questions');
 		for (const v of ['off', 'questions', 'reusable', 'all'] as const) {
 			stubConfig({ 'codeLens.definitions': v });
 			expect(codeLensDefinitions()).toBe(v);
 		}
 		stubConfig({ 'codeLens.definitions': 'nonsense' });
-		expect(codeLensDefinitions()).toBe('reusable');
+		expect(codeLensDefinitions()).toBe('questions');
 	});
 
-	test('hover.referenceDetail: default "summary", known values pass, junk falls back', () => {
+	test('hover.referenceDetail: default "definition", known values pass, junk falls back', () => {
 		stubConfig({});
-		expect(hoverReferenceDetail()).toBe('summary');
+		expect(hoverReferenceDetail()).toBe('definition');
 		for (const v of ['off', 'summary', 'definition', 'full'] as const) {
 			stubConfig({ 'hover.referenceDetail': v });
 			expect(hoverReferenceDetail()).toBe(v);
 		}
 		stubConfig({ 'hover.referenceDetail': 'nonsense' });
-		expect(hoverReferenceDetail()).toBe('summary');
+		expect(hoverReferenceDetail()).toBe('definition');
 	});
 });

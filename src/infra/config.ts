@@ -26,8 +26,8 @@ export type HoverReferenceDetail = 'off' | 'summary' | 'definition' | 'full';
  * actionblock / javascript / css).
  */
 export const hoverReferenceDetail = (): HoverReferenceDetail => {
-	const v = section().get<string>('hover.referenceDetail', 'summary');
-	return v === 'off' || v === 'definition' || v === 'full' ? v : 'summary';
+	const v = section().get<string>('hover.referenceDetail', 'definition');
+	return v === 'off' || v === 'summary' || v === 'full' ? v : 'definition';
 };
 
 /** Which definitions carry a "N references" CodeLens. */
@@ -40,8 +40,8 @@ export type CodeLensDefinitions = 'off' | 'questions' | 'reusable' | 'all';
  * everything except `set`/`load` assignment targets).
  */
 export const codeLensDefinitions = (): CodeLensDefinitions => {
-	const v = section().get<string>('codeLens.definitions', 'reusable');
-	return v === 'off' || v === 'questions' || v === 'all' ? v : 'reusable';
+	const v = section().get<string>('codeLens.definitions', 'questions');
+	return v === 'off' || v === 'reusable' || v === 'all' ? v : 'questions';
 };
 
 /** `gessq.completion.includeWorkspaceSymbols`. */

@@ -3,7 +3,7 @@
 All notable changes to the "GESS Q." extension will be documented in this file.
 Current version number is first:
 
-### Unreleased
+### 1.0.0 — 2026-09-16
 
 - New diagnostic: preprocessor directives (`#define`, `#ifdef`, `#ifndef`,
   `#else`, `#endif`, `#macro`, `#endmacro`, `#domacro`, `#include`,
@@ -97,7 +97,7 @@ Current version number is first:
     defined (the `file:line` is a link – click it to jump there) – no
     command description or handbook link (hover the keyword for those). New
     setting **`gessq.hover.referenceDetail`** (`off` / `summary`
-    / `definition` / `full`, default `summary`) adds, from `definition` up,
+    / `definition` / `full`, default `definition`) adds, from `definition` up,
     an **excerpt of the definition** – the `singleq` line plus `text` /
     `title` / `labels` / `flt` / `assert` …, up to the next definition.
     `definition` leaves out `actionblock` (incl. multi-line brace blocks),
@@ -109,7 +109,7 @@ Current version number is first:
   did nothing).
 - The "N references" CodeLens is now filtered by definition kind via
   **`gessq.codeLens.definitions`** (`off` / `questions` / `reusable` /
-  `all`, default `reusable`) – questions plus the reusable building blocks
+  `all`, default `questions`) – questions plus the reusable building blocks
   (opennumformat, block / screen, `#macro`, quotavar), and only with `all`
   also plain variables (compute, array, textelement, …). `set()` / `load()`
   assignment targets never get a lens. Replaces the boolean
