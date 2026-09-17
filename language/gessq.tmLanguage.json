@@ -25,6 +25,9 @@
                     "include": "#preprocessorConditional"
                 },
                 {
+                    "include": "#templatePlaceholder"
+                },
+                {
                     "include": "source.js"
                 }
             ]
@@ -43,12 +46,15 @@
                     "include": "#preprocessorConditional"
                 },
                 {
+                    "include": "#templatePlaceholder"
+                },
+                {
                     "include": "source.css"
                 }
             ]
         },
         {
-            "begin": "(?i)\\b(html|htmlPreText|htmlPostText|htmlPreLabels|htmlPostLabels|writePreText|writePostText|writeQText|writeTitle|errorPreText|errorPostText|feedback|text|title)\\s*=\\s*\"",
+            "begin": "(?i)\\b(html|htmlLabels|htmlPreText|htmlPostText|htmlPreLabels|htmlPostLabels|writePreText|writePostText|writeQText|writeTitle|errorPreText|errorPostText|feedback|text|title)\\s*=\\s*\"",
             "end": "\";",
             "name": "meta.embedded.block.html",
             "beginCaptures": {
@@ -59,6 +65,9 @@
             "patterns": [
                 {
                     "include": "#preprocessorConditional"
+                },
+                {
+                    "include": "#templatePlaceholder"
                 },
                 {
                     "include": "text.html.basic"
@@ -89,8 +98,11 @@
             "name": "support.class.gessQ"
         },
         {
-            "match": "\\B(?i:(@insert|#define|#domacro|#ifdef|#ifndef|#include|#includeifexists|#macro))\\b",
+            "match": "\\B(?i:(#define|#domacro|#ifdef|#ifndef|#include|#includeifexists|#macro))\\b",
             "name": "entity.other.attribute-name.gessQ"
+        },
+        {
+            "include": "#templatePlaceholder"
         },
         {
             "match": "\\B(?i:(#endmacro|#else|#endif))\\b",
@@ -123,6 +135,9 @@
                     "include": "#preprocessorConditional"
                 },
                 {
+                    "include": "#templatePlaceholder"
+                },
+                {
                     "match": "\\\\.",
                     "name": "constant.character.escape.gessQ"
                 }
@@ -147,6 +162,9 @@
                     "include": "#preprocessorConditional"
                 },
                 {
+                    "include": "#templatePlaceholder"
+                },
+                {
                     "match": "\\\\.",
                     "name": "constant.character.escape.gessQ"
                 }
@@ -161,6 +179,11 @@
         "preprocessorConditional": {
             "comment": "#ifdef / #ifndef / #else / #endif are resolved by a preprocessor before parsing and take effect even inside strings, so they stay highlighted there (and inside embedded html/js/css).",
             "match": "\\B(?i:(#ifn?def|#else|#endif))\\b",
+            "name": "entity.other.attribute-name.gessQ"
+        },
+        "templatePlaceholder": {
+            "comment": "Template placeholders (@header, @body, @insert(...), @end_xxx, …) are text substitutions that take effect inside strings and embedded html/js/css, not just at the top level.",
+            "match": "\\B@(?i:back|body|cancel|dummy|error|form|forward|header|htmllabels|insert|language|pbar|posthelptext|prehelptext|qtext|src[1-4]|submit|target|tt(?:[1-9]|1[0-9]|20)|end_[a-z]+)\\b",
             "name": "entity.other.attribute-name.gessQ"
         }
     }
