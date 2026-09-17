@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { releaseNotesOnUpdate } from './config';
 import { renderReleaseNotesMarkdown } from './releaseNotesMarkdown';
 
-/** Command that (re)opens the release notes for the installed version. */
+/** Command that (re)opens the newest bundled release notes. */
 export const SHOW_RELEASE_NOTES_COMMAND = 'gessq.showReleaseNotes';
 
 /** Command that forgets which version's notes were shown (for testing / support). */
@@ -45,23 +45,20 @@ export function compareVersions(a: string, b: string): number {
 }
 
 /**
- * Which of `available` versions' release notes are still owed to the user,
- * oldest first: every version up to and including `currentVersion` that
- * isn't already suppressed. This is what lets a jump from 1.0.0 straight to
- * 1.0.2 (skipping 1.0.1, e.g. a quick follow-up fix) still show 1.0.1's
- * notes instead of silently dropping them – while a version the user
- * already saw and dismissed never repeats.
+ * The newest of `available` version strings, or `undefined` if empty.
+ *
+ * There is only ever at most one release-notes file "current" at a time – a
+ * quick patch release (e.g. 1.0.1 after 1.0.0) doesn't get its own file when
+ * it has nothing worth announcing, it just keeps shipping the previous one.
+ * So "what notes should this install show" is never "the file matching the
+ * installed version", it's "the newest file that exists at all".
  */
-export function pendingVersions(
+export function latestVersion(
 	available: readonly string[],
-	currentVersion: string,
-	showOnUpdate: boolean,
-	suppressedFor: (version: string) => boolean | undefined,
-): string[] {
-	return available
-		.filter((v) => compareVersions(v, currentVersion) <= 0)
-		.filter((v) => shouldShowReleaseNotes(showOnUpdate, suppressedFor(v)))
-		.sort(compareVersions);
+): string | undefined {
+	return available.length === 0
+		? undefined
+		: available.reduce((best, v) => (compareVersions(v, best) > 0 ? v : best));
 }
 
 /** Contents of the release-notes file for `version`, or `undefined` if there is none. */
@@ -173,26 +170,24 @@ ${body}
 /**
  * Open the release notes as an interactive webview panel with a "don't show
  * this again" checkbox (checked by default). The checkbox's state at the
- * moment the panel closes is written to every key in `suppressKeys`, gating
- * future automatic (not manually triggered) openings for those versions –
- * more than one when the panel bundles several versions' notes at once (see
- * `pendingVersions`).
+ * moment the panel closes is written to `suppressKey`, gating future
+ * automatic (not manually triggered) openings for this notes version.
  */
 function showReleaseNotesPanel(
 	context: vscode.ExtensionContext,
-	title: string,
+	version: string,
 	markdown: string,
-	suppressKeys: readonly string[],
+	suppressKey: string,
 ): void {
 	const panel = vscode.window.createWebviewPanel(
 		'gessqReleaseNotes',
-		title,
+		`Release Notes – GESS Q. ${version}`,
 		vscode.ViewColumn.One,
 		{ enableScripts: true },
 	);
 
 	// The checkbox starts checked (see renderPanelHtml) – closing the panel
-	// without touching it suppresses these versions going forward, matching
+	// without touching it suppresses this version going forward, matching
 	// the checkbox's own visible default.
 	let dontShowAgain = true;
 	panel.webview.onDidReceiveMessage(
@@ -203,27 +198,28 @@ function showReleaseNotesPanel(
 		},
 	);
 
-	panel.webview.html = renderPanelHtml(panel.webview, title, markdown);
+	panel.webview.html = renderPanelHtml(
+		panel.webview,
+		`Release Notes – GESS Q. ${version}`,
+		markdown,
+	);
 
 	panel.onDidDispose(() => {
-		for (const key of suppressKeys) {
-			void context.globalState.update(key, dontShowAgain);
-		}
+		void context.globalState.update(suppressKey, dontShowAgain);
 	});
 
 	context.subscriptions.push(panel);
 }
 
 /**
- * Register the release-notes commands and, once per version (unless
- * `gessq.releaseNotes.showOnUpdate` is off), open the notes for every
- * version up to and including the freshly installed / updated one that the
- * user hasn't already seen (see `pendingVersions`) – so a quick follow-up
- * release doesn't silently swallow the notes from the version(s) before it
- * for someone updating straight past them.
+ * Register the release-notes commands and, unless
+ * `gessq.releaseNotes.showOnUpdate` is off, open the newest bundled
+ * `release-notes/<v>.md` once per version – not necessarily the version
+ * currently installed, since a quick patch release doesn't need (and won't
+ * ship) its own notes file. A version already shown and dismissed doesn't
+ * repeat, and with no notes file at all this is a no-op.
  */
 export function activateReleaseNotes(context: vscode.ExtensionContext): void {
-	const version = String(context.extension.packageJSON.version ?? '');
 	const devMode =
 		context.extensionMode !== vscode.ExtensionMode.Production;
 	const suppressKey = (v: string): string => SUPPRESS_KEY_PREFIX + v;
@@ -232,17 +228,23 @@ export function activateReleaseNotes(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand(
 			SHOW_RELEASE_NOTES_COMMAND,
 			async () => {
-				const markdown = await noteContents(context.extensionUri, version);
-				if (markdown !== undefined) {
+				const version = latestVersion(
+					await availableVersions(context.extensionUri),
+				);
+				const markdown =
+					version !== undefined
+						? await noteContents(context.extensionUri, version)
+						: undefined;
+				if (version !== undefined && markdown !== undefined) {
 					showReleaseNotesPanel(
 						context,
-						`Release Notes – GESS Q. ${version}`,
+						version,
 						markdown,
-						[suppressKey(version)],
+						suppressKey(version),
 					);
 				} else {
 					void vscode.window.showInformationMessage(
-						`GESS Q.: keine Release Notes für Version ${version}.`,
+						'GESS Q.: keine Release Notes vorhanden.',
 					);
 				}
 			},
@@ -258,7 +260,7 @@ export function activateReleaseNotes(context: vscode.ExtensionContext): void {
 				RESET_RELEASE_NOTES_COMMAND,
 				async () => {
 					const versions = await availableVersions(context.extensionUri);
-					for (const v of new Set([...versions, version])) {
+					for (const v of versions) {
 						await context.globalState.update(suppressKey(v), undefined);
 					}
 					void vscode.window.showInformationMessage(
@@ -277,28 +279,23 @@ export function activateReleaseNotes(context: vscode.ExtensionContext): void {
 	}
 
 	void (async () => {
-		const versions = await availableVersions(context.extensionUri);
-		const pending = pendingVersions(versions, version, showOnUpdate, (v) =>
-			context.globalState.get<boolean>(suppressKey(v)),
+		const version = latestVersion(
+			await availableVersions(context.extensionUri),
 		);
-		if (pending.length === 0) {
+		if (version === undefined) {
 			return;
 		}
-
-		const sections = await Promise.all(
-			pending.map((v) => noteContents(context.extensionUri, v)),
-		);
-		const markdown = sections
-			.filter((s): s is string => s !== undefined)
-			.join('\n\n');
-		if (markdown.length === 0) {
+		if (
+			!shouldShowReleaseNotes(
+				showOnUpdate,
+				context.globalState.get<boolean>(suppressKey(version)),
+			)
+		) {
 			return;
 		}
-
-		const title =
-			pending.length === 1
-				? `Release Notes – GESS Q. ${pending[0]}`
-				: `Release Notes – GESS Q. ${pending[0]}–${pending[pending.length - 1]}`;
-		showReleaseNotesPanel(context, title, markdown, pending.map(suppressKey));
+		const markdown = await noteContents(context.extensionUri, version);
+		if (markdown !== undefined) {
+			showReleaseNotesPanel(context, version, markdown, suppressKey(version));
+		}
 	})();
 }

@@ -1,6 +1,6 @@
 import {
 	compareVersions,
-	pendingVersions,
+	latestVersion,
 	releaseNotesPath,
 	shouldShowReleaseNotes,
 } from '../infra/releaseNotes';
@@ -40,31 +40,17 @@ describe('compareVersions', () => {
 	});
 });
 
-describe('pendingVersions', () => {
-	const available = ['1.0.0', '1.0.1'];
-
-	test('setting off → nothing pending, regardless of suppress state', () => {
-		expect(pendingVersions(available, '1.0.1', false, () => undefined)).toEqual(
-			[],
-		);
+describe('latestVersion', () => {
+	test('no notes files at all → undefined', () => {
+		expect(latestVersion([])).toBeUndefined();
 	});
 
-	test('fresh update from 0.99.3 straight to 1.0.1 → both 1.0.0 and 1.0.1 owed, oldest first', () => {
-		expect(pendingVersions(available, '1.0.1', true, () => undefined)).toEqual(
-			['1.0.0', '1.0.1'],
-		);
+	test('a single file → that version', () => {
+		expect(latestVersion(['1.0.0'])).toBe('1.0.0');
 	});
 
-	test('a version already seen (suppressed) at update time is skipped', () => {
-		const suppressed = new Set(['1.0.0']);
-		expect(
-			pendingVersions(available, '1.0.1', true, (v) => suppressed.has(v)),
-		).toEqual(['1.0.1']);
-	});
-
-	test('versions newer than the installed one are never pending', () => {
-		expect(pendingVersions(available, '1.0.0', true, () => undefined)).toEqual(
-			['1.0.0'],
-		);
+	test('picks the numerically newest, regardless of list order', () => {
+		expect(latestVersion(['1.0.0', '1.0.10', '1.0.9'])).toBe('1.0.10');
+		expect(latestVersion(['1.0.10', '1.0.9', '1.0.0'])).toBe('1.0.10');
 	});
 });
