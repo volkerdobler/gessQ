@@ -208,7 +208,14 @@ export function parseDocumentSymbols(
 			if (!m || m.index < 0 || !m[2]) {
 				continue;
 			}
-			if (!getCachedScope(document).isNotInComment(i, m.index)) {
+			// A definition can only be real code – not a comment, and not text
+			// inside a string (e.g. HTML markup in a `text=`/`htmlLabels=`
+			// attribute that happens to contain something like `class='numq Q1'`).
+			const scope = getCachedScope(document);
+			if (
+				!scope.isNotInComment(i, m.index) ||
+				scope.isString(i, m.index)
+			) {
 				continue;
 			}
 			const token = m[2];

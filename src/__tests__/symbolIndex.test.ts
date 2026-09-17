@@ -108,6 +108,22 @@ test('ignores definitions inside comments', () => {
 	expect(syms.map((s) => s.name)).toEqual(['Real']);
 });
 
+test('ignores keyword-shaped text inside a string – e.g. an HTML class in htmlLabels=', () => {
+	// Real-world case: an `id`/`class` attribute in a template's htmlLabels=
+	// HTML happens to spell out "numq Q1", which must not be mistaken for a
+	// second `numq Q1` definition (and must not trigger a duplicate-name
+	// diagnostic against the real one below).
+	const syms = parseDocumentSymbols(
+		makeDoc([
+			'numq Q1 = 1 10;',
+			'htmllabels="',
+			" <div id='qdiv_Q1' class='numq Q1'>",
+			'";',
+		]),
+	);
+	expect(syms.map((s) => s.name)).toEqual(['Q1']);
+});
+
 test('strips quotes from quoted names', () => {
 	const [sym] = parseDocumentSymbols(makeDoc(['singleq "Frage1";']));
 	expect(sym.name).toBe('Frage1');
