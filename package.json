@@ -205,7 +205,8 @@
     },
     "configurationDefaults": {
       "[gessq]": {
-        "editor.quickSuggestions": false
+        "editor.quickSuggestions": false,
+        "editor.wordBasedSuggestions": "off"
       }
     }
   },
