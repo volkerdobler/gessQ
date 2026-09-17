@@ -20,11 +20,6 @@ Current version number is first:
   match, such as `class='numq Q1'` next to `id='qdiv_Q1'`. Fixes every
   consumer of the symbol index at once: diagnostics, hover, Go to
   Definition, Rename, Find All References, outline, CodeLens.
-- "What's new": the panel now always shows the newest bundled
-  `release-notes/<version>.md`, not the one matching the installed
-  extension version. A quick patch release no longer needs its own notes
-  file, and no longer hides the previous version's notes from users who
-  haven't seen them yet.
 
 ### 1.0.0 — 2026-09-16
 
