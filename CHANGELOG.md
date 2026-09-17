@@ -3,7 +3,7 @@
 All notable changes to the "GESS Q." extension will be documented in this file.
 Current version number is first:
 
-### 1.0.1 — 2026-09-17
+### 1.0.2 — 2026-09-17
 
 - Grammar: `htmlLabels=` was missing from the embedded-HTML attribute list
   (its `htmlPreLabels=` / `htmlPostLabels=` siblings already worked), so its
