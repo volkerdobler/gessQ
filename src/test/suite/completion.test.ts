@@ -21,9 +21,13 @@ suite('completion', () => {
 	test('after `#` only preprocessor directives', async () => {
 		const doc = await openFixture('script.q');
 		const text = doc.getText();
-		// just after the `#` of an existing `#include`
+		// just after the `#` of an existing `#include`. An explicit invoke
+		// (Ctrl+Space), not a synthetic '#' trigger character: the trigger-
+		// character path is gated by `gessq.completion.autoTrigger` (default
+		// `off`, see completionProvider.test.ts's `autoTriggerAllows` unit
+		// tests) – invoke always works, matching what a user gets by default.
 		const pos = doc.positionAt(text.indexOf('#include') + 1);
-		const labels = await completionLabels(doc.uri, pos, '#');
+		const labels = await completionLabels(doc.uri, pos);
 		assert.ok(labels.includes('include'), labels.slice(0, 10).join(','));
 		assert.ok(labels.includes('ifdef'));
 		assert.ok(!labels.includes('singleq'));
