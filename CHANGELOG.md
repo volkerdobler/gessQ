@@ -3,6 +3,29 @@
 All notable changes to the "GESS Q." extension will be documented in this file.
 Current version number is first:
 
+### 1.0.1 — 2026-09-17
+
+- Grammar: `htmlLabels=` was missing from the embedded-HTML attribute list
+  (its `htmlPreLabels=` / `htmlPostLabels=` siblings already worked), so its
+  value was highlighted as a plain string instead of real HTML.
+- Grammar: `@`-prefixed template placeholders (`@header`, `@body`, `@insert`,
+  `@htmllabels`, `@target`, `@tt1` … `@tt20`, `@end_xxx`, …) are now
+  highlighted wherever they actually occur – inside a string and inside
+  embedded `html=` / `javascript=` / `css=` blocks – not just at the top
+  level of the document.
+- Diagnostics: a definition-shaped match (`numq`, `singleq`, `block`,
+  `macro`, …) inside a string literal is no longer treated as a real
+  definition. This fixed a false "Duplicate question" diagnostic whenever a
+  template's HTML (e.g. `htmlLabels=`) happened to contain a coincidental
+  match, such as `class='numq Q1'` next to `id='qdiv_Q1'`. Fixes every
+  consumer of the symbol index at once: diagnostics, hover, Go to
+  Definition, Rename, Find All References, outline, CodeLens.
+- "What's new": the panel now always shows the newest bundled
+  `release-notes/<version>.md`, not the one matching the installed
+  extension version. A quick patch release no longer needs its own notes
+  file, and no longer hides the previous version's notes from users who
+  haven't seen them yet.
+
 ### 1.0.0 — 2026-09-16
 
 - New diagnostic: preprocessor directives (`#define`, `#ifdef`, `#ifndef`,
