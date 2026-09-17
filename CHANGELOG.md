@@ -5,6 +5,13 @@ Current version number is first:
 
 ### 1.0.2 — 2026-09-17
 
+- VS Code's built-in word-based suggestions (`editor.wordBasedSuggestions`)
+  are now off by default for `.q` files – they matched arbitrary words from
+  label texts and embedded HTML/JS content, cluttering completion with
+  noise unrelated to GESS Q. syntax.
+
+### 1.0.1 — 2026-09-17
+
 - Grammar: `htmlLabels=` was missing from the embedded-HTML attribute list
   (its `htmlPreLabels=` / `htmlPostLabels=` siblings already worked), so its
   value was highlighted as a plain string instead of real HTML.
@@ -20,10 +27,6 @@ Current version number is first:
   match, such as `class='numq Q1'` next to `id='qdiv_Q1'`. Fixes every
   consumer of the symbol index at once: diagnostics, hover, Go to
   Definition, Rename, Find All References, outline, CodeLens.
-- VS Code's built-in word-based suggestions (`editor.wordBasedSuggestions`)
-  are now off by default for `.q` files – they matched arbitrary words from
-  label texts and embedded HTML/JS content, cluttering completion with
-  noise unrelated to GESS Q. syntax.
 
 ### 1.0.0 — 2026-09-16
 
