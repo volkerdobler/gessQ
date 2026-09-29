@@ -96,13 +96,13 @@ sichtbar).
   werden nicht mit der Erweiterung verteilt. Beispiel `seqdot.d.ts`:
 
   ```ts
-  interface CogmapSettings {
+  interface Settings {
   	/** Anzahl Gruppen beim Start */
   	initialGroups?: number;
   	modeLarge?: 'board' | 'cardstack';
   }
   interface SEQdotApi {
-  	cogmapSettings: CogmapSettings;
+  	settings: Settings;
   }
   declare var SEQdot: SEQdotApi;
   ```
@@ -111,7 +111,7 @@ sichtbar).
   "gessq.embeddedLanguages.declarationFiles": ["~/gessq-declarations"]
   ```
 
-  Danach bietet `SEQdot.cogmapSettings = { ` + `Strg+Leertaste` alle Optionen
+  Danach bietet `SEQdot.Settings = { ` + `Strg+Leertaste` alle Optionen
   mit Typ und Beschreibung an. Ein Ordner lädt alle `*.d.ts` darin; mehrere
   Dateien dürfen dasselbe `interface` erweitern (z. B. jedes Modul seinen
   Eintrag in `SEQdotApi`). Nur `interface` / `declare …`, kein

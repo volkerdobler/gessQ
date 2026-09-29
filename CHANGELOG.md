@@ -9,7 +9,7 @@ Current version number is first:
   TypeScript declaration files (`.d.ts`) or folders of them, appended to the
   GESS Q. globals inside embedded `javascript = "…"` / `jsHandler = "…"`
   blocks. Describe the options of a custom JavaScript module once as an
-  `interface` (e.g. `SEQdot.cogmapSettings`), and completion (Ctrl+Space),
+  `interface` (e.g. `SEQdot.settings`), and completion (Ctrl+Space),
   hover and signature help know every key with its type and description, with
   no snippet per option needed. The files stay local (user settings) or live
   in the questionnaire project (workspace settings); nothing is shipped with
