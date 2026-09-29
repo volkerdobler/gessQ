@@ -1,5 +1,6 @@
 'use strict';
 
+import * as os from 'os';
 import * as vscode from 'vscode';
 import {
 	scanEmbeddedRegions,
@@ -8,8 +9,14 @@ import {
 	type EmbeddedLanguage,
 	type EmbeddedRegion,
 } from '../core/embeddedRegions';
-import { loadEmbeddedGlobals } from '../data/embeddedGlobals';
-import { embeddedLanguagesEnabled } from '../infra/config';
+import {
+	loadEmbeddedGlobals,
+	loadUserDeclarations,
+} from '../data/embeddedGlobals';
+import {
+	embeddedDeclarationFiles,
+	embeddedLanguagesEnabled,
+} from '../infra/config';
 
 /**
  * Real language features for the embedded `javascript = "…"` / `jsHandler = "…"`
@@ -294,11 +301,59 @@ export function sanitizeCompletionItem(
  */
 export function registerEmbeddedLanguageSupport(
 	context: vscode.ExtensionContext,
-): void {
+): { reloadDeclarations(): void } {
 	const content = new EmbeddedContentProvider();
-	content.setGlobals(loadEmbeddedGlobals(context.extensionUri));
+	const builtIn = loadEmbeddedGlobals(context.extensionUri);
+	let watchers: vscode.Disposable[] = [];
+	let reloadTimer: ReturnType<typeof setTimeout> | undefined;
+
+	/**
+	 * (Re)read `gessq.embeddedLanguages.declarationFiles`, append them to the
+	 * built-in globals, re-arm the file watchers and refresh every open
+	 * virtual document.
+	 */
+	const reloadDeclarations = (): void => {
+		for (const w of watchers) {
+			w.dispose();
+		}
+		watchers = [];
+		const user = loadUserDeclarations(
+			embeddedDeclarationFiles(),
+			vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
+			os.homedir(),
+		);
+		content.setGlobals(user.text ? builtIn + '\n' + user.text : builtIn);
+		// Editors save in several steps – coalesce the burst into one reload.
+		const scheduleReload = (): void => {
+			clearTimeout(reloadTimer);
+			reloadTimer = setTimeout(reloadDeclarations, 200);
+		};
+		for (const { dir, pattern } of user.watch) {
+			const w = vscode.workspace.createFileSystemWatcher(
+				new vscode.RelativePattern(vscode.Uri.file(dir), pattern),
+			);
+			w.onDidCreate(scheduleReload);
+			w.onDidChange(scheduleReload);
+			w.onDidDelete(scheduleReload);
+			watchers.push(w);
+		}
+		for (const d of vscode.workspace.textDocuments) {
+			if (d.languageId === 'gessq') {
+				content.invalidate(d.uri);
+			}
+		}
+	};
+	reloadDeclarations();
 
 	context.subscriptions.push(
+		{
+			dispose: () => {
+				clearTimeout(reloadTimer);
+				for (const w of watchers) {
+					w.dispose();
+				}
+			},
+		},
 		vscode.workspace.registerTextDocumentContentProvider(
 			SCHEME.javascript,
 			content,
@@ -350,4 +405,6 @@ export function registerEmbeddedLanguageSupport(
 			content.warmUp(d);
 		}
 	}
+
+	return { reloadDeclarations };
 }

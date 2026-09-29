@@ -71,6 +71,21 @@ export const embeddedLanguagesEnabled = (): boolean =>
 	section().get<boolean>('embeddedLanguages.enable', true);
 
 /**
+ * `gessq.embeddedLanguages.declarationFiles` – extra `.d.ts` files (or folders
+ * of them) appended to the embedded-JS globals, e.g. for a project-specific
+ * module like `SEQdot`. Non-string / blank entries are dropped.
+ */
+export const embeddedDeclarationFiles = (): string[] => {
+	const v = section().get<unknown>('embeddedLanguages.declarationFiles', []);
+	return Array.isArray(v)
+		? v
+				.filter((p): p is string => typeof p === 'string')
+				.map((p) => p.trim())
+				.filter((p) => p !== '')
+		: [];
+};
+
+/**
  * `gessq.releaseNotes.showOnUpdate` – open this version's release notes once
  * after an install / update. The command stays available either way.
  */

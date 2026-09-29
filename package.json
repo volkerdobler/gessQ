@@ -191,6 +191,14 @@
           "default": true,
           "description": "Real hover, completion and signature help inside embedded javascript = \"…\" / jsHandler = \"…\" / css = \"…\" blocks, forwarded to the built-in JavaScript/TypeScript and CSS language services via a virtual document. @insert(…) and &macro; are hidden from that view; diagnostics are not forwarded."
         },
+        "gessq.embeddedLanguages.declarationFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Additional TypeScript declaration files (`.d.ts`) or folders of them whose declarations are known inside embedded `javascript = \"…\"` / `jsHandler = \"…\"` blocks – e.g. an `interface` describing the options of your own JavaScript module, so `SEQdot.cogmapSettings = { … }` offers completion and hover. A folder contributes every `*.d.ts` directly inside it. `~`, `${userHome}` and `${workspaceFolder}` are expanded; relative paths are relative to the first workspace folder. Changes to the files are picked up automatically. Only ambient declarations (`interface`, `declare var`, `declare function`, …) – no `import` / `export`."
+        },
         "gessq.files.exclude": {
           "type": "string",
           "default": "",

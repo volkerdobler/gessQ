@@ -1,6 +1,7 @@
 'use strict';
 
 import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { debug, warn } from '../infra/logger';
 
@@ -60,6 +61,111 @@ export function loadEmbeddedGlobals(extensionUri: vscode.Uri): string {
 	);
 	cache = FALLBACK;
 	return cache;
+}
+
+// ---------------------------------------------------------------------------
+// User declaration files (`gessq.embeddedLanguages.declarationFiles`)
+// ---------------------------------------------------------------------------
+
+/**
+ * Resolve one configured declaration path: `~` / `${userHome}` → home dir,
+ * `${workspaceFolder}` → first workspace folder, a relative path → relative to
+ * that folder. `undefined` when the path needs a workspace folder and there is
+ * none.
+ */
+export function resolveDeclarationPath(
+	raw: string,
+	workspaceFolder: string | undefined,
+	home: string,
+): string | undefined {
+	let p = raw.replace(/\$\{userHome\}/g, home);
+	if (p === '~' || p.startsWith('~/') || p.startsWith('~\\')) {
+		p = home + p.slice(1);
+	}
+	if (p.includes('${workspaceFolder}')) {
+		if (workspaceFolder === undefined) {
+			return undefined;
+		}
+		p = p.replace(/\$\{workspaceFolder\}/g, workspaceFolder);
+	}
+	if (path.isAbsolute(p)) {
+		return path.normalize(p);
+	}
+	return workspaceFolder === undefined
+		? undefined
+		: path.resolve(workspaceFolder, p);
+}
+
+/** What {@link loadUserDeclarations} read, plus what to watch for changes. */
+export interface UserDeclarations {
+	/** Concatenated file contents, each headed by a `// --- path ---` line. */
+	text: string;
+	/** Directory + glob pairs to watch (also for files that don't exist yet). */
+	watch: { dir: string; pattern: string }[];
+}
+
+/**
+ * Read the configured declaration files. A file is taken as is; a folder
+ * contributes every `*.d.ts` directly inside it, in name order. Missing or
+ * unreadable entries are logged and skipped – never throws.
+ */
+export function loadUserDeclarations(
+	rawPaths: readonly string[],
+	workspaceFolder: string | undefined,
+	home: string,
+): UserDeclarations {
+	const parts: string[] = [];
+	const watch: UserDeclarations['watch'] = [];
+	const read = (file: string): void => {
+		try {
+			parts.push('// --- ' + file + ' ---\n' + fs.readFileSync(file, 'utf8'));
+			debug('embeddedGlobals: loaded declarations from ' + file);
+		} catch (e) {
+			warn('embeddedGlobals: cannot read ' + file + ': ' + String(e));
+		}
+	};
+	for (const raw of rawPaths) {
+		const resolved = resolveDeclarationPath(raw, workspaceFolder, home);
+		if (resolved === undefined) {
+			warn(
+				'embeddedGlobals: "' +
+					raw +
+					'" is relative but no workspace folder is open – skipped',
+			);
+			continue;
+		}
+		let isDir = false;
+		try {
+			isDir = fs.statSync(resolved).isDirectory();
+		} catch {
+			warn('embeddedGlobals: declaration file not found: ' + resolved);
+			// still watched below, so it is picked up once it is created
+		}
+		if (isDir) {
+			watch.push({ dir: resolved, pattern: '*.d.ts' });
+			let names: string[] = [];
+			try {
+				names = fs
+					.readdirSync(resolved)
+					.filter((n) => n.toLowerCase().endsWith('.d.ts'))
+					.sort();
+			} catch (e) {
+				warn('embeddedGlobals: cannot list ' + resolved + ': ' + String(e));
+			}
+			for (const n of names) {
+				read(path.join(resolved, n));
+			}
+		} else {
+			watch.push({
+				dir: path.dirname(resolved),
+				pattern: path.basename(resolved),
+			});
+			if (fs.existsSync(resolved)) {
+				read(resolved);
+			}
+		}
+	}
+	return { text: parts.join('\n'), watch };
 }
 
 /** Clear the in-memory cache (used by tests). */

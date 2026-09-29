@@ -51,7 +51,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(index);
 
 	registerRevealLocation(context);
-	registerEmbeddedLanguageSupport(context);
+	const embedded = registerEmbeddedLanguageSupport(context);
 	activateReleaseNotes(context);
 
 	const { extensionUri } = context;
@@ -77,6 +77,11 @@ export function activate(context: vscode.ExtensionContext): void {
 			}
 			if (e.affectsConfiguration('gessq.diagnostics')) {
 				diagnostics.refreshOpen();
+			}
+			if (
+				e.affectsConfiguration('gessq.embeddedLanguages.declarationFiles')
+			) {
+				embedded.reloadDeclarations();
 			}
 		}),
 		vscode.workspace.onDidChangeWorkspaceFolders(() => {

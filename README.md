@@ -89,6 +89,34 @@ sichtbar).
   `@insert(…)` und `&makro;` werden dabei ausgeblendet. Fehlerprüfung im Block
   gibt es (noch) nicht; abschaltbar über `gessq.embeddedLanguages.enable`.
 
+- **Eigene JavaScript-Module bekannt machen** – über
+  `gessq.embeddedLanguages.declarationFiles` lassen sich eigene
+  TypeScript-Deklarationen (`.d.ts`) einbinden, z. B. die Optionen eines
+  eigenen Moduls. Die Dateien bleiben bei dir (oder im Fragebogen-Projekt) und
+  werden nicht mit der Erweiterung verteilt. Beispiel `seqdot.d.ts`:
+
+  ```ts
+  interface CogmapSettings {
+  	/** Anzahl Gruppen beim Start */
+  	initialGroups?: number;
+  	modeLarge?: 'board' | 'cardstack';
+  }
+  interface SEQdotApi {
+  	cogmapSettings: CogmapSettings;
+  }
+  declare var SEQdot: SEQdotApi;
+  ```
+
+  ```json
+  "gessq.embeddedLanguages.declarationFiles": ["~/gessq-declarations"]
+  ```
+
+  Danach bietet `SEQdot.cogmapSettings = { ` + `Strg+Leertaste` alle Optionen
+  mit Typ und Beschreibung an. Ein Ordner lädt alle `*.d.ts` darin; mehrere
+  Dateien dürfen dasselbe `interface` erweitern (z. B. jedes Modul seinen
+  Eintrag in `SEQdotApi`). Nur `interface` / `declare …`, kein
+  `import` / `export`. Änderungen an den Dateien wirken sofort.
+
 - **Snippets** (Textbausteine) für Fragetypen, ActionBlöcke, Filter, Grids,
   Server-Einstellungen u. v. m.
 
@@ -115,6 +143,7 @@ sichtbar).
 | `gessq.codeLens.definitions`               | `string`  | `"questions"` | Über welchen Definitionen die „N Verweise“-Zeile erscheint: `off`, `questions` (nur Fragen), `reusable` (Fragen + opennumformat/block/screen/#macro/quotavar) oder `all` (auch compute/array/textelement/…). `set`/`load`-Ziele nie. |
 | `gessq.completion.includeWorkspaceSymbols` | `boolean` | `true`    | Auch Namen aus dem Projekt (Fragen, Blöcke, Makros …) vorschlagen.         |
 | `gessq.embeddedLanguages.enable`           | `boolean` | `true`    | Echte JS/TS- und CSS-Hilfe (Hover, Vervollständigung, Parameterhinweise) in `javascript=` / `jsHandler=` / `css=`-Blöcken. |
+| `gessq.embeddedLanguages.declarationFiles` | `string[]` | `[]`     | Eigene `.d.ts`-Dateien oder Ordner, deren Deklarationen in `javascript=` / `jsHandler=`-Blöcken bekannt sind (siehe oben). `~`, `${userHome}`, `${workspaceFolder}` und projektrelative Pfade erlaubt. |
 | `gessq.files.exclude`                      | `string`  | `""`      | Zusätzliches Ordnermuster, das beim projektweiten Scan übersprungen wird (z. B. `**/backup/**`). |
 | `gessq.releaseNotes.showOnUpdate`          | `boolean` | `true`    | Release Notes nach Installation/Update einmalig anzeigen. Der Befehl bleibt in jedem Fall verfügbar. |
 | `gessq.logLevel`                           | `string`  | `"error"` | Umfang der Meldungen im Ausgabe-Kanal „GESS Q.“ (`off` … `debug`).         |
