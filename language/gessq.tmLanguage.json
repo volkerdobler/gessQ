@@ -185,6 +185,20 @@
             "comment": "Template placeholders (@header, @body, @insert(...), @end_xxx, …) are text substitutions that take effect inside strings and embedded html/js/css, not just at the top level.",
             "match": "\\B@(?i:back|body|cancel|dummy|error|form|forward|header|htmllabels|insert|language|pbar|posthelptext|prehelptext|qtext|src[1-4]|submit|target|tt(?:[1-9]|1[0-9]|20)|end_[a-z]+)\\b",
             "name": "entity.other.attribute-name.gessQ"
+        },
+        "escapedQuote": {
+            "comment": "Q.'s \\\" inside a string value is a literal quote, unescaped before the embedded html/js/css is used. Consumed as one token so the embedded grammar never sees a bare quote - otherwise JS/HTML took it for a string delimiter, the nesting broke and the closing \"; was never found.",
+            "match": "\\\\\"",
+            "name": "constant.character.escape.gessQ"
+        }
+    },
+    "injections": {
+        "L:meta.embedded.block.html, L:meta.embedded.block.javascript, L:meta.embedded.block.css": {
+            "patterns": [
+                {
+                    "include": "#escapedQuote"
+                }
+            ]
         }
     }
 }

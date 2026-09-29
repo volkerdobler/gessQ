@@ -17,6 +17,13 @@ Current version number is first:
   users can add their own modules alongside. `~`, `${userHome}`,
   `${workspaceFolder}` and workspace-relative paths are supported; changes to
   the files are picked up without a reload.
+- Grammar: an escaped quote `\"` inside an embedded `html=` / `htmlPostText=`
+  / `javascript=` / `css=` / … block broke the highlighting of the rest of
+  the file. The embedded JS/HTML grammar took the quote for a string
+  delimiter, lost track of its nesting and never found the closing `";`, so
+  `</script>`, `#endmacro` and every keyword after it stayed coloured as
+  JavaScript. `\"` is now one GESS Q. escape token everywhere inside those
+  blocks.
 
 ### 1.0.2 — 2026-09-17
 
