@@ -3,7 +3,7 @@
 All notable changes to the "GESS Q." extension will be documented in this file.
 Current version number is first:
 
-### 1.0.3 — unreleased
+### 1.0.3 — 2026-09-29
 
 - New setting `gessq.embeddedLanguages.declarationFiles`: a list of your own
   TypeScript declaration files (`.d.ts`) or folders of them, appended to the
