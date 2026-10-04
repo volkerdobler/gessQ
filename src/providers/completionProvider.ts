@@ -1,7 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { getCachedScope } from '../core/scope';
+import { getCachedScope, ScopeEnum } from '../core/scope';
 import {
 	SymbolIndex,
 	IndexedSymbol,
@@ -24,6 +24,13 @@ import {
 	DIRECTIVES,
 	PARAMETERS,
 } from '../data/language';
+import {
+	HTML_PARAMETERS,
+	HTML_PARAMETER_EXTRAS,
+	HTML_PARAMETER_DOC_URL,
+	htmlParameterOptions,
+	type HtmlParameter,
+} from '../data/htmlParameters';
 
 const CORE_SET = new Set(CORE_KEYWORDS);
 const PARAM_SET = new Set(PARAMETERS);
@@ -192,6 +199,186 @@ export function isInLabelList(
 }
 
 /**
+ * When `position` is inside an `HTML{ … }` block, the text of the current
+ * parameter statement left of the cursor (since the last `;` or the `{`),
+ * else `undefined`. Walks back over code only – comments and strings are
+ * skipped – and gives up after 200 lines.
+ */
+export function htmlBlockStatement(
+	document: vscode.TextDocument,
+	position: vscode.Position,
+): string | undefined {
+	const scope = getCachedScope(document);
+	const from = Math.max(0, position.line - 200);
+	let depth = 0;
+	let stmt: vscode.Position | undefined;
+
+	for (let line = position.line; line >= from; line--) {
+		const text = document.lineAt(line).text;
+		const end = line === position.line ? position.character : text.length;
+		for (let ch = end - 1; ch >= 0; ch--) {
+			if (scope.getScope(line, ch) !== ScopeEnum.normal) {
+				continue;
+			}
+			const c = text[ch];
+			if (c === '}') {
+				depth++;
+			} else if (c === '{') {
+				if (depth > 0) {
+					depth--;
+					continue;
+				}
+				if (!/\bhtml\s*$/i.test(text.slice(0, ch))) {
+					return undefined; // some other `{ … }`, e.g. an action block
+				}
+				stmt ??= new vscode.Position(line, ch + 1);
+				return textBetween(document, stmt, position);
+			} else if (c === ';' && depth === 0) {
+				stmt ??= new vscode.Position(line, ch + 1);
+			}
+		}
+	}
+	return undefined;
+}
+
+function textBetween(
+	document: vscode.TextDocument,
+	from: vscode.Position,
+	to: vscode.Position,
+): string {
+	const parts: string[] = [];
+	for (let line = from.line; line <= to.line; line++) {
+		const text = document.lineAt(line).text;
+		parts.push(
+			text.slice(
+				line === from.line ? from.character : 0,
+				line === to.line ? to.character : text.length,
+			),
+		);
+	}
+	return parts.join('\n');
+}
+
+/** Escape text for a snippet placeholder (`${1:…}`) or choice (`${1|…|}`). */
+const snippetEscape = (s: string) => s.replace(/[$}\\,|]/g, '\\$&');
+
+/**
+ * The documented default as a value that can be inserted, or `''` when there
+ * is none worth pre-filling (`""` = empty, "unendlich", no default at all).
+ */
+function insertableDefault(p: HtmlParameter): string {
+	const d = p.default;
+	if (d === undefined || d === '""') {
+		return '';
+	}
+	if (p.value.kind === 'number' && !/^\d+$/.test(d)) {
+		return '';
+	}
+	return d;
+}
+
+/** A choice with the default (if it is one of the options) first. */
+function choiceDefaultFirst(
+	options: readonly string[],
+	def: string | undefined,
+): string[] {
+	return def !== undefined && options.includes(def)
+		? [def, ...options.filter((o) => o !== def)]
+		: [...options];
+}
+
+/**
+ * `Name = ${1|no,yes|};` etc. – the value part follows the documented type
+ * and is pre-filled with the default, selected: typing replaces it, Tab
+ * keeps it. In a choice the default is the first, pre-selected option.
+ */
+function htmlParameterSnippet(p: HtmlParameter): string {
+	const def = snippetEscape(insertableDefault(p));
+	const choice = (options: readonly string[]) =>
+		`\${1|${choiceDefaultFirst(options, p.default).map(snippetEscape).join(',')}|}`;
+	switch (p.value.kind) {
+		case 'yesno':
+			return `${p.name} = ${choice(['yes', 'no'])};`;
+		case 'text':
+			return `${p.name} = "\${1:${def}}";`;
+		case 'cssLayout':
+			return `${p.name} = "\${1}", \${2:2};`;
+		case 'choice': {
+			const c = choice(p.value.options);
+			return `${p.name} = ${p.value.quoted ? `"${c}"` : c};`;
+		}
+		default:
+			return `${p.name} = \${1:${def}};`;
+	}
+}
+
+function htmlParameterDoc(p: HtmlParameter): vscode.MarkdownString {
+	const lines = [`**${p.name}** – ${p.summary}`];
+	const opts = htmlParameterOptions(p.name);
+	if (opts) {
+		lines.push('', `Optionen: \`${opts.options.join(' | ')}\``);
+	}
+	if (p.default !== undefined) {
+		lines.push('', `Default: \`${p.default}\``);
+	}
+	lines.push('', `[Handbuch](${HTML_PARAMETER_DOC_URL}#${p.anchor})`);
+	return new vscode.MarkdownString(lines.join('\n'));
+}
+
+/**
+ * Completions inside `HTML{ … }`: parameter names at the start of a
+ * statement (inserted as `Name = …;` unless an `=` already follows), the
+ * value options after `Name =`.
+ */
+export function htmlBlockItems(
+	statement: string,
+	lineSuffix: string,
+): vscode.CompletionItem[] {
+	const value = /^\s*([\w]+)\s*=\s*"?\w*$/.exec(statement);
+	if (value) {
+		const opts = htmlParameterOptions(value[1]);
+		const def = HTML_PARAMETERS.find(
+			(p) => p.name.toLowerCase() === value[1].toLowerCase(),
+		)?.default;
+		return (opts?.options ?? []).map((o) => {
+			const it = item(o, K.EnumMember, value[1]);
+			if (o === def) {
+				it.detail = `${value[1]} (Default)`;
+				it.preselect = true;
+			}
+			return it;
+		});
+	}
+	if (!/^\s*\w*$/.test(statement)) {
+		return [];
+	}
+	const hasAssign = /^\w*\s*=/.test(lineSuffix);
+	const out: vscode.CompletionItem[] = [];
+	for (const p of HTML_PARAMETERS) {
+		const it = item(p.name, K.Property, 'HTML-Parameter');
+		it.sortText = '0' + p.name.toLowerCase();
+		it.documentation = htmlParameterDoc(p);
+		if (!hasAssign) {
+			it.insertText = new vscode.SnippetString(htmlParameterSnippet(p));
+		}
+		out.push(it);
+	}
+	for (const p of HTML_PARAMETER_EXTRAS) {
+		const it = item(p.name, K.Property, 'HTML-Parameter');
+		it.sortText = '1' + p.name.toLowerCase();
+		if (!hasAssign) {
+			it.insertText = new vscode.SnippetString(
+				p.options
+					? `${p.name} = \${1|${p.options.join(',')}|};`
+					: `${p.name} = $1;`,
+			);
+		}
+		out.push(it);
+	}
+	return out;
+}
+
+/**
  * Whether `gessq.completion.autoTrigger` allows completions for this
  * request: an explicit invoke (Ctrl+Space) or a re-query for an incomplete
  * list always does; a `#`/`@`/`&`/space trigger character only does at
@@ -284,6 +471,14 @@ export class GessQCompletionProvider implements vscode.CompletionItemProvider {
 			// Unknown question / no labels – fall through to the default list.
 		}
 
+		const htmlStatement = htmlBlockStatement(document, position);
+		if (htmlStatement !== undefined) {
+			return htmlBlockItems(
+				htmlStatement,
+				document.lineAt(position.line).text.slice(position.character),
+			);
+		}
+
 		if (isInLabelList(document, position)) {
 			return this.labelListItems();
 		}
@@ -337,7 +532,9 @@ export class GessQCompletionProvider implements vscode.CompletionItemProvider {
 			out.push(it);
 		}
 		if (completionIncludesWorkspaceSymbols()) {
-			const questions = this.symbolItems((s) => s.category === 'question');
+			const questions = this.symbolItems(
+				(s) => s.category === 'question',
+			);
 			for (const it of questions) {
 				it.sortText = '2' + String(it.label);
 				out.push(it);

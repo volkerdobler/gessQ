@@ -204,7 +204,7 @@ describe('autoTriggerAllows', () => {
 			() => ({
 				get<T>(key: string, defaultValue?: T): T | undefined {
 					return key === 'completion.autoTrigger'
-						? ((value as unknown) as T)
+						? (value as unknown as T)
 						: defaultValue;
 				},
 			});
@@ -215,7 +215,8 @@ describe('autoTriggerAllows', () => {
 		triggerCharacter: undefined,
 	};
 	const incomplete: vscode.CompletionContext = {
-		triggerKind: vscode.CompletionTriggerKind.TriggerForIncompleteCompletions,
+		triggerKind:
+			vscode.CompletionTriggerKind.TriggerForIncompleteCompletions,
 		triggerCharacter: undefined,
 	};
 	const hash: vscode.CompletionContext = {
@@ -272,7 +273,7 @@ describe('GessQCompletionProvider – autoTrigger wiring', () => {
 			() => ({
 				get<T>(key: string, defaultValue?: T): T | undefined {
 					return key === 'completion.autoTrigger'
-						? ((value as unknown) as T)
+						? (value as unknown as T)
 						: defaultValue;
 				},
 			});
@@ -297,9 +298,9 @@ describe('GessQCompletionProvider – autoTrigger wiring', () => {
 			}).length,
 		).toBeGreaterThan(0);
 		// No context at all (e.g. an older/simplified caller): treated as Invoke.
-		expect(provider.provideCompletionItems(doc, pos).length).toBeGreaterThan(
-			0,
-		);
+		expect(
+			provider.provideCompletionItems(doc, pos).length,
+		).toBeGreaterThan(0);
 	});
 
 	test('"full": a space trigger character also returns items', () => {
@@ -313,3 +314,111 @@ describe('GessQCompletionProvider – autoTrigger wiring', () => {
 		).toBeGreaterThan(0);
 	});
 });
+
+describe('GessQCompletionProvider – HTML{ … } parameters', () => {
+	const provider = new GessQCompletionProvider(fakeIndex({}), extUri);
+	const complete = (lines: string[], line: number, ch: number) =>
+		provider.provideCompletionItems(
+			makeDoc(lines),
+			new vscode.Position(line, ch),
+		);
+	const snippet = (it: vscode.CompletionItem) =>
+		(it.insertText as vscode.SnippetString | undefined)?.value;
+
+	test('after "HTML{" → documented HTML parameters, no question keywords', () => {
+		const items = complete(['HTML{ '], 0, 6);
+		const labels = items.map(labelText);
+		expect(labels).toEqual(
+			expect.arrayContaining([
+				'BackButton',
+				'SingleQFormat',
+				'TitlePostText',
+				'MultiQFormat',
+				'gridHighlighting',
+			]),
+		);
+		expect(labels).not.toContain('singleq');
+		// the 40 documented parameters sort before the extras
+		const first = items.filter((i) =>
+			(i.sortText as string).startsWith('0'),
+		);
+		expect(first).toHaveLength(40);
+	});
+
+	test('inserts "Name = default;" with the default as the selected placeholder', () => {
+		const items = complete(['HTML{', '  '], 1, 2);
+		const by = (n: string) => items.find((i) => labelText(i) === n)!;
+		// choices: the default comes first (pre-selected)
+		expect(snippet(by('BackButton'))).toBe('BackButton = ${1|no,yes|};');
+		expect(snippet(by('Input'))).toBe('Input = ${1|yes,no|};');
+		expect(snippet(by('SingleQFormat'))).toBe(
+			'SingleQFormat = ${1|standard,table,select|};',
+		);
+		expect(snippet(by('JavascriptSingleMode'))).toBe(
+			'JavascriptSingleMode = "${1|deactivate,deselect|}";',
+		);
+		expect(snippet(by('NumQClass'))).toBe(
+			'NumQClass = "${1|NumQ,GNumQ,SliderQ|}";',
+		);
+		// text / number / condition: the default as placeholder
+		expect(snippet(by('BackButtonText'))).toBe(
+			'BackButtonText = "${1:zurück}";',
+		);
+		expect(snippet(by('PBarWidth'))).toBe('PBarWidth = ${1:100};');
+		expect(snippet(by('BackButtonCnd'))).toBe('BackButtonCnd = ${1:true};');
+		// no usable default → empty placeholder
+		expect(snippet(by('ErrorPreText'))).toBe('ErrorPreText = "${1:}";');
+		expect(snippet(by('MaxLabelsPerCol'))).toBe('MaxLabelsPerCol = ${1:};');
+		expect(snippet(by('BackButtonSrc'))).toBe('BackButtonSrc = "${1:}";');
+		expect(snippet(by('CssLayout'))).toBe('CssLayout = "${1}", ${2:2};');
+	});
+
+	test('second parameter after ";" in a multi-line block', () => {
+		const items = complete(['HTML{', 'BackButton = yes;', 'Cont'], 2, 4);
+		expect(items.map(labelText)).toContain('ContinueButton');
+	});
+
+	test('only the name is inserted when "=" already follows', () => {
+		const items = complete(['HTML{ Back = yes; };'], 0, 10);
+		const it = items.find((i) => labelText(i) === 'BackButton')!;
+		expect(it.insertText).toBeUndefined();
+	});
+
+	test('after "Name =" → its value options', () => {
+		expect(
+			complete(['HTML{ SingleQFormat = '], 0, 22).map(labelText),
+		).toEqual(['standard', 'table', 'select']);
+		expect(
+			complete(['HTML{ BackButton = y'], 0, 20).map(labelText),
+		).toEqual(['yes', 'no']);
+		expect(complete(['HTML{ BackButtonText = '], 0, 23)).toEqual([]);
+	});
+
+	test('after "Name =" the default value is pre-selected', () => {
+		const items = complete(['HTML{ SingleQFormat = '], 0, 22);
+		const preselected = items.filter((i) => i.preselect);
+		expect(preselected.map(labelText)).toEqual(['standard']);
+		expect(preselected[0].detail).toBe('SingleQFormat (Default)');
+	});
+
+	test('outside the block → normal keywords again', () => {
+		const lines = ['HTML{ BackButton = yes; };', 'single'];
+		expect(complete(lines, 1, 6).map(labelText)).toContain('singleq');
+		expect(
+			complete(['initActionBlock = { '], 0, 20).map(labelText),
+		).not.toContain('BackButton');
+		expect(
+			complete(
+				['HTML{ ShowQuestionName = yes; }; HTML{ x = 1; };', 'si'],
+				1,
+				2,
+			).map(labelText),
+		).toContain('singleq');
+	});
+
+	test('a "{" inside a comment or string does not open a block', () => {
+		const items = complete(['// HTML{', 'text = "HTML{";', 'si'], 2, 2);
+		expect(items.map(labelText)).toContain('singleq');
+	});
+});
+

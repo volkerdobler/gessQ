@@ -36,7 +36,13 @@ sichtbar).
     (mit dem jeweiligen Labeltext),
   - innerhalb einer `labels=`-Liste die **Label-Attribute** (`random`,
     `single`, `fixed`, `flt`, `open`, `format`, …) und `group` / `splitcolumn`
-    / `text`.
+    / `text`,
+  - innerhalb von `HTML{ … }` die **HTML-Parameter** (`BackButton`,
+    `SingleQFormat`, `MaxNumAnswers`, …) mit Beschreibung, Optionen und
+    Default; eingefügt wird gleich `Name = Default;`, der Default-Wert ist
+    markiert (Tippen überschreibt ihn, `Tab` behält ihn), bei festen Optionen
+    steht er als erste Wahl in der Auswahlliste; nach `Name =` werden die
+    Werte (`yes` / `no`, `standard` / `table` / `select`, …) vorgeschlagen.
 
 - **Erklärung beim Zeigen mit der Maus (Hover)**: zu praktisch jedem
   Schlüsselwort ein kurzer Syntaxhinweis, ein bis drei erklärende Sätze und

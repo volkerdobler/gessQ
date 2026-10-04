@@ -227,6 +227,10 @@ export class MarkdownString {
 	}
 }
 
+export class SnippetString {
+	constructor(public value = '') {}
+}
+
 export class CompletionItem {
 	detail?: string;
 	documentation?: unknown;

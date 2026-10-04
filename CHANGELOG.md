@@ -11,6 +11,16 @@ Current version number is first:
   `labels copy q1;` stay valid). For `compute`, `block`, `screen`,
   `vararray`, `quotaVar`, `openNumFormat` and similar declarations the `=` is
   expected after the name (`compute x 1;` is flagged).
+- Completion inside `HTML{ … }` now offers the HTML parameters from the
+  manual page "HTML-Parameter" (`BackButton`, `SingleQFormat`,
+  `MaxNumAnswers`, `TitlePreText`, …) instead of every keyword, each with
+  description, options, default and a manual link, followed by the further
+  `HTML{ … }` parameters from the glossary (`gridHighlighting`, `pg_*`,
+  `ki_*`, …). A parameter is inserted as `Name = default;` with the
+  documented default selected: typing replaces it, Tab keeps it; for
+  parameters with fixed options the default is the first, pre-selected
+  entry of the choice. After `Name =` the values themselves are suggested,
+  the default pre-selected.
 
 ### 1.0.3 — 2026-09-29
 
