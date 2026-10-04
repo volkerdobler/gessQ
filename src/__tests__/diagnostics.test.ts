@@ -75,9 +75,9 @@ describe('preprocessor directives must start in column 1', () => {
 	});
 
 	test('a directive inside a comment or string is ignored', () => {
-		expect(colMsg('x // see #ifdef client\ntext = "a #endif b";\n')).toEqual(
-			[],
-		);
+		expect(
+			colMsg('x // see #ifdef client\ntext = "a #endif b";\n'),
+		).toEqual([]);
 	});
 
 	test('@insert mid-line is flagged too', () => {
@@ -216,5 +216,90 @@ describe('duplicate definitions across #ifdef branches', () => {
 					'#ifdef X\nblock b = ( q );\n#endif\n',
 			),
 		).toBe(true); // 1st vs 3rd: [X∨Y] vs [X] – X lights both
+	});
+});
+
+describe('missing "=" after an assignment keyword', () => {
+	const eqMsg = (src: string) =>
+		messages(src).filter((m) => m.startsWith('Missing "="'));
+
+	test('labels without "=" (value on the next line) is flagged', () => {
+		expect(eqMsg('singleq q1;\nlabels\n1 "Item"\n;\n')).toEqual([
+			'Missing "=" after "labels"',
+		]);
+	});
+
+	test('javascript directly followed by a string is flagged', () => {
+		expect(eqMsg('javascript"\n\tSEQdot.\n";\n')).toEqual([
+			'Missing "=" after "javascript"',
+		]);
+	});
+
+	test('correct assignments are fine', () => {
+		expect(
+			eqMsg(
+				'singleq q1;\ntext = "a";\nlabels=\n1 "Item"\n;\n' +
+					'javascript = "x";\nHTML{ BackButton = yes; };\n',
+			),
+		).toEqual([]);
+	});
+
+	test('"export;" is fine, "export yes;" is flagged', () => {
+		expect(eqMsg('singleq q1;\nexport;\n')).toEqual([]);
+		expect(eqMsg('singleq q1;\nexport yes;\n')).toEqual([
+			'Missing "=" after "export"',
+		]);
+	});
+
+	test('label options and text labels mid-statement are fine', () => {
+		expect(
+			eqMsg(
+				'multiq q1;\nlabels=\n1 "a" single\n2 "b" nomissing\n' +
+					'3 "c" flt (x eq 1)\ntext "d" restrict(1)\n;\n',
+			),
+		).toEqual([]);
+	});
+
+	test('flt / restrict / ActionBlock with a missing "=" are flagged', () => {
+		expect(
+			eqMsg(
+				'singleq q1;\nflt (x eq 1);\ninitActionBlock { set(x = 1); };\n',
+			),
+		).toEqual([
+			'Missing "=" after "flt"',
+			'Missing "=" after "initActionBlock"',
+		]);
+	});
+
+	test('"labels copy FRAGE;" needs no "="', () => {
+		expect(
+			eqMsg('singleq q2;\nlabels copy q1;\ngridItems copy q1;\n'),
+		).toEqual([]);
+	});
+
+	test('keywords in comments, strings and after a directive line', () => {
+		expect(
+			eqMsg('// labels 1 "a"\ntext = "labels 1";\n/* css "x" */\n'),
+		).toEqual([]);
+		expect(eqMsg('x = 1;\n#ifdef A\nlabels 1 "a";\n#endif\n')).toEqual([
+			'Missing "=" after "labels"',
+		]);
+	});
+
+	test('compute / block / screen: "=" is expected after the name', () => {
+		expect(
+			eqMsg('compute x = 1;\nblock b = ( q1 );\nscreen s = ( q1 );\n'),
+		).toEqual([]);
+		expect(
+			eqMsg('compute x 1;\nblock b ( q1 );\nscreen s column( q1 );\n'),
+		).toEqual([
+			'Missing "=" after "compute x"',
+			'Missing "=" after "block b"',
+			'Missing "=" after "screen s"',
+		]);
+	});
+
+	test('keyword as a question name is not mistaken for an assignment', () => {
+		expect(eqMsg('singleq title;\nopenq css;\n')).toEqual([]);
 	});
 });

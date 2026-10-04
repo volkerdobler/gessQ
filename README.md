@@ -72,7 +72,10 @@ sichtbar).
   - `#include`-Datei nicht vorhanden,
   - derselbe Name doppelt vergeben,
   - `#domacro` auf ein Makro, das es nicht gibt,
-  - `rendering =` mehrfach oder erst nach der ersten Frage gesetzt.
+  - `rendering =` mehrfach oder erst nach der ersten Frage gesetzt,
+  - fehlendes `=` nach Zuweisungs-Schlüsselwörtern (`labels 1 "…"`,
+    `javascript "…"`, `export yes;`) bzw. nach dem Namen bei
+    `compute x 1;`, `block b ( … );`, `screen s ( … );` usw.
 
 - **Ein-/Ausklappen** von `#macro`-Bereichen, `#ifdef`-Bereichen, `{ … }` und
   Blockkommentaren.

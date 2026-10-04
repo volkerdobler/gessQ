@@ -280,7 +280,7 @@ function contradictory(guards: Guard[]): boolean {
 		}
 	}
 
-	for (let changed = true; changed; ) {
+	for (let changed = true; changed;) {
 		changed = false;
 		for (const s of mustBeTrue) {
 			if (mustBeFalse.has(s)) {
@@ -408,6 +408,263 @@ function checkRendering(document: vscode.TextDocument): vscode.Diagnostic[] {
 }
 
 /**
+ * Keywords that, at the start of a statement, must be followed by `=`
+ * (`labels = …`, `javascript = "…"`, `HTML{ BackButton = yes; }`, …). Derived
+ * from the `syntax` fields of the manual glossary, reviewed by hand.
+ * `qonline.cfg` keys, embedded-JS names and mid-statement attributes
+ * (`colspan`, `exportlabel`, `groupCnd`, label options like `1 "…" single`)
+ * are deliberately left out.
+ */
+// prettier-ignore
+const ASSIGN_KEYWORDS = new Set(
+	[
+		// question / screen attributes
+		'text', 'title', 'labels', 'gridItems', 'gridLabels', 'gridLabelHeader',
+		'gridLabelFooter', 'gridItemRestrict', 'gridLabelRestrict', 'restrict',
+		'screenText', 'labelRepeat', 'textLabelRepeat', 'showMaxLabels',
+		'sortId', 'formatDescriptor', 'extFormatDescriptor', 'exportText',
+		'exportTitle', 'htmlPreText', 'htmlPostText', 'htmlPreLabels',
+		'htmlPostLabels', 'htmlLabels', 'preInterviewerHelptext',
+		'postInterviewerHelptext', 'anchorText', 'noAnswerLabel', 'missingText',
+		'itemMissingText', 'labelOpenErrorMessage', 'javascript', 'jsHandler',
+		'css', 'component', 'renderClass', 'datalist', 'postedit', 'maxFileSize',
+		'extensions', 'fileViolation', 'nomissing', 'export', 'flt', 'single',
+		'src1', 'src2', 'src3', 'src4', 'writePreText', 'writePostText',
+		'writeQText', 'writeTitle', 'errorPreText', 'errorPostText', 'feedback',
+		'html',
+		// global script parameters
+		'rendering', 'arrayInitMode', 'autoChangePBar', 'autoSubmitDelay',
+		'backbuttonOnFinish', 'badPasswordMsg', 'browserNavigationMessage',
+		'caseInUseMsg', 'catiCust', 'catiPass', 'catiUser', 'changeLogCondition',
+		'clearOnFlt', 'clearScreenOnBack', 'completedExitCode',
+		'createDefaultSortId', 'createLabelOpenValidation', 'dataWriteCondition',
+		'defaultNoMissing', 'demoversionMsg', 'disableExitOnAssert',
+		'enableCoBrowsing', 'enableKeyboard', 'enterPasswordButton',
+		'enterPasswordMsg', 'exportBlacklist', 'finishforward', 'gridErrorType',
+		'gridOpenNoMissing', 'helptextPosition', 'idClosedMsg', 'ignoreAssert',
+		'ignoreFilter', 'ignoreIds', 'ignoreNoMissing', 'invalidIdMsg',
+		'invalidInterviewerMsg', 'invalidNavMsg', 'invalidSingleMsg',
+		'invalidStateMsg', 'matchFromLineStart', 'mixedModeMsg',
+		'multiExportLimit', 'pBarMax', 'quotaWriteCondition', 'replaceInOpens',
+		'sanitizeOpens', 'saveIP', 'saveOnBack', 'showHelptext',
+		'showInterviewerHelptext', 'sortOrder', 'stackedBackNavigation',
+		'surveyClosedMsg', 'templatesOnFinish', 'writeRescueData',
+		'writeViewingTime', 'computeMissingAsZero', 'clearFilteredQuestions',
+		'enableTextReplace', 'initQuotaInstantly', 'quotaAutoCreate',
+		'quotaUseNamespace', 'missingValue', 'printPdfMsg', 'jsonDataLimit',
+		// action blocks
+		'initActionBlock', 'startActionBlock', 'continueActionBlock',
+		'backActionBlock', 'cmplActionBlock', 'resumeActionBlock',
+		'timeoutActionBlock', 'preAssertionActionBlock',
+		'changeLanguageActionBlock', 'globalInitActionBlock',
+		'globalContinueActionBlock', 'globalBackActionBlock',
+		'globalPreAssertionActionBlock', 'globalScreenInitActionBlock',
+		'globalScreenContinueActionBlock', 'globalScreenBackActionBlock',
+		'globalScreenPreAssertionActionBlock',
+		// HTML{ … } parameters
+		'backButton', 'backButtonCnd', 'backButtonSrc', 'backButtonText',
+		'cancelButton', 'cancelButtonCnd', 'cancelButtonSrc', 'cancelButtonText',
+		'cancelMenu', 'cancelMenuDefault', 'cancelMenuErrorMsg',
+		'continueButton', 'continueButtonCnd', 'continueButtonSrc',
+		'continueButtonText', 'cssLayout', 'javascriptAutoOpenLabel',
+		'javascriptSingleMode', 'javascriptSingleCheck', 'labelOpenCols',
+		'labelOpenRows', 'maxLabelsPerCol', 'maxNumAnswers', 'minNumAnswers',
+		'multiQClass', 'numQClass', 'singleQClass', 'singleGridQClass',
+		'multiGridQClass', 'pBarWidth', 'showIndividualErrors',
+		'showLabelValues', 'showQuestionName', 'singleQAutoSubmit',
+		'singleQFormat', 'textAreaCols', 'textAreaRows', 'openFieldSize',
+		'mouseEvent', 'shareLabels', 'numQTable', 'htmlTable', 'highlightTable',
+		'gridHighlighting', 'highlightGridError', 'gridErrorColor',
+		'highlightColor', 'singleQTableLabelsFirst', 'showSingleQValues',
+		'singleValuesAlwaysActivated', 'selectLanguage', 'input', 'ki_active',
+		'ki_autocomplete', 'ki_autocheck', 'ki_autofocus',
+		'sl_barColor', 'sl_barColorLeft', 'sl_barHeight', 'sl_barWidth',
+		'sl_barImage', 'sl_barImageLeft', 'sl_color', 'sl_image',
+		'sl_imageHeight', 'sl_imageWidth', 'sl_maxSum', 'sl_mode',
+		'sl_showValues', 'sl_startValues', 'sl_stepSize',
+		'sl_unspecified_button_checked', 'sl_unspecified_button_unchecked',
+		'sl_unspecified_text', 'sl_visibility',
+		'pg_corpus', 'pg_corpus_padding', 'pg_fading', 'pg_grouping',
+		'pg_group_names', 'pg_height', 'pg_orientations', 'pg_visibility',
+		'pg_visibility_menu', 'pg_visibility_orientation',
+		'pg_visibility_menu_orientation', 'pg_width',
+	].map((k) => k.toLowerCase()),
+);
+
+/** Keywords whose `=` comes after a name: `compute NAME = …;`. */
+// prettier-ignore
+const NAMED_ASSIGN_KEYWORDS = new Set(
+	[
+		'compute', 'block', 'screen', 'vararray', 'textArray', 'decisionVar',
+		'quotaVar', 'intRandom', 'actionBlock', 'arraySortOrder', 'restrictVar',
+		'databaseConnection', 'decimalFormat', 'dictFileVar', 'infoMailbox',
+		'mailbox', 'multiQTextInsert', 'openNumFormat',
+	].map((k) => k.toLowerCase()),
+);
+
+/** `labels copy FRAGE;` / `gridItems copy …` / `gridLabels copy …` need no `=`. */
+const COPY_KEYWORDS = new Set(['labels', 'griditems', 'gridlabels']);
+
+interface Token {
+	kind: 'word' | 'number' | 'string' | 'char';
+	text: string;
+	range: vscode.Range;
+}
+
+const WORD_START = /[\p{L}_$]/u;
+const WORD_CHAR = /[\p{L}\p{N}_$]/u;
+
+/**
+ * Significant tokens outside comments. A string literal (also one spanning
+ * several lines) is a single token; preprocessor lines (`#…` / `@…` as the
+ * first thing on a line) are skipped, so they do not end a statement.
+ */
+function tokenize(document: vscode.TextDocument): Token[] {
+	const scope = getCachedScope(document);
+	const out: Token[] = [];
+	let str: { line: number; ch: number } | undefined;
+
+	for (let line = 0; line < document.lineCount; line++) {
+		const text = document.lineAt(line).text;
+		const first = text.search(/\S/);
+		if (
+			first > -1 &&
+			(text[first] === '#' || text[first] === '@') &&
+			scope.getScope(line, first) === ScopeEnum.normal
+		) {
+			continue;
+		}
+		let ch = 0;
+		while (ch < text.length) {
+			const s = scope.getScope(line, ch);
+			if (s === ScopeEnum.string) {
+				str ??= { line, ch };
+				ch++;
+				continue;
+			}
+			if (str) {
+				out.push({
+					kind: 'string',
+					text: '"',
+					range: new vscode.Range(str.line, str.ch, line, ch),
+				});
+				str = undefined;
+			}
+			const c = text[ch];
+			if (s !== ScopeEnum.normal || /\s/.test(c)) {
+				ch++;
+				continue;
+			}
+			const start = ch;
+			if (WORD_START.test(c)) {
+				while (ch < text.length && WORD_CHAR.test(text[ch])) {
+					ch++;
+				}
+				out.push({
+					kind: 'word',
+					text: text.slice(start, ch),
+					range: new vscode.Range(line, start, line, ch),
+				});
+			} else if (/\d/.test(c)) {
+				while (ch < text.length && /[\d.]/.test(text[ch])) {
+					ch++;
+				}
+				out.push({
+					kind: 'number',
+					text: text.slice(start, ch),
+					range: new vscode.Range(line, start, line, ch),
+				});
+			} else {
+				out.push({ kind: 'char', text: c, range: charRange(line, ch) });
+				ch++;
+			}
+		}
+	}
+	if (str) {
+		const last = document.lineCount - 1;
+		out.push({
+			kind: 'string',
+			text: '"',
+			range: new vscode.Range(
+				str.line,
+				str.ch,
+				last,
+				document.lineAt(last).text.length,
+			),
+		});
+	}
+	return out;
+}
+
+/** Does `t` look like the value of an assignment whose `=` is missing? */
+function isValueStart(t: Token, keyword: string): boolean {
+	if (t.kind !== 'char') {
+		return true;
+	}
+	if (t.text === '{') {
+		return keyword !== 'html'; // `HTML{ … }` is the parameter block
+	}
+	return '(["\'-'.includes(t.text);
+}
+
+/**
+ * A missing `=` after an assignment keyword at the start of a statement, e.g.
+ * `labels 1 "a";` or `javascript "…";` – Q. would reject the script, but no
+ * other check notices it. For `compute NAME = …` and friends the `=` is
+ * expected after the name.
+ */
+function checkMissingAssign(
+	document: vscode.TextDocument,
+): vscode.Diagnostic[] {
+	const tokens = tokenize(document);
+	const out: vscode.Diagnostic[] = [];
+
+	for (let i = 0; i < tokens.length; i++) {
+		const kw = tokens[i];
+		if (kw.kind !== 'word') {
+			continue;
+		}
+		const prev = tokens[i - 1];
+		if (prev && !(prev.kind === 'char' && ';{}'.includes(prev.text))) {
+			continue; // not at the start of a statement
+		}
+		const lower = kw.text.toLowerCase();
+
+		if (ASSIGN_KEYWORDS.has(lower)) {
+			const next = tokens[i + 1];
+			if (
+				!next ||
+				!isValueStart(next, lower) ||
+				(COPY_KEYWORDS.has(lower) && next.text.toLowerCase() === 'copy')
+			) {
+				continue;
+			}
+			out.push(
+				diag(
+					kw.range,
+					`Missing "=" after "${kw.text}"`,
+					vscode.DiagnosticSeverity.Error,
+				),
+			);
+		} else if (NAMED_ASSIGN_KEYWORDS.has(lower)) {
+			const name = tokens[i + 1];
+			const next = tokens[i + 2];
+			if (name?.kind !== 'word' || !next || next.text === '=') {
+				continue;
+			}
+			out.push(
+				diag(
+					new vscode.Range(kw.range.start, name.range.end),
+					`Missing "=" after "${kw.text} ${name.text}"`,
+					vscode.DiagnosticSeverity.Error,
+				),
+			);
+		}
+	}
+	return out;
+}
+
+/**
  * Synchronous lint checks (no file-system access).
  */
 export function lintDocument(
@@ -419,6 +676,7 @@ export function lintDocument(
 		...checkDirectiveColumn(document),
 		...checkDuplicates(document),
 		...checkRendering(document),
+		...checkMissingAssign(document),
 	];
 }
 

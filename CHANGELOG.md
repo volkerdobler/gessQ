@@ -3,6 +3,15 @@
 All notable changes to the "GESS Q." extension will be documented in this file.
 Current version number is first:
 
+### Unreleased
+
+- New diagnostic: a missing `=` after an assignment keyword at the start of a
+  statement is now an error, e.g. `labels 1 "Item";`, `javascript "…";`,
+  `export yes;` or `initActionBlock { … };` (`export;` and
+  `labels copy q1;` stay valid). For `compute`, `block`, `screen`,
+  `vararray`, `quotaVar`, `openNumFormat` and similar declarations the `=` is
+  expected after the name (`compute x 1;` is flagged).
+
 ### 1.0.3 — 2026-09-29
 
 - New setting `gessq.embeddedLanguages.declarationFiles`: a list of your own
