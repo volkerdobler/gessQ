@@ -20,13 +20,21 @@ export enum ScopeEnum {
  */
 export class Scope {
 	private readonly rows: ScopeEnum[][] = [];
+	/** Scope in effect at column 0 of each line, before its first character. */
+	private readonly lineStarts: ScopeEnum[] = [];
 
 	constructor(document: vscode.TextDocument) {
 		type State = 'normal' | 'block' | 'string';
 		let state: State = 'normal';
 		let stringDelim = '';
+		const STATE_SCOPE: Record<State, ScopeEnum> = {
+			normal: ScopeEnum.normal,
+			block: ScopeEnum.comment,
+			string: ScopeEnum.string,
+		};
 
 		for (let line = 0; line < document.lineCount; line++) {
+			this.lineStarts[line] = STATE_SCOPE[state];
 			const text = document.lineAt(line).text;
 			const row: ScopeEnum[] = new Array(text.length);
 			this.rows[line] = row;
@@ -112,6 +120,15 @@ export class Scope {
 			return undefined;
 		}
 		return row[ch];
+	}
+
+	/**
+	 * Scope of the text just left of a cursor at `line`/`ch`: the character
+	 * before it, or – at column 0 – whatever continues from the previous line
+	 * (an open block comment or string), `normal` otherwise.
+	 */
+	public getScopeBefore(line: number, ch: number): ScopeEnum | undefined {
+		return ch > 0 ? this.getScope(line, ch - 1) : this.lineStarts[line];
 	}
 
 	/** True when the position is outside of any comment (normal or string). */

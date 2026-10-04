@@ -54,3 +54,14 @@ test('out-of-range positions (incl. -1 from String.search) return undefined', ()
 	expect(scopeAt(['abc'], 0, 99)).toBeUndefined();
 	expect(scopeAt(['abc'], 5, 0)).toBeUndefined();
 });
+
+test('getScopeBefore at column 0 reflects what continues from the line above', () => {
+	const s = new Scope(
+		makeDoc(['/* a', 'b */', 'x // c', 'y', 'text = "p', 'q";']),
+	);
+	expect(s.getScopeBefore(1, 0)).toBe(ScopeEnum.comment); // inside /* … */
+	expect(s.getScopeBefore(2, 0)).toBe(ScopeEnum.normal); // after */
+	expect(s.getScopeBefore(3, 0)).toBe(ScopeEnum.normal); // // ends at EOL
+	expect(s.getScopeBefore(5, 0)).toBe(ScopeEnum.string); // open string
+	expect(s.getScopeBefore(2, 1)).toBe(ScopeEnum.normal); // char before
+});

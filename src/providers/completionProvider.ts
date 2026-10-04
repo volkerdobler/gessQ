@@ -440,7 +440,8 @@ export class GessQCompletionProvider implements vscode.CompletionItemProvider {
 		}
 
 		const scope = getCachedScope(document);
-		if (!scope.isNotInComment(position.line, position.character - 1)) {
+		const before = scope.getScopeBefore(position.line, position.character);
+		if (before !== ScopeEnum.normal && before !== ScopeEnum.string) {
 			return [];
 		}
 

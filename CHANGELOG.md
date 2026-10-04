@@ -21,6 +21,8 @@ Current version number is first:
   parameters with fixed options the default is the first, pre-selected
   entry of the choice. After `Name =` the values themselves are suggested,
   the default pre-selected.
+- Completion (Ctrl+Space) now also works in column 0 of a line; it used to
+  return nothing there. It stays off inside a multi-line `/* … */` comment.
 
 ### 1.0.3 — 2026-09-29
 

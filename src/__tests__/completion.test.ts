@@ -422,3 +422,30 @@ describe('GessQCompletionProvider – HTML{ … } parameters', () => {
 	});
 });
 
+describe('GessQCompletionProvider – column 0', () => {
+	const provider = new GessQCompletionProvider(fakeIndex({}), extUri);
+	const at = (lines: string[], line: number) =>
+		provider
+			.provideCompletionItems(
+				makeDoc(lines),
+				new vscode.Position(line, 0),
+			)
+			.map(labelText);
+
+	test('inside a multi-line HTML{ … } block → HTML parameters', () => {
+		expect(at(['HTML{', '', '};'], 1)).toContain('BackButton');
+		expect(at(['HTML{', 'BackButton = yes;', 'Cont', '};'], 2)).toContain(
+			'ContinueButton',
+		);
+	});
+
+	test('on an ordinary line → keywords', () => {
+		expect(at(['singleq q1;', ''], 1)).toContain('singleq');
+		expect(at(['x = 1; // comment', ''], 1)).toContain('singleq');
+	});
+
+	test('inside a multi-line block comment → nothing', () => {
+		expect(at(['/* start', '', '*/'], 1)).toEqual([]);
+		expect(at(['/* start', 'still comment', '*/'], 1)).toEqual([]);
+	});
+});
