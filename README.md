@@ -106,8 +106,9 @@ sichtbar).
 
   ```ts
   interface Settings {
-  	/** Anzahl Gruppen beim Start */
+  	/** Anzahl Gruppen beim Start. @default 2 */
   	initialGroups?: number;
+  	/** @default 'board' */
   	modeLarge?: 'board' | 'cardstack';
   }
   interface SEQdotApi {
@@ -121,7 +122,16 @@ sichtbar).
   ```
 
   Danach bietet `SEQdot.Settings = { ` + `Strg+Leertaste` alle Optionen
-  mit Typ und Beschreibung an. Ein Ordner lädt alle `*.d.ts` darin; mehrere
+  mit Typ und Beschreibung an. Hat eine Option ein `@default`, wird gleich
+  der Default mit eingefügt und markiert (Tippen überschreibt ihn, `Tab`
+  behält ihn): im Objekt `SEQdot.settings = { initialGroups: 2 }`, als
+  eigene Anweisung `SEQdot.settings.initialGroups = 2;` (mitten in einem
+  Ausdruck wie `if (SEQdot.settings.…` nur der Name); bei `boolean` und
+  Typen wie `'board' | 'cardstack'` erscheint eine Auswahl mit dem Default
+  an erster Stelle. Texte werden in `'…'` gesetzt, damit der umgebende
+  `javascript = "…"`-String nicht endet.
+
+  Ein Ordner lädt alle `*.d.ts` darin; mehrere
   Dateien dürfen dasselbe `interface` erweitern (z. B. jedes Modul seinen
   Eintrag in `SEQdotApi`). Nur `interface` / `declare …`, kein
   `import` / `export`. Änderungen an den Dateien wirken sofort.

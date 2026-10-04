@@ -30,6 +30,7 @@ export enum CompletionItemKind {
 	Keyword = 13,
 	Function = 2,
 	Property = 9,
+	Field = 4,
 	Module = 8,
 	Constant = 20,
 	Variable = 5,

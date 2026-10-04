@@ -21,6 +21,16 @@ Current version number is first:
   parameters with fixed options the default is the first, pre-selected
   entry of the choice. After `Name =` the values themselves are suggested,
   the default pre-selected.
+- Embedded JS: completing an option whose declaration documents an
+  `@default` now inserts the default too, selected, so typing replaces it
+  and Tab keeps it – `name: default` as an object-literal key
+  (`SEQdot.settings = { initialGroups… }`), `name = default;` when the
+  member chain starts a statement (`SEQdot.settings.initialGroups…`); inside
+  an expression (`if (SEQdot.settings.…`) only the name is inserted.
+  `boolean` and string-literal unions become a choice with the default
+  first. Works for the built-in globals and for
+  `gessq.embeddedLanguages.declarationFiles`; strings are single-quoted so the
+  surrounding `javascript = "…"` stays intact.
 - Completion (Ctrl+Space) now also works in column 0 of a line; it used to
   return nothing there. It stays off inside a multi-line `/* … */` comment.
 

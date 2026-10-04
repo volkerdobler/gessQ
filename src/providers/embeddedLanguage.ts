@@ -17,6 +17,14 @@ import {
 	embeddedDeclarationFiles,
 	embeddedLanguagesEnabled,
 } from '../infra/config';
+import {
+	parseDeclarationDefaults,
+	lookupDefault,
+	propertySnippet,
+	assignmentSnippet,
+	propertySlot,
+	type DeclarationDefaults,
+} from '../core/declarationDefaults';
 
 /**
  * Real language features for the embedded `javascript = "…"` / `jsHandler = "…"`
@@ -211,6 +219,13 @@ export class EmbeddedHoverProvider implements vscode.HoverProvider {
 export class EmbeddedCompletionProvider
 	implements vscode.CompletionItemProvider
 {
+	/** `@default`s of the JS declarations, see {@link withDeclarationDefault}. */
+	private defaults: DeclarationDefaults = new Map();
+
+	public setDeclarationDefaults(defaults: DeclarationDefaults): void {
+		this.defaults = defaults;
+	}
+
 	public async provideCompletionItems(
 		document: vscode.TextDocument,
 		position: vscode.Position,
@@ -232,11 +247,58 @@ export class EmbeddedCompletionProvider
 		if (token.isCancellationRequested || !list) {
 			return undefined;
 		}
-		return new vscode.CompletionList(
-			list.items.map(sanitizeCompletionItem),
-			list.isIncomplete,
+		let items = list.items.map(sanitizeCompletionItem);
+		if (region.language === 'javascript' && this.defaults.size > 0) {
+			const offset = document.offsetAt(position);
+			const suffix = document
+				.lineAt(position.line)
+				.text.slice(position.character);
+			const slot = propertySlot(
+				document
+					.getText()
+					.slice(Math.max(region.start, offset - 4000), offset),
+				suffix,
+			);
+			if (slot) {
+				const semicolon = !/^[\w$]*\s*;/.test(suffix);
+				items = items.map((it) =>
+					withDeclarationDefault(it, this.defaults, slot, semicolon),
+				);
+			}
+		}
+		return new vscode.CompletionList(items, list.isIncomplete);
+	}
+}
+
+/**
+ * An option property gets its documented `@default` inserted, selected
+ * (typing replaces it, Tab keeps it): `name: default` as an object-literal
+ * key, `name = default;` as the end of a member chain that starts a statement
+ * (see {@link propertySlot}). Items without a known default are left alone.
+ */
+export function withDeclarationDefault(
+	item: vscode.CompletionItem,
+	defaults: DeclarationDefaults,
+	slot: 'key' | 'assign' = 'key',
+	semicolon = true,
+): vscode.CompletionItem {
+	if (
+		item.kind !== vscode.CompletionItemKind.Field &&
+		item.kind !== vscode.CompletionItemKind.Property
+	) {
+		return item;
+	}
+	const label =
+		typeof item.label === 'string' ? item.label : item.label.label;
+	const d = lookupDefault(defaults, label.replace(/\?$/, ''), item.detail);
+	if (d) {
+		item.insertText = new vscode.SnippetString(
+			slot === 'key'
+				? propertySnippet(d)
+				: assignmentSnippet(d, semicolon),
 		);
 	}
+	return item;
 }
 
 export class EmbeddedSignatureProvider implements vscode.SignatureHelpProvider {
@@ -303,6 +365,7 @@ export function registerEmbeddedLanguageSupport(
 	context: vscode.ExtensionContext,
 ): { reloadDeclarations(): void } {
 	const content = new EmbeddedContentProvider();
+	const completion = new EmbeddedCompletionProvider();
 	const builtIn = loadEmbeddedGlobals(context.extensionUri);
 	let watchers: vscode.Disposable[] = [];
 	let reloadTimer: ReturnType<typeof setTimeout> | undefined;
@@ -322,7 +385,9 @@ export function registerEmbeddedLanguageSupport(
 			vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
 			os.homedir(),
 		);
-		content.setGlobals(user.text ? builtIn + '\n' + user.text : builtIn);
+		const globals = user.text ? builtIn + '\n' + user.text : builtIn;
+		content.setGlobals(globals);
+		completion.setDeclarationDefaults(parseDeclarationDefaults(globals));
 		// Editors save in several steps – coalesce the burst into one reload.
 		const scheduleReload = (): void => {
 			clearTimeout(reloadTimer);
@@ -368,7 +433,7 @@ export function registerEmbeddedLanguageSupport(
 		),
 		vscode.languages.registerCompletionItemProvider(
 			SELECTOR,
-			new EmbeddedCompletionProvider(),
+			completion,
 			'.',
 			'"',
 			"'",
