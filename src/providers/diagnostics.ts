@@ -2,7 +2,12 @@
 
 import * as vscode from 'vscode';
 import { SymbolIndex, parseDocumentSymbols } from '../core/symbolIndex';
-import { lintDocument, lintIncludes } from '../core/diagnostics';
+import {
+	lintDocument,
+	lintIncludes,
+	lintUnknownNames,
+	type KnownNames,
+} from '../core/diagnostics';
 import { isNotInCommentAt } from '../core/scope';
 import { diagnosticsEnabled } from '../infra/config';
 
@@ -83,6 +88,8 @@ export class DiagnosticsManager {
 			...(await lintIncludes(document)),
 			...this.checkDomacro(document),
 		];
+		await this.index.ready;
+		diags.push(...lintUnknownNames(document, this.knownNames(document)));
 		this.collection.set(document.uri, diags);
 	}
 
@@ -123,6 +130,25 @@ export class DiagnosticsManager {
 			}
 		}
 		return out;
+	}
+
+	/** Names defined in this document or anywhere in the project. */
+	private knownNames(document: vscode.TextDocument): KnownNames {
+		const names = new Set<string>();
+		for (const s of [
+			...parseDocumentSymbols(document),
+			...this.index.match(''),
+		]) {
+			names.add(s.name);
+		}
+		const byLower = new Map<string, string>();
+		for (const n of names) {
+			byLower.set(n.toLowerCase(), n);
+		}
+		return {
+			has: (name) => names.has(name),
+			caseVariant: (name) => byLower.get(name.toLowerCase()),
+		};
 	}
 
 	private allMacroNames(): string[] {

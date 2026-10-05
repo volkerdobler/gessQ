@@ -4,7 +4,10 @@ import * as vscode from 'vscode';
 import { getCachedScope, ScopeEnum, isNotInCommentAt } from './scope';
 import { parseDocumentSymbols, type IndexedSymbol } from './symbolIndex';
 import { parseIncludes } from './includes';
-import { DIRECTIVES as DIRECTIVE_KEYWORDS } from '../data/language';
+import {
+	ALL_KEYWORDS,
+	DIRECTIVES as DIRECTIVE_KEYWORDS,
+} from '../data/language';
 
 const SRC = 'GESS Q.';
 
@@ -657,6 +660,137 @@ function checkMissingAssign(
 					new vscode.Range(kw.range.start, name.range.end),
 					`Missing "=" after "${kw.text} ${name.text}"`,
 					vscode.DiagnosticSeverity.Error,
+				),
+			);
+		}
+	}
+	return out;
+}
+
+/** The names defined in the project, for {@link lintUnknownNames}. */
+export interface KnownNames {
+	/** Exact (case-sensitive) lookup. */
+	has(name: string): boolean;
+	/** A defined name differing from `name` only in case, if any. */
+	caseVariant(name: string): string | undefined;
+}
+
+/** Words inside `block`/`screen` lists that are syntax, not names. */
+const LIST_KEYWORDS = new Set([
+	...ALL_KEYWORDS.map((k) => k.toLowerCase()),
+	'to',
+	'srandom',
+	'whitelist',
+]);
+
+/** Lines inside `#macro … #endmacro` bodies (text there is a template). */
+function macroBodyLines(document: vscode.TextDocument): Set<number> {
+	const scope = getCachedScope(document);
+	const lines = new Set<number>();
+	let inMacro = false;
+	for (let line = 0; line < document.lineCount; line++) {
+		const text = document.lineAt(line).text;
+		const m = /^\s*#(macro|endmacro)\b/i.exec(text);
+		if (m && scope.isNotInComment(line, m[0].length - m[1].length - 1)) {
+			inMacro = m[1].toLowerCase() === 'macro';
+			lines.add(line);
+			continue;
+		}
+		if (inMacro) {
+			lines.add(line);
+		}
+	}
+	return lines;
+}
+
+function unknownNameDiag(
+	range: vscode.Range,
+	name: string,
+	known: KnownNames,
+): vscode.Diagnostic {
+	const variant = known.caseVariant(name);
+	return diag(
+		range,
+		variant
+			? `Unknown name "${name}" – did you mean "${variant}"? Names are case-sensitive.`
+			: `Unknown name "${name}"`,
+	);
+}
+
+/**
+ * Names used in a `block NAME = ( … );` / `screen NAME = … ( … );` list or
+ * as `@insert(NAME)` that are not defined anywhere in the project. Names are
+ * case-sensitive. Skipped: keywords, built-in `_…` variables and everything
+ * inside `#macro` bodies or next to a `&macro;` parameter.
+ */
+export function lintUnknownNames(
+	document: vscode.TextDocument,
+	known: KnownNames,
+): vscode.Diagnostic[] {
+	const out: vscode.Diagnostic[] = [];
+	const macroLines = macroBodyLines(document);
+	const skip = (name: string) =>
+		name.startsWith('_') || LIST_KEYWORDS.has(name.toLowerCase());
+
+	// block / screen lists
+	const tokens = tokenize(document);
+	for (let i = 0; i + 2 < tokens.length; i++) {
+		const kw = tokens[i];
+		const prev = tokens[i - 1];
+		if (
+			kw.kind !== 'word' ||
+			!/^(block|screen)$/i.test(kw.text) ||
+			(prev && !(prev.kind === 'char' && ';{}'.includes(prev.text))) ||
+			tokens[i + 1].kind !== 'word' ||
+			tokens[i + 2].text !== '=' ||
+			macroLines.has(kw.range.start.line)
+		) {
+			continue;
+		}
+		let j = i + 3;
+		for (; j < tokens.length && tokens[j].text !== ';'; j++) {
+			const t = tokens[j];
+			if (
+				t.kind !== 'word' ||
+				skip(t.text) ||
+				tokens[j - 1].text === '&' ||
+				tokens[j + 1]?.text === '&' ||
+				tokens[j + 1]?.text === '(' ||
+				known.has(t.text)
+			) {
+				continue;
+			}
+			out.push(unknownNameDiag(t.range, t.text, known));
+		}
+		i = j;
+	}
+
+	// @insert(NAME)
+	const scope = getCachedScope(document);
+	const re = /@insert\s*[([{]\s*([\p{L}_$][\p{L}\p{N}_$]*)(&?)/giu;
+	for (let line = 0; line < document.lineCount; line++) {
+		if (macroLines.has(line)) {
+			continue;
+		}
+		const text = document.lineAt(line).text;
+		re.lastIndex = 0;
+		let m: RegExpExecArray | null;
+		while ((m = re.exec(text))) {
+			const name = m[1];
+			const start = m.index + m[0].length - m[2].length - name.length;
+			if (
+				m[2] === '&' ||
+				skip(name) ||
+				known.has(name) ||
+				!scope.isNotInComment(line, m.index)
+			) {
+				continue;
+			}
+			out.push(
+				unknownNameDiag(
+					new vscode.Range(line, start, line, start + name.length),
+					name,
+					known,
 				),
 			);
 		}

@@ -143,7 +143,7 @@ export function labelReferenceQuestion(linePrefix: string): string | undefined {
 export const LIST_START = /\b(?:labels|gridlabels|griditems)\b\s*=/i;
 const LIST_COPY = /\b(?:labels|gridlabels|griditems)\b\s+copy\b/i;
 const NEXT_DEF =
-	/^\s*(?:singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group|sliderq|compute|array|vararray|textelement|textarray|intrandom|databaseconnection|opennumformat|quotavar|quotagroup|block|screen|#\w+)\b/i;
+	/^\s*(?:singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group|sliderq|sq|mq|sgq|mgq|oq|tq|nq|pq|uq|compute|array|vararray|textelement|textarray|intrandom|databaseconnection|opennumformat|quotavar|quotagroup|block|screen|#\w+)\b/i;
 
 /**
  * Walk up from `position` to decide whether the cursor is inside a

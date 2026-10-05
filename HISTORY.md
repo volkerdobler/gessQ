@@ -874,6 +874,39 @@ erkannt.
 - [x] Tests in `src/__tests__/symbolSearch.test.ts` (neu) und
       `src/__tests__/diagnostics.test.ts`.
 
+### Phase 9 – Diagnose: unbekannte Namen in Block/Screen und `@insert` (2026-10-05)
+
+Auslöser: `singleq s1;` und später `block bl_screener = ( S1 );` – kein
+Hinweis, weil bisher gar nicht geprüft wurde, ob ein verwendeter Name
+definiert ist (einzige Ausnahme: `#domacro`).
+
+- [x] Neue Prüfung `lintUnknownNames` in `src/core/diagnostics.ts`
+      (Warnung): Namen in `block NAME = ( … );` / `screen NAME = … ( … );`
+      (Liste bis zum `;`, auch mehrzeilig) und in `@insert(NAME)` /
+      `@insert[NAME]` / `@insert{NAME}`, die weder in der Datei noch im
+      Projekt-Index (`script.q` + `#include`-Hülle) definiert sind. Bei
+      reinem Unterschied in der Groß-/Kleinschreibung: Hinweis
+      `did you mean "s1"?`.
+- [x] Bewusst eng gefasst, um Fehlalarme zu vermeiden: allgemeine Ausdrücke
+      (Bedingungen, `compute`, Actionblocks) werden nicht geprüft – dort
+      können Systemvariablen, Label-Codes, Funktionen usw. stehen.
+      Übersprungen: Schlüsselwörter (`ALL_KEYWORDS` + `to`, `srandom`,
+      `whitelist`), `_…`-Systemvariablen, Wörter direkt vor `(` (Konstrukte
+      wie `column(`), alles in `#macro`-Rümpfen und Namen neben `&param;`.
+- [x] Damit keine falschen Warnungen entstehen, kennt der Symbol-Index jetzt
+      auch `sliderq` und die Kurzformen `sq`/`mq`/`sgq`/`mgq`/`oq`/`tq`/`nq`/
+      `pq`/`uq` (`questionDefRe`) sowie `DecimalFormat`, `MultiQTextInsert`,
+      `DecisionVar`, `DictFileVar`, `ArraySortOrder`, `RestrictVar`,
+      `Mailbox`, `InfoMailbox`, `ActionBlock` (neu: `otherDefRe`, Kategorie
+      `definition`). Die `NEXT_DEF`-Listen (Label-Scan, Completion, Hover)
+      kennen die Kurzformen ebenfalls.
+- [x] Bekannte Grenze: Der Index meldet keine Änderungen; eine neue
+      Definition in einer _anderen_ Datei wird in der offenen Datei erst
+      beim nächsten Bearbeiten/Speichern berücksichtigt (wie bei
+      `#domacro`).
+- [x] Tests in `src/__tests__/diagnostics.test.ts` und
+      `src/__tests__/symbolIndex.test.ts`.
+
 ---
 
 ## 9. Entscheidungen

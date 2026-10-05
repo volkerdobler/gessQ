@@ -14,6 +14,17 @@ Current version number is first:
   highlighting, Find All References, Rename, completion and the duplicate
   check (`singleq q1;` beside `multiq Q1;` is no longer flagged). Keywords
   stay case-insensitive.
+- New diagnostic: a name in a `block … = ( … );` / `screen … = ( … );` list
+  or in `@insert(NAME)` that is not defined anywhere in the project is a
+  warning, e.g. `block b = ( S1 );` after `singleq s1;` – with the hint
+  `did you mean "s1"?` when only the case differs. Keywords (`column`,
+  `row`, `random`, `to`, …), built-in `_…` variables and `#macro` bodies are
+  not checked.
+- `sliderq` and the short question forms `sq`, `mq`, `sgq`, `mgq`, `oq`,
+  `tq`, `nq`, `pq`, `uq` are now recognised as question definitions, and
+  `DecimalFormat`, `MultiQTextInsert`, `DecisionVar`, `DictFileVar`,
+  `ArraySortOrder`, `RestrictVar`, `Mailbox`, `InfoMailbox` and
+  `ActionBlock` names as definitions (Go to Definition, references, outline).
 - New diagnostic: a missing `=` after an assignment keyword at the start of a
   statement is now an error, e.g. `labels 1 "Item";`, `javascript "…";`,
   `export yes;` or `initActionBlock { … };` (`export;` and

@@ -222,3 +222,37 @@ describe('answer-code (labels=) extraction', () => {
 		expect(q.labels).toEqual([{ code: '5', text: 'real' }]);
 	});
 });
+
+test('extracts sliderq and the short question forms (sq, mq, sgq, …)', () => {
+	const syms = parseDocumentSymbols(
+		makeDoc(['sliderq sl1;', 'sq s1;', 'mq m1;', 'sgq g1;', 'tq t1;']),
+	);
+	expect(syms.map((s) => [s.name, s.category])).toEqual([
+		['sl1', 'question'],
+		['s1', 'question'],
+		['m1', 'question'],
+		['g1', 'question'],
+		['t1', 'question'],
+	]);
+});
+
+test('extracts DecimalFormat / MultiQTextInsert / DecisionVar / ActionBlock …', () => {
+	const syms = parseDocumentSymbols(
+		makeDoc([
+			'DecimalFormat df = (q1, "0.00");',
+			'MultiQTextInsert ti_q9 = (q9, "[", "]", ", ");',
+			'DecisionVar dv = (q1 eq 1);',
+			'ActionBlock ab = { set(x = 1); };',
+		]),
+	);
+	expect(
+		syms
+			.filter((s) => s.category === 'definition')
+			.map((s) => [s.name, s.detail]),
+	).toEqual([
+		['df', 'decimalformat'],
+		['ti_q9', 'multiqtextinsert'],
+		['dv', 'decisionvar'],
+		['ab', 'actionblock'],
+	]);
+});

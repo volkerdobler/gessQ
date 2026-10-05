@@ -108,10 +108,14 @@ const refNameFrag = (word: string) =>
 const defNameFrag = (word: string) =>
 	word && word.length > 0 ? getWordDefinitionStrict(word) : constVarName;
 
-/** Question definitions: `singleq NAME`, `multiq "NAME"`, … (g1 type, g2 name). */
+/**
+ * Question definitions: `singleq NAME`, `multiq "NAME"`, `sq NAME`, …
+ * (g1 type, g2 name). Includes the short forms `sq`/`mq`/`sgq`/… from the
+ * manual.
+ */
 export const questionDefRe = memoizeEmpty((word) => {
 	const types =
-		'(singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group)';
+		'(singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|sliderq|group|sq|mq|sgq|mgq|oq|tq|nq|pq|uq)';
 	return new RegExp(
 		word && word.length > 0
 			? '\\b' + types + '\\b\\s*' + getWordDefinitionStrict(word)
@@ -119,6 +123,22 @@ export const questionDefRe = memoizeEmpty((word) => {
 		'i',
 	);
 });
+
+/**
+ * Further `KEYWORD NAME = …` definitions that create a variable usable in
+ * `@insert(NAME)`, conditions or lists: `DecimalFormat`, `MultiQTextInsert`,
+ * `DecisionVar`, `DictFileVar`, `ArraySortOrder`, `RestrictVar`, `Mailbox`,
+ * `InfoMailbox`, `ActionBlock` (g1 keyword, g2 name).
+ */
+export const otherDefRe = memoizeEmpty(
+	(word) =>
+		new RegExp(
+			'\\b(decimalformat|multiqtextinsert|decisionvar|dictfilevar|arraysortorder|restrictvar|mailbox|infomailbox|actionblock)\\b\\s+(' +
+				defNameFrag(word) +
+				')\\s*=',
+			'i',
+		),
+);
 
 /** `opennumformat NAME` definitions (g1 keyword, g2 name). */
 export const definitionDefRe = memoizeEmpty((word) => {
@@ -274,10 +294,7 @@ export const macroDefRe = memoizeEmpty(
  */
 export const computeDefRe = memoizeEmpty(
 	(word) =>
-		new RegExp(
-			'\\b(compute)\\b\\s+(' + defNameFrag(word) + ')\\s*=',
-			'i',
-		),
+		new RegExp('\\b(compute)\\b\\s+(' + defNameFrag(word) + ')\\s*=', 'i'),
 );
 
 /**

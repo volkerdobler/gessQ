@@ -1,4 +1,8 @@
-import { lintDocument } from '../core/diagnostics';
+import {
+	lintDocument,
+	lintUnknownNames,
+	type KnownNames,
+} from '../core/diagnostics';
 import * as vscode from 'vscode';
 
 let n = 0;
@@ -306,5 +310,84 @@ describe('missing "=" after an assignment keyword', () => {
 
 	test('keyword as a question name is not mistaken for an assignment', () => {
 		expect(eqMsg('singleq title;\nopenq css;\n')).toEqual([]);
+	});
+});
+
+describe('unknown names in block / screen lists and @insert', () => {
+	const unknown = (src: string, defined: string[]) => {
+		const names = new Set(defined);
+		const known: KnownNames = {
+			has: (n) => names.has(n),
+			caseVariant: (n) =>
+				defined.find((d) => d.toLowerCase() === n.toLowerCase()),
+		};
+		return lintUnknownNames(makeDoc(src), known).map((d) => d.message);
+	};
+
+	test('flags a name that differs only in case, with a hint', () => {
+		expect(
+			unknown('singleq s1;\nblock bl_screener = ( S1 );\n', [
+				's1',
+				'bl_screener',
+			]),
+		).toEqual([
+			'Unknown name "S1" – did you mean "s1"? Names are case-sensitive.',
+		]);
+	});
+
+	test('flags an undefined name in a multi-line block', () => {
+		expect(
+			unknown('block main = (\n  q1\n  q2 // q3\n);\n', ['main', 'q1']),
+		).toEqual(['Unknown name "q2"']);
+	});
+
+	test('screen lists: column/row/random/to are syntax, not names', () => {
+		expect(
+			unknown(
+				'screen s = column( q1 row( q2 q3 ) random );\nscreen t = ( q1 to q3 );\n',
+				['s', 't', 'q1', 'q2', 'q3'],
+			),
+		).toEqual([]);
+		expect(
+			unknown('screen s = column( q1 row( qx ) );\n', ['s', 'q1']),
+		).toEqual(['Unknown name "qx"']);
+	});
+
+	test('only the list – block attributes after ";" are not checked', () => {
+		expect(
+			unknown('block nb = ( nb1 ); followup;\n', ['nb', 'nb1']),
+		).toEqual([]);
+	});
+
+	test('@insert: unknown and case-mismatched names', () => {
+		expect(
+			unknown(
+				'text = "Sie sind @insert(Geschlecht) / @insert(alter).";\n',
+				['geschlecht', 'alter'],
+			),
+		).toEqual([
+			'Unknown name "Geschlecht" – did you mean "geschlecht"? Names are case-sensitive.',
+		]);
+	});
+
+	test('@insert: system variables, comments and other brackets', () => {
+		expect(
+			unknown(
+				'title = "./media/@insert(_surveyname)/@insert[q1]";\n// @insert(nope)\n',
+				['q1'],
+			),
+		).toEqual([]);
+		expect(unknown('text = "@insert{nope}";\n', [])).toEqual([
+			'Unknown name "nope"',
+		]);
+	});
+
+	test('macro bodies and &param; names are skipped', () => {
+		expect(
+			unknown(
+				'#macro m\nblock b_&n; = ( q&n; );\ntext = "@insert(q&n;)";\n#endmacro\nblock x = ( q_&n; );\n',
+				['x'],
+			),
+		).toEqual([]);
 	});
 });

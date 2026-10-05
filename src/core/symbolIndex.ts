@@ -89,11 +89,12 @@ const FACTORIES: Factory[] = [
 	{ re: () => parser.textElementDefRe(), category: 'definition' },
 	{ re: () => parser.intRandomDefRe(), category: 'definition' },
 	{ re: () => parser.databaseConnectionDefRe(), category: 'definition' },
+	{ re: () => parser.otherDefRe(), category: 'definition' },
 ];
 
 /** Keywords that open a new top-level definition – a label scan stops here. */
 const NEXT_DEF =
-	/^\s*(?:singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group|sliderq|compute|array|vararray|textelement|textarray|intrandom|databaseconnection|opennumformat|quotavar|quotagroup|block|screen|#\w+)\b/i;
+	/^\s*(?:singleq|multiq|singlegridq|multigridq|openq|textq|numq|gnumq|passwdq|uploadq|group|sliderq|sq|mq|sgq|mgq|oq|tq|nq|pq|uq|compute|array|vararray|textelement|textarray|intrandom|databaseconnection|opennumformat|quotavar|quotagroup|block|screen|#\w+)\b/i;
 
 /**
  * `labels=` / `gridlabels=` – the start of a selectable-code list. `griditems=`
