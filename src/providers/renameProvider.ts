@@ -20,10 +20,10 @@ export class GessQRenameProvider implements vscode.RenameProvider {
 		if (!range) {
 			throw new Error('You cannot rename this element.');
 		}
-		const word = document.getText(range).toLowerCase();
+		const word = document.getText(range);
 		await this.index.ready;
 		const known =
-			parseDocumentSymbols(document).some((s) => s.lower === word) ||
+			parseDocumentSymbols(document).some((s) => s.name === word) ||
 			this.index.definitionsOf(word).length > 0;
 		if (!known) {
 			throw new Error('Rename is only available for GESS Q. symbols.');

@@ -5,6 +5,15 @@ Current version number is first:
 
 ### Unreleased
 
+- References: `@insert(VAR)` (also `@insert[VAR]` / `@insert{VAR}`) now
+  counts as a reference to `VAR` – in Find All References, the CodeLens
+  count and Rename. Only the argument itself is matched, so renaming `alter`
+  in `text="Alter: @insert(alter)";` leaves the prose word "Alter" alone.
+- Variable names are now case-sensitive, as in GESS Q. itself: `VAR`,
+  `Var` and `var` are different variables for Go to Definition, Hover,
+  highlighting, Find All References, Rename, completion and the duplicate
+  check (`singleq q1;` beside `multiq Q1;` is no longer flagged). Keywords
+  stay case-insensitive.
 - New diagnostic: a missing `=` after an assignment keyword at the start of a
   statement is now an error, e.g. `labels 1 "Item";`, `javascript "…";`,
   `export yes;` or `initActionBlock { … };` (`export;` and

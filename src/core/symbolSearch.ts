@@ -38,13 +38,36 @@ function referencePatterns(word: string): RegExp[] {
 	];
 }
 
+/**
+ * Start columns of `word` used as the argument of a text insert:
+ * `@insert(word)`, `@insert[word]` or `@insert{word}`. Unlike
+ * {@link referencePatterns} this is precise, because `@insert` usually sits
+ * inside question/label text where the same word may also appear as prose
+ * (`"Alter: @insert(alter)"` must not rename "Alter").
+ */
+export function insertRefColumns(text: string, word: string): number[] {
+	// `@insert` itself is case-insensitive, the variable name is not.
+	const re = new RegExp(
+		'@insert\\s*[([{]\\s*(' + escapeRe(word) + ')\\b',
+		'gi',
+	);
+	const cols: number[] = [];
+	let m: RegExpExecArray | null;
+	while ((m = re.exec(text))) {
+		if (m[1] === word) {
+			cols.push(m.index + m[0].length - word.length);
+		}
+	}
+	return cols;
+}
+
 /** Precise ranges of every whole-word, non-comment occurrence of `word`. */
 function wordRangesInLine(
 	document: vscode.TextDocument,
 	line: number,
 	word: string,
 ): vscode.Range[] {
-	const re = new RegExp('\\b' + escapeRe(word) + '\\b', 'gi');
+	const re = new RegExp('\\b' + escapeRe(word) + '\\b', 'g');
 	const text = document.lineAt(line).text;
 	const ranges: vscode.Range[] = [];
 	let m: RegExpExecArray | null;
@@ -93,10 +116,18 @@ export async function findReferences(
 					const at = text.search(re);
 					return at > -1 && isNotInCommentAt(doc, i, at);
 				});
-				if (!isRefLine) {
-					continue;
+				const ranges = isRefLine ? wordRangesInLine(doc, i, word) : [];
+				for (const col of insertRefColumns(text, word)) {
+					if (
+						isNotInCommentAt(doc, i, col) &&
+						!ranges.some((r) => r.start.character === col)
+					) {
+						ranges.push(
+							new vscode.Range(i, col, i, col + word.length),
+						);
+					}
 				}
-				for (const range of wordRangesInLine(doc, i, word)) {
+				for (const range of ranges) {
 					results.push(new vscode.Location(doc.uri, range));
 				}
 			}

@@ -334,7 +334,7 @@ function checkDuplicates(document: vscode.TextDocument): vscode.Diagnostic[] {
 		if (s.category === 'action') {
 			continue; // assignments are expected to repeat
 		}
-		const key = s.category + '|' + s.lower;
+		const key = s.category + '|' + s.name;
 		const list = groups.get(key) ?? [];
 		list.push({
 			symbol: s,

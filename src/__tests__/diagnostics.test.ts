@@ -90,6 +90,11 @@ test('flags a duplicate question definition', () => {
 	expect(msgs.some((m) => m.includes('Duplicate'))).toBe(true);
 });
 
+test('q1 and Q1 are different questions, not duplicates', () => {
+	const msgs = messages('singleq q1;\nmultiq Q1;\n');
+	expect(msgs.some((m) => m.includes('Duplicate'))).toBe(false);
+});
+
 test('"rendering = thymeleaf;" at the top is fine', () => {
 	expect(messages('rendering = thymeleaf;\nsingleq q1;\n')).toEqual([]);
 });

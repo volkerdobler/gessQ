@@ -28,8 +28,6 @@ export interface LabelInfo {
 export interface IndexedSymbol {
 	/** Name as written, with surrounding quotes stripped. */
 	name: string;
-	/** `name` lower-cased, for case-insensitive matching. */
-	lower: string;
 	category: SymbolCategory;
 	/** Concrete keyword, e.g. `singleq`, `block`, `macro`. */
 	detail: string;
@@ -133,7 +131,7 @@ function scanLabelList(
 		if (!collecting) {
 			const copy = LABEL_LIST_COPY.exec(text);
 			if (copy && scope.isNotInComment(i, copy.index)) {
-				return { copyOf: copy[1].toLowerCase() };
+				return { copyOf: copy[1] };
 			}
 			const startAt = text.search(LABEL_LIST_START);
 			if (startAt < 0 || !scope.isNotInComment(i, startAt)) {
@@ -226,7 +224,6 @@ export function parseDocumentSymbols(
 			const name = unquote(token);
 			out.push({
 				name,
-				lower: name.toLowerCase(),
 				category,
 				detail: m[1].toLowerCase(),
 				uri: document.uri,
@@ -254,9 +251,9 @@ export function parseDocumentSymbols(
 		}
 	}
 	if (pending.length > 0) {
-		const byLower = new Map(out.map((s) => [s.lower, s]));
+		const byName = new Map(out.map((s) => [s.name, s]));
 		for (const { sym, copyOf } of pending) {
-			const src = byLower.get(copyOf);
+			const src = byName.get(copyOf);
 			if (src?.labels) {
 				sym.labels = src.labels;
 			}
@@ -368,21 +365,23 @@ export class SymbolIndex {
 		return [...this.byFile.values()].map((e) => e.uri);
 	}
 
-	/** All definitions whose name equals `word` (case-insensitive). */
+	/**
+	 * All definitions whose name equals `word`. Case-sensitive: in GESS Q.
+	 * `VAR`, `Var` and `var` are three different variables.
+	 */
 	public definitionsOf(word: string): IndexedSymbol[] {
-		const lower = word.toLowerCase();
-		return this.all().filter((s) => s.lower === lower);
+		return this.all().filter((s) => s.name === word);
 	}
 
 	/**
-	 * Definitions whose name contains `query` (case-insensitive). An empty
-	 * query returns everything.
+	 * Definitions whose name contains `query` (case-insensitive, as a search
+	 * aid for the symbol picker). An empty query returns everything.
 	 */
 	public match(query: string): IndexedSymbol[] {
 		const q = query.toLowerCase();
 		return q.length === 0
 			? this.all()
-			: this.all().filter((s) => s.lower.includes(q));
+			: this.all().filter((s) => s.name.toLowerCase().includes(q));
 	}
 
 	private all(): IndexedSymbol[] {

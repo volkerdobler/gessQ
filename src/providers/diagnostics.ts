@@ -91,7 +91,7 @@ export class DiagnosticsManager {
 		const known = new Set<string>(this.allMacroNames());
 		for (const s of parseDocumentSymbols(document)) {
 			if (s.category === 'macro') {
-				known.add(s.lower);
+				known.add(s.name);
 			}
 		}
 
@@ -105,7 +105,7 @@ export class DiagnosticsManager {
 				if (!isNotInCommentAt(document, line, m.index)) {
 					continue;
 				}
-				if (!known.has(m[1].toLowerCase())) {
+				if (!known.has(m[1])) {
 					const start = m.index + m[0].length - m[1].length;
 					out.push(
 						new vscode.Diagnostic(
@@ -129,6 +129,6 @@ export class DiagnosticsManager {
 		return this.index
 			.match('')
 			.filter((s) => s.category === 'macro')
-			.map((s) => s.lower);
+			.map((s) => s.name);
 	}
 }

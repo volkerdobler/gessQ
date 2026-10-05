@@ -250,9 +250,8 @@ export class GessQHoverProvider implements vscode.HoverProvider {
 			return null;
 		}
 
-		const lower = word.toLowerCase();
 		const localDefs = parseDocumentSymbols(document).filter(
-			(s) => s.lower === lower,
+			(s) => s.name === word,
 		);
 
 		// The name in its own definition: show nothing.

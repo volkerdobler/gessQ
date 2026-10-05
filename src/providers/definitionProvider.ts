@@ -27,11 +27,10 @@ export class GessQDefinitionProvider implements vscode.DefinitionProvider {
 			return undefined;
 		}
 
-		const lower = word.toLowerCase();
 		const here = document.uri.toString();
 
 		const current = parseDocumentSymbols(document).filter(
-			(s) => s.lower === lower,
+			(s) => s.name === word,
 		);
 		const others = this.index
 			.definitionsOf(word)

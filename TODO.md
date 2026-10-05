@@ -28,34 +28,6 @@ Der vollständige Vergleich (inkl. was daraus bereits umgesetzt wurde) steht in
   Abhängigkeiten bekommt (z.B. ein Äquivalent zu mehreren Einstiegsskripten
   statt dem festen `script.q`-Root, oder externe JSON-Schemas).
 
-## Diagnose: fehlendes `=` bei Zuweisungen
-
-Ein fehlendes Gleichheitszeichen wird aktuell nicht gemeldet, z.B.
-
-```
-javascript"
-	SEQdot.
-";
-labels
-1 "Item"
-;
-```
-
-Der Linter ([src/core/diagnostics.ts](src/core/diagnostics.ts)) prüft nur
-Klammern, Direktiven-Paare/-Spalte, Duplikate, `rendering` und `#include`-Ziele
-– keine Syntax. Geplant: neue Prüfung `checkMissingAssign`, die für
-Schlüsselwörter, die zwingend eine Zuweisung brauchen (`labels`, `javascript`,
-`html`, `css`, `text`, …), meldet, wenn am Anweisungsanfang nach dem
-Schlüsselwort statt `=` direkt ein Wert (`"`, Zahl, Name) folgt. Kommentare und
-Strings über den Scope-Mechanismus überspringen (wie `checkBrackets`).
-
-- Liste der Zuweisungs-Schlüsselwörter festlegen (aus `syntax`-Feldern in
-  `manualGlossary.json` abgeleitet, von Hand geprüft). Achtung: Fragetypen
-  (`singleq name "Text"`) u.ä. haben regulär kein `=` → nicht aufnehmen.
-- Embedded-Blöcke (`javascript`, `html`, `css`) stehen nicht in den
-  generierten Keyword-Listen – eigens aufnehmen.
-- Tests in [diagnostics.test.ts](src/__tests__/diagnostics.test.ts).
-
 ## Offene Entscheidung
 
 ### B2 – `language.json` als Single Source

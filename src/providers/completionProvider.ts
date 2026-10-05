@@ -498,10 +498,9 @@ export class GessQCompletionProvider implements vscode.CompletionItemProvider {
 		document: vscode.TextDocument,
 		question: string,
 	): vscode.CompletionItem[] {
-		const lower = question.toLowerCase();
 		const sym =
 			parseDocumentSymbols(document).find(
-				(s) => s.lower === lower && s.labels,
+				(s) => s.name === question && s.labels,
 			) ?? this.index.definitionsOf(question).find((s) => s.labels);
 		if (!sym?.labels) {
 			return [];
@@ -571,10 +570,10 @@ export class GessQCompletionProvider implements vscode.CompletionItemProvider {
 		const out: vscode.CompletionItem[] = [];
 		const seen = new Set<string>();
 		for (const s of this.index.match('')) {
-			if (!filter(s) || seen.has(s.lower)) {
+			if (!filter(s) || seen.has(s.name)) {
 				continue;
 			}
-			seen.add(s.lower);
+			seen.add(s.name);
 			const it = item(s.name, SYMBOL_KIND[s.category], s.category);
 			it.documentation = new vscode.MarkdownString(
 				'`' +

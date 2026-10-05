@@ -824,6 +824,56 @@ Utility-Muster aus gesstabs (`glob.ts`, `lru.ts`,
 `externalNamesProvider`-Cache-Architektur); `language.json` als Single Source
 (B2, zurückgestellt); Open-VSX-Freischaltung (einmalig, manuell).
 
+### Phase 7 – Diagnose: fehlendes `=` bei Zuweisungen (2026-10-04)
+
+Auslöser: `javascript"…";` oder `labels 1 "Item";` (ohne `=`) wurden
+stillschweigend akzeptiert – der Linter prüfte nur Klammern, Direktiven,
+Duplikate, `rendering` und `#include`-Ziele.
+
+- [x] Neue Prüfung `checkMissingAssign` in `src/core/diagnostics.ts`:
+      Schlüsselwörter, die zwingend eine Zuweisung brauchen (Frage-/Screen-
+      Attribute, globale Skriptparameter, Actionblocks, `HTML{ … }`-
+      Parameter, Embedded-Blöcke `javascript`/`html`/`css`), melden einen
+      Fehler, wenn am Anweisungsanfang statt `=` direkt ein Wert folgt.
+      Kommentare und Strings werden über den Scope-Mechanismus übersprungen.
+- [x] Bewusst gültig: Labeloptionen mitten in der Anweisung
+      (`1 "…" single`), `export;`, `HTML{ … }`, `labels copy q1;`.
+      Fragetypen (`singleq name "Text"`) brauchen kein `=`; bei `compute`,
+      `block`, `screen`, `vararray`, `quotaVar`, `openNumFormat` … wird das
+      `=` erst nach dem Namen erwartet.
+- [x] Tests in `src/__tests__/diagnostics.test.ts`.
+
+### Phase 8 – `@insert(VARIABLE)` als Referenz (2026-10-05)
+
+Auslöser: `@insert(VARIABLE)` in Frage-/Labeltexten wurde bei Find All
+References, CodeLens-Zähler und Rename nicht als Verwendung von `VARIABLE`
+erkannt.
+
+- [x] Neue Funktion `insertRefColumns` in `src/core/symbolSearch.ts`: alle
+      drei Klammerformen laut Handbuch (`@insert(…)`, `@insert[…]`,
+      `@insert{…}`), `@insert` case-insensitive, der Variablenname exakt,
+      Leerzeichen erlaubt, nur ganze Wörter (`@insert(q10)` ist keine
+      Referenz auf `q1`, `@insert(q1.3)` schon).
+- [x] Bewusst präzise statt über `referencePatterns`: dort gilt eine Zeile
+      als Referenz-Zeile und _alle_ Vorkommen des Worts darauf werden
+      gemeldet. Bei `text="Alter: @insert(alter)";` hätte Rename dann auch
+      das Wort „Alter" im Fließtext umbenannt. Jetzt wird nur das Argument
+      selbst gemeldet; Kommentare bleiben ausgeschlossen, Strings nicht.
+- [x] Eine im Glossar erwähnte Form `@insert(select …)` steht nicht im
+      Handbuch (Kapitel 6 kennt nur `@insert(VAR)`) und wurde daher nicht
+      gesondert behandelt.
+- [x] Groß-/Kleinschreibung: In GESS Q. sind `VAR`, `Var` und `var` drei
+      verschiedene Variablen (anders als in gesstabs). Bisher wurde überall
+      case-insensitive verglichen. Jetzt exakt: Feld `IndexedSymbol.lower`
+      entfernt, `SymbolIndex.definitionsOf`, Go to Definition, Hover,
+      Document Highlight, Find All References, Rename, Label-Code-Completion,
+      Completion-Deduplizierung, `labels copy X`, Duplikat-Diagnose und
+      `#domacro`-Prüfung vergleichen den Namen exakt. Schlüsselwörter bleiben
+      case-insensitive; die Symbolsuche (`SymbolIndex.match`, Strg+T) auch,
+      als Suchhilfe.
+- [x] Tests in `src/__tests__/symbolSearch.test.ts` (neu) und
+      `src/__tests__/diagnostics.test.ts`.
+
 ---
 
 ## 9. Entscheidungen

@@ -26,11 +26,11 @@ export class GessQDocumentHighlightProvider
 
 		const defLines = new Set(
 			parseDocumentSymbols(document)
-				.filter((s) => s.lower === word.toLowerCase())
+				.filter((s) => s.name === word)
 				.map((s) => s.nameRange.start.line),
 		);
 
-		const re = new RegExp('\\b' + escapeRe(word) + '\\b', 'gi');
+		const re = new RegExp('\\b' + escapeRe(word) + '\\b', 'g');
 		const highlights: vscode.DocumentHighlight[] = [];
 
 		for (let line = 0; line < document.lineCount; line++) {
