@@ -19,7 +19,9 @@ Current version number is first:
   warning, e.g. `block b = ( S1 );` after `singleq s1;` – with the hint
   `did you mean "s1"?` when only the case differs. Keywords (`column`,
   `row`, `random`, `to`, …), built-in `_…` variables and `#macro` bodies are
-  not checked.
+  not checked. Names a macro call creates count as defined: with
+  `#macro mcrF1` containing `singleq f1_$z;`, the call `&mcrF1;$z=2` makes
+  `f1_2` known (`f1_1` stays unknown until `&mcrF1;$z=1` exists).
 - `sliderq` and the short question forms `sq`, `mq`, `sgq`, `mgq`, `oq`,
   `tq`, `nq`, `pq`, `uq` are now recognised as question definitions, and
   `DecimalFormat`, `MultiQTextInsert`, `DecisionVar`, `DictFileVar`,

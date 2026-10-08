@@ -8,6 +8,7 @@ import {
 	lintUnknownNames,
 	type KnownNames,
 } from '../core/diagnostics';
+import { expandMacroNames, parseMacroCalls } from '../core/macroExpansion';
 import { isNotInCommentAt } from '../core/scope';
 import { diagnosticsEnabled } from '../infra/config';
 
@@ -132,13 +133,20 @@ export class DiagnosticsManager {
 		return out;
 	}
 
-	/** Names defined in this document or anywhere in the project. */
+	/**
+	 * Names defined in this document or anywhere in the project, including
+	 * those a macro call creates (`&m;$z=2` with `singleq f1_$z;` in `m`).
+	 */
 	private knownNames(document: vscode.TextDocument): KnownNames {
-		const names = new Set<string>();
-		for (const s of [
+		const symbols = [
 			...parseDocumentSymbols(document),
 			...this.index.match(''),
-		]) {
+		];
+		const names = expandMacroNames(
+			symbols.filter((s) => s.category === 'macro'),
+			[...parseMacroCalls(document), ...this.index.macroCalls()],
+		);
+		for (const s of symbols) {
 			names.add(s.name);
 		}
 		const byLower = new Map<string, string>();

@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as parser from './parser';
 import { getCachedScope } from './scope';
 import { parseIncludes, type IncludeDirective } from './includes';
+import { parseMacroCalls, type MacroCall } from './macroExpansion';
 import { includeClosure, isRootScript, ROOT_SCRIPT } from './projectFiles';
 import { debug } from '../infra/logger';
 import { filesExcludeGlob } from '../infra/config';
@@ -42,6 +43,12 @@ export interface IndexedSymbol {
 	 * a resolvable label list.
 	 */
 	labels?: LabelInfo[];
+	/**
+	 * Names defined in a `#macro` body with `$` parameters, e.g. `f1_$z` for
+	 * `singleq f1_$z;` – a call `&NAME;$z=2` creates `f1_2`. Only set for
+	 * `macro` symbols that have such templates.
+	 */
+	templates?: string[];
 }
 
 /** Map an index category to a VS Code {@link vscode.SymbolKind}. */
@@ -174,6 +181,26 @@ function scanLabelList(
 	return labels.length > 0 ? { labels } : {};
 }
 
+/**
+ * Stand-in for `$` in macro bodies, so the definition factories (identifier
+ * grammar `[A-Za-z0-9_]`) also match template names such as `f1_$z`.
+ */
+const PARAM_MARK = 'QxMacroParamQx';
+const MACRO_END = /^\s*#(?:endmacro|macroend)\b/i;
+
+/** Definition names on `text` that contain a `$` parameter. */
+function templateNames(text: string): string[] {
+	const masked = text.split('$').join(PARAM_MARK);
+	const out: string[] = [];
+	for (const { re } of FACTORIES) {
+		const m = re().exec(masked);
+		if (m?.[2]?.includes(PARAM_MARK)) {
+			out.push(unquote(m[2]).split(PARAM_MARK).join('$'));
+		}
+	}
+	return out;
+}
+
 const symbolsCache = new Map<
 	string,
 	{ version: number; symbols: IndexedSymbol[] }
@@ -195,11 +222,24 @@ export function parseDocumentSymbols(
 	}
 
 	const out: IndexedSymbol[] = [];
+	let macro: IndexedSymbol | undefined;
 
 	for (let i = 0; i < document.lineCount; i++) {
 		const text = document.lineAt(i).text;
 		if (text.length === 0) {
 			continue;
+		}
+		if (macro && MACRO_END.test(text)) {
+			macro = undefined;
+		} else if (macro && text.includes('$')) {
+			const scope = getCachedScope(document);
+			const names = templateNames(text).filter((n) => {
+				const at = text.indexOf(n);
+				return scope.isNotInComment(i, at) && !scope.isString(i, at);
+			});
+			if (names.length > 0) {
+				macro.templates = [...(macro.templates ?? []), ...names];
+			}
 		}
 
 		for (const { re, category } of FACTORIES) {
@@ -222,15 +262,22 @@ export function parseDocumentSymbols(
 			if (start < 0) {
 				continue;
 			}
+			if (text[start + token.length] === '$') {
+				continue; // `f1_$z` – a macro template, not the name `f1_`
+			}
 			const name = unquote(token);
-			out.push({
+			const sym: IndexedSymbol = {
 				name,
 				category,
 				detail: m[1].toLowerCase(),
 				uri: document.uri,
 				nameRange: new vscode.Range(i, start, i, start + token.length),
 				lineRange: document.lineAt(i).range,
-			});
+			};
+			out.push(sym);
+			if (category === 'macro') {
+				macro = sym;
+			}
 		}
 	}
 
@@ -277,6 +324,7 @@ export function clearParsedSymbolsCache(document?: vscode.TextDocument): void {
 interface FileEntry {
 	uri: vscode.Uri;
 	symbols: IndexedSymbol[];
+	macroCalls: MacroCall[];
 }
 
 const REFRESH_DEBOUNCE_MS = 200;
@@ -385,6 +433,11 @@ export class SymbolIndex {
 			: this.all().filter((s) => s.name.toLowerCase().includes(q));
 	}
 
+	/** Every `&NAME;$p=v` macro call with parameters in the project. */
+	public macroCalls(): MacroCall[] {
+		return [...this.byFile.values()].flatMap((e) => e.macroCalls);
+	}
+
 	private all(): IndexedSymbol[] {
 		return [...this.byFile.values()].flatMap((e) => e.symbols);
 	}
@@ -451,9 +504,7 @@ export class SymbolIndex {
 			return includeClosure(this.cachedRoots, read);
 		}
 		// No `script.q` reachable – index just the active document's closure.
-		return this.activeQDoc
-			? includeClosure([this.activeQDoc], read)
-			: [];
+		return this.activeQDoc ? includeClosure([this.activeQDoc], read) : [];
 	}
 
 	/** Every `script.q` that anchors the project, or `[]` when there is none. */
@@ -510,6 +561,7 @@ export class SymbolIndex {
 			this.byFile.set(uri.toString(), {
 				uri,
 				symbols: parseDocumentSymbols(doc),
+				macroCalls: parseMacroCalls(doc),
 			});
 		} catch {
 			this.byFile.delete(uri.toString());
