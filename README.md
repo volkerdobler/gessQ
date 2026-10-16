@@ -65,7 +65,11 @@ sichtbar).
     `quotagroup`.
   - **Zur Definition springen** (`F12`), **Alle Verweise** (`Shift+F12`) und
     **Umbenennen** (`F2`) – projektweit, inklusive `&name;`- und
-    `#domacro`-Aufrufen bei Makros.
+    `#domacro`-Aufrufen bei Makros und `@insert(NAME)` (nur der Name in der
+    Klammer, nicht gleichlautender Text daneben).
+  - Groß-/Kleinschreibung zählt wie in GESS Q. selbst: `VAR`, `Var` und
+    `var` sind verschiedene Namen. Schlüsselwörter und die Suche mit
+    `Strg+T` unterscheiden nicht.
   - Über jeder Definition steht, wie oft sie verwendet wird (Klick zeigt die
     Fundstellen); alle Vorkommen des Worts unter dem Cursor werden markiert.
 
@@ -81,12 +85,19 @@ sichtbar).
   - `rendering =` mehrfach oder erst nach der ersten Frage gesetzt,
   - fehlendes `=` nach Zuweisungs-Schlüsselwörtern (`labels 1 "…"`,
     `javascript "…"`, `export yes;`) bzw. nach dem Namen bei
-    `compute x 1;`, `block b ( … );`, `screen s ( … );` usw.
+    `compute x 1;`, `block b ( … );`, `screen s ( … );` usw.,
+  - ein Name in einer `block … = ( … );`- / `screen … = ( … );`-Liste oder in
+    `@insert(NAME)`, der im Projekt nirgends definiert ist – unterscheidet
+    er sich nur in der Groß-/Kleinschreibung, wird die richtige Schreibweise
+    vorgeschlagen. Namen, die erst ein Makroaufruf erzeugt (`&mcrF1;$z=2`
+    mit `singleq f1_$z;` im Makro → `f1_2`), gelten als definiert.
 
 - **Ein-/Ausklappen** von `#macro`-Bereichen, `#ifdef`-Bereichen, `{ … }` und
   Blockkommentaren.
 
-- **Parameterhinweise** bei Makro- und Funktionsaufrufen.
+- **Parameterhinweise** bei Makro- und Funktionsaufrufen. Mit `Esc`
+  geschlossen, bleiben sie zu, solange der Cursor in den Klammern dieses
+  Aufrufs steht – erst außerhalb erscheinen sie wieder.
 
 - **Echtes JavaScript / CSS** in `javascript = "…"`, `jsHandler = "…"` und
   `css = "…"`: Hover, Autovervollständigung und Parameterhinweise kommen aus
@@ -121,7 +132,7 @@ sichtbar).
   "gessq.embeddedLanguages.declarationFiles": ["~/gessq-declarations"]
   ```
 
-  Danach bietet `SEQdot.Settings = { ` + `Strg+Leertaste` alle Optionen
+  Danach bietet `SEQdot.settings = { ` + `Strg+Leertaste` alle Optionen
   mit Typ und Beschreibung an. Hat eine Option ein `@default`, wird gleich
   der Default mit eingefügt und markiert (Tippen überschreibt ihn, `Tab`
   behält ihn): im Objekt `SEQdot.settings = { initialGroups: 2 }`, als

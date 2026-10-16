@@ -14,15 +14,15 @@ Current version number is first:
   in `text="Alter: @insert(alter)";` leaves the prose word "Alter" alone.
 - Variable names are now case-sensitive, as in GESS Q. itself: `VAR`,
   `Var` and `var` are different variables for Go to Definition, Hover,
-  highlighting, Find All References, Rename, completion and the duplicate
-  check (`singleq q1;` beside `multiq Q1;` is no longer flagged). Keywords
-  stay case-insensitive.
+  highlighting, Find All References, Rename, completion, `#domacro` and the
+  duplicate check (`singleq q1;` beside `multiq Q1;` is no longer flagged).
+  Keywords and the workspace symbol search (Ctrl+T) stay case-insensitive.
 - New diagnostic: a name in a `block … = ( … );` / `screen … = ( … );` list
   or in `@insert(NAME)` that is not defined anywhere in the project is a
   warning, e.g. `block b = ( S1 );` after `singleq s1;` – with the hint
   `did you mean "s1"?` when only the case differs. Keywords (`column`,
-  `row`, `random`, `to`, …), built-in `_…` variables and `#macro` bodies are
-  not checked. Names a macro call creates count as defined: with
+  `row`, `random`, `to`, …), built-in `_…` variables, words directly before
+  `(`, names next to an `&param;` and `#macro` bodies are not checked. Names a macro call creates count as defined: with
   `#macro mcrF1` containing `singleq f1_$z;`, the call `&mcrF1;$z=2` makes
   `f1_2` known (`f1_1` stays unknown until `&mcrF1;$z=1` exists).
 - `sliderq` and the short question forms `sq`, `mq`, `sgq`, `mgq`, `oq`,
