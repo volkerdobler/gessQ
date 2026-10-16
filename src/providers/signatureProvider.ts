@@ -27,24 +27,15 @@ export class GessQSignatureProvider implements vscode.SignatureHelpProvider {
 		if (suppressForEmbedded(document, position)) {
 			return null;
 		}
+		// The user closed the hints with Esc inside this call.
+		if (isDismissed(document, position)) {
+			return null;
+		}
 
 		const line = document.lineAt(position.line).text;
 
 		// find the opening paren for the call
-		let idx = position.character - 1;
-		let depth = 0;
-		while (idx >= 0) {
-			const ch = line[idx];
-			if (ch === ')') {
-				depth++;
-			} else if (ch === '(') {
-				if (depth === 0) {
-					break;
-				}
-				depth--;
-			}
-			idx--;
-		}
+		const idx = findCallOpen(line, position.character);
 		if (idx < 0) {
 			return null;
 		}
@@ -100,4 +91,149 @@ export class GessQSignatureProvider implements vscode.SignatureHelpProvider {
 		sh.activeParameter = Math.min(paramIndex, params.length - 1);
 		return sh;
 	}
+}
+
+/**
+ * Index of the unmatched `(` left of `character` in `line`, i.e. the opening
+ * paren of the call the cursor is in; -1 when there is none.
+ */
+export function findCallOpen(line: string, character: number): number {
+	let depth = 0;
+	for (let idx = character - 1; idx >= 0; idx--) {
+		const ch = line[idx];
+		if (ch === ')') {
+			depth++;
+		} else if (ch === '(') {
+			if (depth === 0) {
+				return idx;
+			}
+			depth--;
+		}
+	}
+	return -1;
+}
+
+/**
+ * Whether `character` lies within the arguments of the call whose `(` is at
+ * `open` – after the paren and not past its matching `)`. Nested calls count
+ * as inside.
+ */
+export function callArgsContain(
+	line: string,
+	open: number,
+	character: number,
+): boolean {
+	if (line[open] !== '(' || character <= open) {
+		return false;
+	}
+	let depth = 0;
+	for (let idx = open + 1; idx < character && idx < line.length; idx++) {
+		const ch = line[idx];
+		if (ch === '(') {
+			depth++;
+		} else if (ch === ')') {
+			if (depth === 0) {
+				return false;
+			}
+			depth--;
+		}
+	}
+	return true;
+}
+
+/**
+ * Internal command bound to Esc while parameter hints are visible: closes
+ * them and keeps them closed while the cursor stays in the same call.
+ */
+export const DISMISS_SIGNATURE_COMMAND = 'gessq.dismissSignatureHelp';
+
+/** The call whose hints the user dismissed (document, line, `(` column). */
+let dismissed: { uri: string; line: number; open: number } | undefined;
+
+/** Whether signature help is dismissed for the call at `position`. */
+export function isDismissed(
+	document: vscode.TextDocument,
+	position: vscode.Position,
+): boolean {
+	if (
+		!dismissed ||
+		dismissed.uri !== document.uri.toString() ||
+		dismissed.line !== position.line
+	) {
+		return false;
+	}
+	const line = document.lineAt(position.line).text;
+	return callArgsContain(line, dismissed.open, position.character);
+}
+
+/**
+ * Remember the call at `position` as dismissed; returns whether there is
+ * one. Exposed for tests.
+ */
+export function dismissAt(
+	document: vscode.TextDocument,
+	position: vscode.Position,
+): boolean {
+	const line = document.lineAt(position.line).text;
+	const open = findCallOpen(line, position.character);
+	dismissed =
+		open < 0
+			? undefined
+			: { uri: document.uri.toString(), line: position.line, open };
+	return dismissed !== undefined;
+}
+
+/** Forget a dismissal. Exposed for tests. */
+export function clearDismissal(): void {
+	dismissed = undefined;
+}
+
+/**
+ * Register {@link DISMISS_SIGNATURE_COMMAND} and the listeners that end a
+ * dismissal once the cursor leaves the call. Call once from `activate`.
+ */
+export function registerSignatureDismiss(
+	context: vscode.ExtensionContext,
+): void {
+	context.subscriptions.push(
+		vscode.commands.registerCommand(DISMISS_SIGNATURE_COMMAND, async () => {
+			const editor = vscode.window.activeTextEditor;
+			if (
+				editor &&
+				!suppressForEmbedded(editor.document, editor.selection.active)
+			) {
+				dismissAt(editor.document, editor.selection.active);
+			}
+			await vscode.commands.executeCommand('closeParameterHints');
+		}),
+		vscode.window.onDidChangeTextEditorSelection((e) => {
+			if (
+				dismissed &&
+				e.textEditor.document.uri.toString() === dismissed.uri &&
+				!isDismissed(e.textEditor.document, e.selections[0].active)
+			) {
+				dismissed = undefined;
+			}
+		}),
+		vscode.workspace.onDidChangeTextDocument((e) => {
+			// An edit before the paren moves it – the remembered column is stale.
+			if (
+				dismissed &&
+				e.document.uri.toString() === dismissed.uri &&
+				e.contentChanges.some(
+					(c) =>
+						c.range.start.line < dismissed!.line ||
+						(c.range.start.line === dismissed!.line &&
+							c.range.start.character <= dismissed!.open),
+				)
+			) {
+				dismissed = undefined;
+			}
+		}),
+		vscode.workspace.onDidCloseTextDocument((doc) => {
+			if (dismissed && doc.uri.toString() === dismissed.uri) {
+				dismissed = undefined;
+			}
+		}),
+	);
 }

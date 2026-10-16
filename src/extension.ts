@@ -27,6 +27,7 @@ import {
 	DiagnosticsManager,
 	registerRevealLocation,
 	registerEmbeddedLanguageSupport,
+	registerSignatureDismiss,
 } from './providers';
 
 const FILE = { language: 'gessq', scheme: 'file' } as const;
@@ -150,6 +151,7 @@ export function activate(context: vscode.ExtensionContext): void {
 			',',
 		),
 	);
+	registerSignatureDismiss(context);
 
 	diagnostics.activate(context);
 

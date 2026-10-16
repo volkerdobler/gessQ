@@ -5,6 +5,9 @@ Current version number is first:
 
 ### Unreleased
 
+- Parameter hints: closing the signature popup with Esc inside a call's
+  parentheses now keeps it closed while you type further arguments.
+  It shows again once the cursor moves out of the call's parentheses.
 - References: `@insert(VAR)` (also `@insert[VAR]` / `@insert{VAR}`) now
   counts as a reference to `VAR` – in Find All References, the CodeLens
   count and Rename. Only the argument itself is matched, so renaming `alter`

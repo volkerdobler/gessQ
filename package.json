@@ -55,6 +55,18 @@
         "category": "GESS Q."
       }
     ],
+    "keybindings": [
+      {
+        "key": "escape",
+        "command": "gessq.dismissSignatureHelp",
+        "when": "editorTextFocus && parameterHintsVisible && !suggestWidgetVisible && editorLangId == gessq"
+      },
+      {
+        "key": "shift+escape",
+        "command": "gessq.dismissSignatureHelp",
+        "when": "editorTextFocus && parameterHintsVisible && !suggestWidgetVisible && editorLangId == gessq"
+      }
+    ],
     "menus": {
       "commandPalette": [
         {
