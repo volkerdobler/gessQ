@@ -3,7 +3,7 @@
 All notable changes to the "GESS Q." extension will be documented in this file.
 Current version number is first:
 
-### Unreleased
+### 1.0.4 — 2026-10-16
 
 - Parameter hints: closing the signature popup with Esc inside a call's
   parentheses now keeps it closed while you type further arguments.

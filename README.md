@@ -25,7 +25,8 @@ sichtbar).
   Labels, Kommentare usw. – inklusive des HTML-, CSS- und JavaScript-Codes in
   `html=` / `text=` / `css=` / `javascript=` / `jsHandler=`.
 
-- **Vorschläge beim Tippen** (`Strg+Leertaste` erzwingt sie):
+- **Vorschläge beim Tippen** – standardmäßig mit `Strg+Leertaste`; ob sie
+  auch von selbst aufgehen, steuert `gessq.completion.autoTrigger`:
   - Schlüsselwörter der Sprache – mit Kurzbeschreibung,
   - Namen von Fragen, Blöcken, Screens, Makros und `opennumformat`s, die
     irgendwo im geöffneten Projekt vorkommen,
@@ -172,6 +173,7 @@ sichtbar).
 | `gessq.hover.referenceDetail`              | `string`  | `"definition"` | Wie viel der Hover über einer Fragen-/Variablen-*Referenz* zeigt: `off`, `summary` (Name, Art, Fundort der Definition – ohne Beschreibung/Link), `definition` (zusätzlich ein Auszug der Definition ohne actionblock/js/css) oder `full` (komplette Definition). |
 | `gessq.codeLens.definitions`               | `string`  | `"questions"` | Über welchen Definitionen die „N Verweise“-Zeile erscheint: `off`, `questions` (nur Fragen), `reusable` (Fragen + opennumformat/block/screen/#macro/quotavar) oder `all` (auch compute/array/textelement/…). `set`/`load`-Ziele nie. |
 | `gessq.completion.includeWorkspaceSymbols` | `boolean` | `true`    | Auch Namen aus dem Projekt (Fragen, Blöcke, Makros …) vorschlagen.         |
+| `gessq.completion.autoTrigger`             | `string`  | `"off"`   | Ob Vorschläge von selbst aufgehen: `off` (nur mit `Strg+Leertaste`), `trigger` (auch direkt nach `#`, `@`, `&`) oder `full` (auch nach einem Leerzeichen, z. B. in einer `labels=`-Liste). `Strg+Leertaste` funktioniert immer. |
 | `gessq.embeddedLanguages.enable`           | `boolean` | `true`    | Echte JS/TS- und CSS-Hilfe (Hover, Vervollständigung, Parameterhinweise) in `javascript=` / `jsHandler=` / `css=`-Blöcken. |
 | `gessq.embeddedLanguages.declarationFiles` | `string[]` | `[]`     | Eigene `.d.ts`-Dateien oder Ordner, deren Deklarationen in `javascript=` / `jsHandler=`-Blöcken bekannt sind (siehe oben). `~`, `${userHome}`, `${workspaceFolder}` und projektrelative Pfade erlaubt. |
 | `gessq.files.exclude`                      | `string`  | `""`      | Zusätzliches Ordnermuster, das beim projektweiten Scan übersprungen wird (z. B. `**/backup/**`). |
